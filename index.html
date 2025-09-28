@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyPlanner</title>
+    <link rel="icon" href="icon/icon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <header class="header">
+        <h1>今日の学習リスト</h1>
+        <p id="today-date"></p>
+    </header>
+
+    <main class="card-list"></main>
+
+    <div class="button-group">
+        <button id="add-material" class="action-button">
+            <i class="fa-solid fa-plus"></i> 教材追加
+        </button>
+        <button id="add-plan" class="action-button">
+            <i class="fa-solid fa-calendar-plus"></i> 予定追加
+        </button>
+    </div>
+
+    <!-- 教材追加モーダル -->
+    <div id="add-material-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>教材を追加 / 編集</h2>
+            <label>
+                教科：
+                <select id="material-subject">
+                    <option value="math">数学</option>
+                    <option value="english">英語</option>
+                    <option value="modernjp">現代文</option>
+                    <option value="classicjp">古典</option>
+                    <option value="science">理科</option>
+                    <option value="social">社会</option>
+                    <option value="others">その他</option>
+                </select>
+            </label>
+            <label>
+                教材名：
+                <input type="text" id="material-name" placeholder="教材名を入力">
+            </label>
+            <div class="modal-buttons">
+                <button id="cancel-add" class="cancel">キャンセル</button>
+                <button id="confirm-add" class="ok">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 予定追加モーダル -->
+    <div id="add-plan-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>予定を追加 / 編集</h2>
+            <label>
+                教材：
+                <select id="plan-material"></select>
+            </label>
+            <label>
+                範囲：
+                <input type="text" id="plan-range" placeholder="例：p.10〜20">
+            </label>
+            <label>
+                時間：
+                <input type="time" id="plan-time">
+            </label>
+            <div class="modal-buttons">
+                <button id="cancel-plan" class="cancel">キャンセル</button>
+                <button id="confirm-plan" class="ok">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <section class="material-list-section">
+        <h2>教材一覧</h2>
+        <div id="material-list" class="material-list"></div>
+    </section>
+
+    <script src="static/script.js"></script>
+</body>
+</html>
