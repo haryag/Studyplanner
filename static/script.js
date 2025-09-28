@@ -221,7 +221,6 @@ confirmAdd.addEventListener("click", ()=>{
     }
     saveData();
     addMaterialModal.classList.add("hidden");
-    document.body.offsetHeight;
     renderMaterialList();
     renderTodayPlans();
 });
@@ -239,7 +238,6 @@ document.getElementById("add-plan").addEventListener("click", ()=>{
     planTime.value="";
     editingIndex=null;
     addPlanModal.classList.remove("hidden");
-    document.body.offsetHeight;
 });
 cancelPlan.addEventListener("click", ()=>{ addPlanModal.classList.add("hidden"); editingIndex=null; });
 confirmPlan.addEventListener("click", ()=>{
@@ -274,5 +272,6 @@ confirmPlan.addEventListener("click", ()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
 
 
