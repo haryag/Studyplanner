@@ -8,6 +8,7 @@ html, body {
     margin: 0;
     padding: 0;
     height: 100%;
+    overscroll-behavior: contain;
 }
 
 /* 中央寄せ・幅制御用 */
@@ -248,4 +249,5 @@ html, body {
 .material-list-section {
     margin-bottom: 60px; /* フッター高さ分 */
 }
+
 
