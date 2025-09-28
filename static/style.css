@@ -45,7 +45,7 @@ body {
     display: flex;
     flex-direction: column;
     flex: 1 1 auto;
-    word-break: break-word; /* 長文テキストを折り返す */
+    word-break: break-word; /* 長文テキスト折り返し */
 }
 
 /* 教科ごとの色設定 */
@@ -115,9 +115,10 @@ body {
     width: 90%;
     max-width: 400px;
     max-height: 80vh;
-    overflow-y: auto; /* モーダル内スクロール対応 */
+    overflow-y: auto; /* 高さオーバー時スクロール */
 }
 
+/* --- モーダルヘッダー・ラベル --- */
 .modal-content h2 {
     margin-top: 0;
     text-align: center;
@@ -129,18 +130,22 @@ body {
     font-size: 14px;
 }
 
-/* --- モーダル内入力・選択 --- */
+/* --- モーダル内 input/select --- */
 .modal-content input,
-.modal-content select,
-.modal-content input[type="time"] {
-    width: 100%;
-    max-width: 100%;
-    padding: 6px;
-    margin-top: 4px;
-    border: 1px solid black;
-    font-size: 14px;
-    border-radius: 4px;
-    background-color: #ffffff; /* 白背景 */
+.modal-content input[type="time"],
+.modal-content select {
+    width: 100% !important;
+    max-width: 100% !important;
+    background-color: #ffffff !important;
+    border: 1px solid #000 !important;
+    border-radius: 0 !important;
+    margin: 4px 0;
+    padding: 4px 8px;
+    font-size: 16px !important;
+    box-sizing: border-box !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
 }
 
 /* --- モーダルボタン --- */
