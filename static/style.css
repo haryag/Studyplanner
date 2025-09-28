@@ -13,7 +13,7 @@ html, body {
 .wrapper {
     margin: 0 auto;
     padding: 0 16px;
-    max-width: 600px;
+    max-width: 600px
 }
 
 .header {
@@ -247,6 +247,7 @@ html, body {
 .material-list-section {
     margin-bottom: 60px; /* フッター高さ分 */
 }
+
 
 
 
