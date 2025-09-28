@@ -5,6 +5,12 @@
 }
 
 body {
+    margin: 0;
+    padding: 0;
+}
+
+/* 中央寄せ・幅制御用 */
+.wrapper {
     margin: 0 auto;
     padding: 0 16px;
     max-width: 600px;
@@ -45,7 +51,7 @@ body {
     display: flex;
     flex-direction: column;
     flex: 1 1 auto;
-    word-break: break-word; /* 長文テキスト折り返し */
+    word-break: break-word;
 }
 
 /* 教科ごとの色設定 */
@@ -64,18 +70,18 @@ body {
 .study-item.others { background-color: #f0f0f0; }
 .study-item.others i { color: #808080; }
 
-/* --- ボタン群 --- */
+/* --- フッター固定ボタン群 --- */
 .button-group {
     display: flex;
     gap: 2px;
     justify-content: space-between;
-    margin: 0 auto;
-    max-width: 600px;
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     z-index: 200;
+    background: #fff;  /* 背景色をつけると見やすい */
+    border-top: 1px solid #ccc;
 }
 
 .action-button {
@@ -115,7 +121,7 @@ body {
     width: 90%;
     max-width: 400px;
     max-height: 80vh;
-    overflow-y: auto; /* 高さオーバー時スクロール */
+    overflow-y: auto;
 }
 
 /* --- モーダルヘッダー・ラベル --- */
@@ -237,6 +243,7 @@ body {
     font-size: 16px !important;
 }
 
+/* --- 下部余白（フッター分） --- */
 .material-list-section {
-    margin-bottom: 60px;
+    margin-bottom: 60px; /* フッター高さ分 */
 }
