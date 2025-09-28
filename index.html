@@ -10,13 +10,21 @@
     <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
-    <header class="header">
-        <h1>今日の学習リスト</h1>
-        <p id="today-date"></p>
-    </header>
+    <div class="wrapper">
+        <header class="header">
+            <h1>今日の学習リスト</h1>
+            <p id="today-date"></p>
+        </header>
 
-    <main class="card-list"></main>
+        <main class="card-list"></main>
 
+        <section class="material-list-section">
+            <h2>教材一覧</h2>
+            <div id="material-list" class="material-list"></div>
+        </section>
+    </div>
+
+    <!-- フッターの固定ボタン -->
     <div class="button-group">
         <button id="add-material" class="action-button">
             <i class="fa-solid fa-plus"></i> 教材追加
@@ -76,15 +84,6 @@
         </div>
     </div>
 
-    <section class="material-list-section">
-        <h2>教材一覧</h2>
-        <div id="material-list" class="material-list"></div>
-    </section>
-
     <script src="static/script.js"></script>
 </body>
-
 </html>
-
-
-
