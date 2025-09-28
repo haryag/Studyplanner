@@ -154,7 +154,6 @@ function renderTodayPlans() {
         addTapToggle(item);
         studyList.appendChild(item);
     });
-    document.body.offsetHeight;
 }
 
 // --- 教材一覧表示 ---
@@ -199,7 +198,6 @@ function renderMaterialList() {
         addTapToggle(itemDiv);
         materialListDiv.appendChild(itemDiv);
     });
-    document.body.offsetHeight;
 }
 
 // --- 教材モーダル操作 ---
@@ -223,6 +221,7 @@ confirmAdd.addEventListener("click", ()=>{
     }
     saveData();
     addMaterialModal.classList.add("hidden");
+    document.body.offsetHeight;
     renderMaterialList();
     renderTodayPlans();
 });
@@ -240,6 +239,7 @@ document.getElementById("add-plan").addEventListener("click", ()=>{
     planTime.value="";
     editingIndex=null;
     addPlanModal.classList.remove("hidden");
+    document.body.offsetHeight;
 });
 cancelPlan.addEventListener("click", ()=>{ addPlanModal.classList.add("hidden"); editingIndex=null; });
 confirmPlan.addEventListener("click", ()=>{
@@ -274,4 +274,5 @@ confirmPlan.addEventListener("click", ()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
 
