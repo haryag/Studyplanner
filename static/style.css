@@ -136,6 +136,7 @@ body {
 .modal-content select {
     width: 100% !important;
     max-width: 100% !important;
+    color: black !important;
     background-color: #ffffff !important;
     border: 1px solid #000 !important;
     border-radius: 0 !important;
@@ -229,3 +230,4 @@ body {
 .study-item button.edit i { color: #007bff; }
 
 .study-item button.check i { color: green; }
+
