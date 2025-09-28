@@ -154,8 +154,7 @@ function renderTodayPlans() {
         addTapToggle(item);
         studyList.appendChild(item);
     });
-
-    highlightOverduePlans()
+    document.body.offsetHeight;
 }
 
 // --- 教材一覧表示 ---
@@ -200,6 +199,7 @@ function renderMaterialList() {
         addTapToggle(itemDiv);
         materialListDiv.appendChild(itemDiv);
     });
+    document.body.offsetHeight;
 }
 
 // --- 教材モーダル操作 ---
@@ -274,3 +274,4 @@ confirmPlan.addEventListener("click", ()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
