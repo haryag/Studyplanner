@@ -154,30 +154,8 @@ function renderTodayPlans() {
         addTapToggle(item);
         studyList.appendChild(item);
     });
-}
 
-function highlightOverduePlans() {
-    const now = new Date();
-    document.querySelectorAll(".study-item").forEach(item => {
-        const timeDiv = item.querySelector(".study-info div:nth-child(3)"); // 時刻表示div
-        const nameDiv = item.querySelector(".study-info div:first-child"); // 教材名div
-        if(!timeDiv || !nameDiv) return;
-
-        const timeText = timeDiv.textContent.trim(); // HH:MM
-        if(!timeText) return;
-
-        const [hours, minutes] = timeText.split(":").map(Number);
-        const planTime = new Date();
-        planTime.setHours(hours, minutes, 0, 0);
-
-        if(now > planTime && !(item.classList.contains("checked"))) {
-            nameDiv.style.color = "red";
-            nameDiv.style.fontWeight = "bold";
-        } else {
-            nameDiv.style.color = "";
-            nameDiv.style.fontWeight = "";
-        }
-    });
+    highlightOverduePlans()
 }
 
 // --- 教材一覧表示 ---
@@ -296,6 +274,3 @@ confirmPlan.addEventListener("click", ()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
-
-// 10秒ごとにチェック
-setInterval(highlightOverduePlans, 10000);
