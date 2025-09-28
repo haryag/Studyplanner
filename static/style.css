@@ -7,14 +7,13 @@
 html, body {
     margin: 0;
     padding: 0;
-    height: 100%;
-    overscroll-behavior: contain;
 }
 
 /* 中央寄せ・幅制御用 */
 .wrapper {
     margin: 0 auto;
     padding: 0 16px;
+    padding-bottom: 70px;
     max-width: 600px;
 }
 
@@ -249,5 +248,6 @@ html, body {
 .material-list-section {
     margin-bottom: 60px; /* フッター高さ分 */
 }
+
 
 
