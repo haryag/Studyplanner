@@ -232,4 +232,7 @@ body {
 
 .study-item button.check i { color: green; }
 
-
+.study-item .buttons button i,
+.material-item .buttons button i {
+    font-size: 16px !important;
+}
