@@ -1,5 +1,7 @@
+/* --- 基本 --- */
 * {
     font-family: sans-serif;
+    box-sizing: border-box;
 }
 
 body {
@@ -13,6 +15,7 @@ body {
     margin: 16px 0;
 }
 
+/* --- 今日の学習リスト --- */
 .card-list {
     display: flex;
     flex-direction: column;
@@ -25,7 +28,6 @@ body {
     width: 100%;
     margin: 4px 0;
     padding: 8px;
-    box-sizing: border-box;
     border-radius: 12px;
     align-items: center;
     position: relative;
@@ -42,6 +44,8 @@ body {
 .study-info {
     display: flex;
     flex-direction: column;
+    flex: 1 1 auto;
+    word-break: break-word; /* 長文テキストを折り返す */
 }
 
 /* 教科ごとの色設定 */
@@ -60,6 +64,7 @@ body {
 .study-item.others { background-color: #f0f0f0; }
 .study-item.others i { color: #808080; }
 
+/* --- ボタン群 --- */
 .button-group {
     display: flex;
     gap: 2px;
@@ -70,6 +75,7 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
+    z-index: 200;
 }
 
 .action-button {
@@ -86,6 +92,7 @@ body {
 
 .action-button:hover { background-color: #00008b; }
 
+/* --- モーダル --- */
 .modal {
     position: fixed;
     top: 0;
@@ -107,38 +114,75 @@ body {
     border-radius: 12px;
     width: 90%;
     max-width: 400px;
-    box-sizing: border-box;
+    max-height: 80vh;
+    overflow-y: auto; /* モーダル内スクロール対応 */
 }
 
-.modal-content h2 { margin-top: 0; text-align: center; }
-.modal-content label { display: block; margin-top: 16px; font-size: 14px; }
-.modal-content input, .modal-content select {
+.modal-content h2 {
+    margin-top: 0;
+    text-align: center;
+}
+
+.modal-content label {
+    display: block;
+    margin-top: 16px;
+    font-size: 14px;
+}
+
+/* --- モーダル内入力・選択 --- */
+.modal-content input,
+.modal-content select,
+.modal-content input[type="time"] {
     width: 100%;
+    max-width: 100%;
     padding: 6px;
     margin-top: 4px;
     border: 1px solid black;
     font-size: 14px;
-    border-radius: 0;
-    box-sizing: border-box;
+    border-radius: 4px;
+    background-color: #ffffff; /* 白背景 */
 }
 
-.modal-buttons { display: flex; justify-content: space-between; gap: 2px; margin-top: 12px; }
-.modal-buttons .cancel { background: #ccc; color: black; border: none; padding: 6px 12px; cursor: pointer; }
-.modal-buttons .ok { background: #007bff; color: white; border: none; padding: 6px 12px; cursor: pointer; }
+/* --- モーダルボタン --- */
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 2px;
+    margin-top: 12px;
+}
 
-.material-list { margin: 8px 0; }
+.modal-buttons .cancel {
+    background: #ccc;
+    color: black;
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+}
+
+.modal-buttons .ok {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+}
+
+/* --- 教材一覧 --- */
+.material-list {
+    margin: 8px 0;
+}
 
 .material-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 6px 8px;
-    border-radius: 0;
-    margin-bottom: 4px;
     border-left: 4px solid transparent;
+    margin-bottom: 4px;
     position: relative;
 }
 
+/* 教科ごとの左枠色 */
 .material-item.math { border-left-color: #00008b; }
 .material-item.english { border-left-color: #ff69b4; }
 .material-item.modernjp { border-left-color: #ffa600; }
@@ -147,9 +191,7 @@ body {
 .material-item.social { border-left-color: #ffd700; }
 .material-item.others { border-left-color: #808080; }
 
-input { width: 100% }
-
-/* 削除・編集ボタン */
+/* --- 削除・編集ボタン --- */
 .material-item .buttons,
 .study-item .buttons {
     display: none;
@@ -171,29 +213,14 @@ input { width: 100% }
 .study-item button {
     background: transparent;
     border: 0;
-    padding: 2px;
+    padding: 6px;
     cursor: pointer;
 }
 
 .material-item button.delete i,
 .study-item button.delete i { color: #ff0000; }
+
 .material-item button.edit i,
 .study-item button.edit i { color: #007bff; }
+
 .study-item button.check i { color: green; }
-
-.study-item .buttons,
-.material-item .buttons {
-    display: none;
-    flex-direction: row;
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    gap: 4px;
-}
-
-.study-item.active .buttons,
-.material-item.active .buttons {
-    display: flex;
-
-}
