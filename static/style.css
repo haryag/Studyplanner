@@ -123,7 +123,7 @@ body {
 }
 
 .modal-buttons { display: flex; justify-content: space-between; gap: 2px; margin-top: 12px; }
-.modal-buttons .cancel { background: #ccc; border: none; padding: 6px 12px; cursor: pointer; }
+.modal-buttons .cancel { background: #ccc; color: black; border: none; padding: 6px 12px; cursor: pointer; }
 .modal-buttons .ok { background: #007bff; color: white; border: none; padding: 6px 12px; cursor: pointer; }
 
 .material-list { margin: 8px 0; }
@@ -146,6 +146,8 @@ body {
 .material-item.science { border-left-color: #228b22; }
 .material-item.social { border-left-color: #ffd700; }
 .material-item.others { border-left-color: #808080; }
+
+input { width: 100% }
 
 /* 削除・編集ボタン */
 .material-item .buttons,
@@ -193,4 +195,5 @@ body {
 .study-item.active .buttons,
 .material-item.active .buttons {
     display: flex;
+
 }
