@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>StudyPlanner</title>
+    <title>Studyplanner</title>
     <link rel="icon" href="/StudyPlanner/icon/icon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
     <link rel="stylesheet" href="static/style.css">
@@ -14,7 +14,16 @@
         <p id="today-date"></p>
     </header>
 
-    <main class="card-list"></main>
+    <!-- ★ここから追加・変更 -->
+    <div class="main-content-scroll-wrapper">
+        <main class="card-list"></main>
+
+        <section class="material-list-section">
+            <h2>教材一覧</h2>
+            <div id="material-list" class="material-list"></div>
+        </section>
+    </div>
+    <!-- ★ここまで追加・変更 -->
 
     <footer class="button-group">
         <button id="add-material" class="action-button">
@@ -75,12 +84,6 @@
         </div>
     </div>
 
-    <section class="material-list-section">
-        <h2>教材一覧</h2>
-        <div id="material-list" class="material-list"></div>
-    </section>
-
     <script src="static/script.js"></script>
 </body>
 </html>
-
