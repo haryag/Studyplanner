@@ -2,37 +2,28 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
-    <title>Studyplanner</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="icon/icon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyPlanner</title>
+    <link rel="icon" href="/StudyPlanner/icon/icon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
     <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
-    <div class="wrapper">
-        <header class="header">
-            <h1>今日の学習リスト</h1>
-            <p id="today-date"></p>
-        </header>
+    <header class="header">
+        <h1>今日の学習リスト</h1>
+        <p id="today-date"></p>
+    </header>
 
-        <main class="card-list"></main>
+    <main class="card-list"></main>
 
-        <section class="material-list-section">
-            <h2>教材一覧</h2>
-            <div id="material-list" class="material-list"></div>
-        </section>
-    </div>
-
-    <!-- フッターの固定ボタン -->
-    <div class="button-group">
+    <footer class="button-group">
         <button id="add-material" class="action-button">
             <i class="fa-solid fa-plus"></i> 教材追加
         </button>
         <button id="add-plan" class="action-button">
             <i class="fa-solid fa-calendar-plus"></i> 予定追加
         </button>
-    </div>
+    </footer>
 
     <!-- 教材追加モーダル -->
     <div id="add-material-modal" class="modal hidden">
@@ -84,7 +75,11 @@
         </div>
     </div>
 
+    <section class="material-list-section">
+        <h2>教材一覧</h2>
+        <div id="material-list" class="material-list"></div>
+    </section>
+
     <script src="static/script.js"></script>
 </body>
 </html>
-
