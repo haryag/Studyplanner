@@ -5,15 +5,10 @@
 }
 
 body {
-    margin: 0;
-    padding: 0;
-}
-
-/* 中央寄せ・幅制御用 */
-.wrapper {
     margin: 0 auto;
     padding: 0 16px;
-    max-width: 600px
+    width: 100%;
+    height: 100%;
 }
 
 .header {
@@ -51,7 +46,7 @@ body {
     display: flex;
     flex-direction: column;
     flex: 1 1 auto;
-    word-break: break-word;
+    word-break: break-word; /* 長文テキスト折り返し */
 }
 
 /* 教科ごとの色設定 */
@@ -70,18 +65,18 @@ body {
 .study-item.others { background-color: #f0f0f0; }
 .study-item.others i { color: #808080; }
 
-/* --- フッター固定ボタン群 --- */
+/* --- ボタン群 --- */
 .button-group {
     display: flex;
     gap: 2px;
     justify-content: space-between;
-    position: sticky;
+    margin: 0 auto;
+    max-width: 600px;
+    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     z-index: 200;
-    background: #fff;  /* 背景色をつけると見やすい */
-    border-top: 1px solid #ccc;
 }
 
 .action-button {
@@ -121,7 +116,7 @@ body {
     width: 90%;
     max-width: 400px;
     max-height: 80vh;
-    overflow-y: auto;
+    overflow-y: auto; /* 高さオーバー時スクロール */
 }
 
 /* --- モーダルヘッダー・ラベル --- */
@@ -203,7 +198,7 @@ body {
 .material-item.social { border-left-color: #ffd700; }
 .material-item.others { border-left-color: #808080; }
 
-/* --- 削除・編集ボタン --- */
+/* デフォルトで非表示 */
 .material-item .buttons,
 .study-item .buttons {
     display: none;
@@ -215,10 +210,11 @@ body {
     gap: 4px;
 }
 
+/* PCでのホバー時、またはタップ/選択時（active/tappedクラス）に表示 */
 .material-item:hover .buttons,
 .study-item:hover .buttons,
-.material-item.active .buttons,
-.study-item.active .buttons {
+.material-item.tapped .buttons, /* 新しいクラス名 */
+.study-item.tapped .buttons {
     display: flex;
 }
 
@@ -242,17 +238,3 @@ body {
 .material-item .buttons button i {
     font-size: 16px !important;
 }
-
-/* --- 下部余白（フッター分） --- */
-.material-list-section {
-    margin-bottom: 60px; /* フッター高さ分 */
-}
-
-
-
-
-
-
-
-
-
