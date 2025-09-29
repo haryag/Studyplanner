@@ -16,31 +16,38 @@ body {
     padding-right: 16px; /* 左右のパディングは維持 */
     max-width: 600px;
     height: 100%; /* body の高さを 100% に固定 */
-    /* min-height: 100vh; は height: 100%; と flex レイアウトにより不要 */
 
-    /* body を flexbox コンテナにし、子要素を縦方向に配置 */
-    display: flex;
-    flex-direction: column;
-
-    /* 固定フッターがコンテンツを隠さないように body の下部にパディングを設定 */
-    /* .button-group の高さ (action-button の padding + font-size) を見積もり */
-    /* action-button: padding: 10px; font-size: 16px; -> 10+16+10 = 36px がおおよその高さ */
-    /* PWAで safe-area-inset-bottom が適用される場合も考慮 */
-    padding-bottom: calc(36px + env(safe-area-inset-bottom));
+    /* body は flexbox コンテナではなくなる（html が flex-direction: column の役割を担う） */
+    /* あるいは、body は引き続き flex コンテナだが、直接的な子要素は .main-content-scroll-wrapper と footer のみ */
+    /* ここでは body はスクロールラッパーに直接の高さを渡す役割にシンプル化 */
+    position: relative; /* 必要に応じて追加 */
 }
 
 .header {
     text-align: center;
     margin: 16px 0;
-    flex-shrink: 0; /* ヘッダーは縮まないように固定 */
+    /* flex-shrink: 0; はもう不要。この要素は親の .main-content-scroll-wrapper 内でスクロールされる */
 }
 
-/* ★追加: メインコンテンツをラップする要素のためのスタイル */
+/* ★変更: メインコンテンツをラップする要素のためのスタイル */
 .main-content-scroll-wrapper {
-    flex-grow: 1; /* body の残りのスペースを全て占有する */
+    /* body の子要素として、フッターの高さ分を 100vh から差し引く */
+    /* フッターのおおよその高さ = 10px(上padding) + 16px(font-size) + 10px(下padding) = 36px */
+    /* safe-area-inset-bottom はフッターの padding-bottom に含めるため、ここでは calc に直接は入れない */
+    height: calc(100vh - 36px - (10px + 16px + 10px)); /* フッターのコンテンツ高さとパディングを計算して引く */
+    /* 実際には footer の高さを正確に測る必要あり。ここでは仮に 36px + safe-area と仮定 */
+    /* calc(100vh - (ボタン群の高さ)) で、フッター自体の padding も含めた合計高さを引く */
+    /* .button-groupのheightは、action-buttonのpadding(10*2)+font-size(16)で約36px。
+       これにenv(safe-area-inset-bottom)が加わる。
+       なので、フッターの総高さは 36px + env(safe-area-inset-bottom)
+       bodyの左右のpaddingは高さを計算する際には考慮しない */
+    height: calc(100vh - (36px + env(safe-area-inset-bottom))); /* ★修正: 100vh からフッターの総高さを引く */
+
     overflow-y: auto; /* この要素内でスクロールを可能にする */
     -webkit-overflow-scrolling: touch; /* iOSでの滑らかなスクロールを有効にする */
-    /* 上下のマージンやパディングが必要であればここに追加 */
+    /* bodyの左右パディングが適用されているため、このラッパーは左右のパディングを継承しない */
+    /* width: 100%; が必要かもしれない */
+    width: 100%; /* 明示的に幅を設定 */
 }
 
 /* --- 今日の学習リスト --- */
@@ -49,15 +56,18 @@ body {
     flex-direction: column;
     width: 100%;
     position: relative;
+    /* .main-content-scroll-wrapper 内に移動したので、padding や margin を調整 */
+    /* body の padding-left/right が適用されているので、この中では左右パディングは不要 */
 }
 
+/* ★変更: 予定表示のフォントサイズを 16px に指定 */
 .study-item {
     display: flex;
     width: 100%;
     margin: 4px 0;
     padding: 8px;
     border-radius: 12px;
-    font-size: 16px;
+    font-size: 16px; /* ★追加: フォントサイズを 16px に設定 */
     align-items: center;
     position: relative;
 }
@@ -107,11 +117,16 @@ body {
     z-index: 200;
     -webkit-transform: translate3d(0,0,0); /* iOS Safari向けのハック */
     transform: translate3d(0,0,0);
-    flex-shrink: 0; /* フッターも縮まないように固定 */
+    /* flex-shrink: 0; は body が flex コンテナでない場合は不要 */
 
     /* セーフエリアのパディングをフッター自体に追加 */
     padding-bottom: constant(safe-area-inset-bottom); /* iOS < 11.2 (古い書き方) */
     padding-bottom: env(safe-area-inset-bottom);      /* iOS 11.2以降 (推奨) */
+
+    /* left/right 0 にして max-width: 600px; margin: 0 auto; とすると */
+    /* 左右のパディングが必要になる */
+    padding-left: 16px; /* body と合わせる */
+    padding-right: 16px; /* body と合わせる */
 }
 
 .action-button {
@@ -210,8 +225,11 @@ body {
 }
 
 /* --- 教材一覧 --- */
+.material-list-section { /* section 全体にもマージンを適用できる */
+    /* margin: 8px 0; 適切なマージンを設定 */
+}
 .material-list {
-    margin: 8px 0; /* 上下のマージンを調整 */
+    margin: 8px 0;
 }
 
 .material-item {
