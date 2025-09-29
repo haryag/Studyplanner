@@ -28,6 +28,7 @@ body {
     height: calc(100vh - (45px + env(safe-area-inset-bottom)));
     overflow-y: auto; /* この要素内でスクロールを可能にする */
     -webkit-overflow-scrolling: touch;
+    padding: 8px 16px;
     width: 100%;
 }
 
@@ -257,3 +258,4 @@ body {
 .material-item .buttons button i {
     font-size: 16px !important;
 }
+
