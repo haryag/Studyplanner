@@ -25,7 +25,7 @@ body {
 
 .main-content-scroll-wrapper {
     /* body の子要素として、フッターの高さ分を 100vh から差し引く */
-    height: calc(100vh - (60px + env(safe-area-inset-bottom)));
+    height: calc(100vh - (45px + env(safe-area-inset-bottom)));
     overflow-y: auto; /* この要素内でスクロールを可能にする */
     -webkit-overflow-scrolling: touch;
     padding: 8px 16px;
@@ -258,5 +258,3 @@ body {
 .material-item .buttons button i {
     font-size: 16px !important;
 }
-
-
