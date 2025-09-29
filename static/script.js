@@ -47,13 +47,9 @@ function loadData() {
 
 // --- タップ表示用関数 ---
 function addTapToggle(itemDiv) {
-    const btns = itemDiv.querySelector(".buttons");
-    if (!btns) return;
-    btns.style.display = "none"; // 初期は非表示
-
     itemDiv.addEventListener("click", (e) => {
-        if (e.target.closest("button")) return; // ボタンクリックは除外
-        btns.style.display = (btns.style.display === "none") ? "flex" : "none";
+        if (e.target.closest("button")) return;
+        itemDiv.classList.toggle("tapped"); // 'tapped' クラスをトグル
     });
 }
 
@@ -272,6 +268,3 @@ confirmPlan.addEventListener("click", ()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
-
-
-
