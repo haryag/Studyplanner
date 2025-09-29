@@ -77,6 +77,8 @@ body {
     left: 0;
     right: 0;
     z-index: 200;
+
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
 .action-button {
@@ -238,3 +240,4 @@ body {
 .material-item .buttons button i {
     font-size: 16px !important;
 }
+
