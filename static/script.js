@@ -202,8 +202,13 @@ document.getElementById("add-material").addEventListener("click", ()=>{
     materialSubject.value="math";
     editingMaterialId=null;
     addMaterialModal.classList.remove("hidden");
+    document.body.style.overflow = 'hidden'; // ★追加: bodyのスクロールを無効化
 });
-cancelAdd.addEventListener("click", ()=>{ addMaterialModal.classList.add("hidden"); editingMaterialId=null; });
+cancelAdd.addEventListener("click", ()=>{
+    addMaterialModal.classList.add("hidden");
+    editingMaterialId=null;
+    document.body.style.overflow = '';       // ★追加: bodyのスクロールを元に戻す
+});
 confirmAdd.addEventListener("click", ()=>{
     const name = materialName.value.trim();
     const subject = materialSubject.value;
@@ -217,6 +222,7 @@ confirmAdd.addEventListener("click", ()=>{
     }
     saveData();
     addMaterialModal.classList.add("hidden");
+    document.body.style.overflow = '';       // ★追加: bodyのスクロールを元に戻す
     renderMaterialList();
     renderTodayPlans();
 });
@@ -234,8 +240,13 @@ document.getElementById("add-plan").addEventListener("click", ()=>{
     planTime.value="";
     editingIndex=null;
     addPlanModal.classList.remove("hidden");
+    document.body.style.overflow = 'hidden'; // ★追加: bodyのスクロールを無効化
 });
-cancelPlan.addEventListener("click", ()=>{ addPlanModal.classList.add("hidden"); editingIndex=null; });
+cancelPlan.addEventListener("click", ()=>{
+    addPlanModal.classList.add("hidden");
+    editingIndex=null;
+    document.body.style.overflow = '';       // ★追加: bodyのスクロールを元に戻す
+});
 confirmPlan.addEventListener("click", ()=>{
     const materialId=parseInt(planMaterial.value);
     const range=planRange.value.trim();
@@ -250,6 +261,7 @@ confirmPlan.addEventListener("click", ()=>{
     }
     saveData();
     addPlanModal.classList.add("hidden");
+    document.body.style.overflow = '';       // ★追加: bodyのスクロールを元に戻す
     renderTodayPlans();
 });
 
