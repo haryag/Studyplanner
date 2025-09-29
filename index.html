@@ -9,13 +9,15 @@
     <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
-    <header class="header">
-        <h1>今日の学習リスト</h1>
-        <p id="today-date"></p>
-    </header>
+    <!-- ヘッダーはここではなく、.main-content-scroll-wrapper の中に移動します -->
 
-    <!-- ★ここから追加・変更 -->
     <div class="main-content-scroll-wrapper">
+        <!-- ★ここにヘッダーを移動 -->
+        <header class="header">
+            <h1>今日の学習リスト</h1>
+            <p id="today-date"></p>
+        </header>
+
         <main class="card-list"></main>
 
         <section class="material-list-section">
@@ -23,7 +25,6 @@
             <div id="material-list" class="material-list"></div>
         </section>
     </div>
-    <!-- ★ここまで追加・変更 -->
 
     <footer class="button-group">
         <button id="add-material" class="action-button">
