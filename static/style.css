@@ -4,16 +4,43 @@
     box-sizing: border-box;
 }
 
+/* html 要素の高さを 100% にし、スクロールを禁止 */
+html {
+    height: 100%;
+    overflow: hidden;
+}
+
 body {
     margin: 0 auto;
-    padding: 0 16px;
-    width: 100%;
-    min-height: 100vh;
+    padding-left: 16px; /* 左右のパディングは維持 */
+    padding-right: 16px; /* 左右のパディングは維持 */
+    max-width: 600px;
+    height: 100%; /* body の高さを 100% に固定 */
+    /* min-height: 100vh; は height: 100%; と flex レイアウトにより不要 */
+
+    /* body を flexbox コンテナにし、子要素を縦方向に配置 */
+    display: flex;
+    flex-direction: column;
+
+    /* 固定フッターがコンテンツを隠さないように body の下部にパディングを設定 */
+    /* .button-group の高さ (action-button の padding + font-size) を見積もり */
+    /* action-button: padding: 10px; font-size: 16px; -> 10+16+10 = 36px がおおよその高さ */
+    /* PWAで safe-area-inset-bottom が適用される場合も考慮 */
+    padding-bottom: calc(36px + env(safe-area-inset-bottom));
 }
 
 .header {
     text-align: center;
     margin: 16px 0;
+    flex-shrink: 0; /* ヘッダーは縮まないように固定 */
+}
+
+/* ★追加: メインコンテンツをラップする要素のためのスタイル */
+.main-content-scroll-wrapper {
+    flex-grow: 1; /* body の残りのスペースを全て占有する */
+    overflow-y: auto; /* この要素内でスクロールを可能にする */
+    -webkit-overflow-scrolling: touch; /* iOSでの滑らかなスクロールを有効にする */
+    /* 上下のマージンやパディングが必要であればここに追加 */
 }
 
 /* --- 今日の学習リスト --- */
@@ -30,6 +57,7 @@ body {
     margin: 4px 0;
     padding: 8px;
     border-radius: 12px;
+    font-size: 16px;
     align-items: center;
     position: relative;
 }
@@ -79,6 +107,11 @@ body {
     z-index: 200;
     -webkit-transform: translate3d(0,0,0); /* iOS Safari向けのハック */
     transform: translate3d(0,0,0);
+    flex-shrink: 0; /* フッターも縮まないように固定 */
+
+    /* セーフエリアのパディングをフッター自体に追加 */
+    padding-bottom: constant(safe-area-inset-bottom); /* iOS < 11.2 (古い書き方) */
+    padding-bottom: env(safe-area-inset-bottom);      /* iOS 11.2以降 (推奨) */
 }
 
 .action-button {
@@ -178,7 +211,7 @@ body {
 
 /* --- 教材一覧 --- */
 .material-list {
-    margin: 8px 0;
+    margin: 8px 0; /* 上下のマージンを調整 */
 }
 
 .material-item {
