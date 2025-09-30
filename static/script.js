@@ -72,7 +72,10 @@ function renderTodayPlans() {
 
         const item = document.createElement("div");
         item.className = `study-item ${material.subject}`;
-        if(plan.checked) item.style.backgroundColor="#f0f0f0";
+        if(plan.checked) {
+            item.style.backgroundColor="#f0f0f0";
+            item.style.color="#808080";
+        }
 
         const iconDiv = document.createElement("div");
         iconDiv.className = "study-icon";
@@ -280,3 +283,4 @@ confirmPlan.addEventListener("click", ()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
