@@ -79,7 +79,7 @@ body {
 .study-item.science i { color: #228b22; }
 .study-item.social { background-color: #fffde6; }
 .study-item.social i { color: #ffd700; }
-.study-item.others { background-color: #f0f0f0; }
+.study-item.others { background-color: #ffffff; }
 .study-item.others i { color: #808080; }
 
 /* --- ボタン群 --- */
@@ -258,6 +258,7 @@ body {
 .material-item .buttons button i {
     font-size: 16px !important;
 }
+
 
 
 
