@@ -5,6 +5,8 @@ const today = new Date().toISOString().split("T")[0];
 document.getElementById("today-date").textContent = today;
 
 // --- DOM要素 ---
+const wrapper = document.getElementById("wrapper");
+const buttonGroup = document.querySelector(".button-group");
 const studyList = document.querySelector(".card-list");
 const materialListDiv = document.getElementById("material-list");
 const addMaterialModal = document.getElementById("add-material-modal");
@@ -72,10 +74,7 @@ function renderTodayPlans() {
 
         const item = document.createElement("div");
         item.className = `study-item ${material.subject}`;
-        if(plan.checked) {
-            item.style.backgroundColor="#f0f0f0";
-            item.style.color="#808080";
-        }
+        if(plan.checked) item.style.backgroundColor="#f0f0f0";
 
         const iconDiv = document.createElement("div");
         iconDiv.className = "study-icon";
@@ -205,12 +204,16 @@ document.getElementById("add-material").addEventListener("click", ()=>{
     materialSubject.value="math";
     editingMaterialId=null;
     addMaterialModal.classList.remove("hidden");
-    document.body.style.overflow = 'hidden'; // ★追加: bodyのスクロールを無効化
+    document.body.style.overflow = 'hidden';
+    wrapper.classList.add("full-height");
+    buttonGroup.style.display="none";
 });
 cancelAdd.addEventListener("click", ()=>{
     addMaterialModal.classList.add("hidden");
     editingMaterialId=null;
-    document.body.style.overflow = '';       // ★追加: bodyのスクロールを元に戻す
+    document.body.style.overflow = '';
+    wrapper.classList.remove("full-height");
+    buttonGroup.style.display="flex";
 });
 confirmAdd.addEventListener("click", ()=>{
     const name = materialName.value.trim();
@@ -225,7 +228,9 @@ confirmAdd.addEventListener("click", ()=>{
     }
     saveData();
     addMaterialModal.classList.add("hidden");
-    document.body.style.overflow = '';       // ★追加: bodyのスクロールを元に戻す
+    document.body.style.overflow = '';
+    wrapper.classList.remove("full-height");
+    buttonGroup.style.display="flex";
     renderMaterialList();
     renderTodayPlans();
 });
@@ -243,12 +248,16 @@ document.getElementById("add-plan").addEventListener("click", ()=>{
     planTime.value="";
     editingIndex=null;
     addPlanModal.classList.remove("hidden");
-    document.body.style.overflow = 'hidden'; // ★追加: bodyのスクロールを無効化
+    document.body.style.overflow = 'hidden';
+    wrapper.classList.add("full-height");
+    buttonGroup.style.display="none";
 });
 cancelPlan.addEventListener("click", ()=>{
     addPlanModal.classList.add("hidden");
     editingIndex=null;
-    document.body.style.overflow = '';       // ★追加: bodyのスクロールを元に戻す
+    document.body.style.overflow = '';
+    wrapper.classList.remove("full-height");
+    buttonGroup.style.display="flex";
 });
 confirmPlan.addEventListener("click", ()=>{
     const materialId=parseInt(planMaterial.value);
@@ -264,7 +273,9 @@ confirmPlan.addEventListener("click", ()=>{
     }
     saveData();
     addPlanModal.classList.add("hidden");
-    document.body.style.overflow = '';       // ★追加: bodyのスクロールを元に戻す
+    document.body.style.overflow = '';
+    wrapper.classList.remove("full-height");
+    buttonGroup.style.display="flex";
     renderTodayPlans();
 });
 
@@ -283,4 +294,3 @@ confirmPlan.addEventListener("click", ()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
-
