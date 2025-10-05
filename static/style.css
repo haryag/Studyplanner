@@ -24,12 +24,19 @@ body {
 }
 
 .main-content-scroll-wrapper {
-    /* body の子要素として、フッターの高さ分を 100vh から差し引く */
-    height: calc(100dvh - (45px + env(safe-area-inset-bottom)));
-    overflow-y: auto; /* この要素内でスクロールを可能にする */
-    -webkit-overflow-scrolling: touch;
-    padding: 8px 16px;
     width: 100%;
+    max-width: 540px;
+    height: calc(100vh - (40px + env(safe-area-inset-bottom))); /* body の子要素として、フッターの高さ分を 100vh から差し引く */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 auto;
+    padding: 0 16px;
+    padding-bottom: 12px;
+}
+.main-content-scroll-wrapper::-webkit-scrollbar { display: none; } /* Chromeでスクロールバー非表示 */
+
+.full-height {
+    height: 100dvh !important;
 }
 
 /* --- 今日の学習リスト --- */
@@ -85,15 +92,16 @@ body {
 /* --- ボタン群 --- */
 .button-group {
     display: flex;
-    gap: 2px;
     justify-content: space-between;
     margin: 0 auto;
     max-width: 600px;
+    height: 40px;
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     z-index: 200;
+    box-shadow: 0 -3px 3px -2px #ccc;
     /* iOS Safari向け */
     -webkit-transform: translate3d(0,0,0);
     transform: translate3d(0,0,0);
@@ -103,16 +111,19 @@ body {
 .action-button {
     flex: 1;
     margin: 0;
-    padding: 10px;
     border-radius: 0;
     border: none;
-    background-color: #007bff;
-    color: white;
+    background-color: white;
+    color: #007bff;
     font-size: 16px;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.action-button:hover { background-color: #00008b; }
+.action-button:hover {
+    background-color: #f0f0f0;
+    color: #00008b;
+}
 
 /* --- モーダル --- */
 .modal {
@@ -227,7 +238,6 @@ body {
     top: 50%;
     right: 8px;
     transform: translateY(-50%);
-    gap: 4px;
 }
 
 /* PCでのホバー時、またはタップ/選択時（active/tappedクラス）に表示 */
@@ -242,7 +252,7 @@ body {
 .study-item button {
     background: transparent;
     border: 0;
-    padding: 6px;
+    padding: 4px;
     cursor: pointer;
 }
 
@@ -258,11 +268,3 @@ body {
 .material-item .buttons button i {
     font-size: 16px !important;
 }
-
-
-
-
-
-
-
-
