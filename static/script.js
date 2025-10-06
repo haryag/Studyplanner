@@ -1,8 +1,9 @@
 // --- データ初期化 ---
+let todayDate = new Date().toISOString().split("T")[0];
+document.getElementById("today-date").textContent = todayDate;
+
 const materials = [];
 const dailyPlans = {};
-const today = new Date().toISOString().split("T")[0];
-document.getElementById("today-date").textContent = today;
 
 // --- DOM要素 ---
 const wrapper = document.getElementById("wrapper");
@@ -58,7 +59,7 @@ function addTapToggle(itemDiv) {
 // --- 今日の予定表示 ---
 function renderTodayPlans() {
     studyList.innerHTML = "";
-    const todayPlans = dailyPlans[today] || [];
+    const todayPlans = dailyPlans[todayDate] || [];
 
     const sortedPlans = [...todayPlans].sort((a,b)=>{
         if(a.checked && !b.checked) return 1;
@@ -263,16 +264,16 @@ cancelPlan.addEventListener("click", ()=>{
     buttonGroup.style.display="flex";
 });
 confirmPlan.addEventListener("click", ()=>{
-    const materialId=parseInt(planMaterial.value);
-    const range=planRange.value.trim();
-    const time=planTime.value;
+    const materialId = parseInt(planMaterial.value);
+    const range = planRange.value.trim();
+    const time = planTime.value;
     if(!range) return alert("範囲を入力してください");
     if(editingIndex!==null){
-        dailyPlans[today][editingIndex]={materialId,range,time};
+        dailyPlans[todayDate][editingIndex] = {materialId,range,time};
         editingIndex=null;
     } else {
-        if(!dailyPlans[today]) dailyPlans[today]=[];
-        dailyPlans[today].push({materialId,range,time});
+        if(!dailyPlans[todayDate]) dailyPlans[todayDate] = [];
+        dailyPlans[todayDate].push({materialId,range,time});
     }
     saveData();
     addPlanModal.classList.add("hidden");
@@ -297,3 +298,15 @@ confirmPlan.addEventListener("click", ()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
+// --- 日付の自動更新 ---
+function updateTodayDate() {
+    const newToday = new Date().toISOString().split("T")[0];
+    if (newToday !== todayDate) {
+        todayDate = newToday;
+        document.getElementById("today-date").textContent = todayDate;
+        renderTodayPlans();
+    }
+}
+
+setInterval(updateTodayDate, 60 * 1000);
