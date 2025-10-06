@@ -1,5 +1,5 @@
 // --- データ初期化 ---
-let todayDate = new Date().toISOString().split("T")[0];
+const todayDate = new Date().toLocaleDateString('ja-JP');
 document.getElementById("today-date").textContent = todayDate;
 
 const materials = [];
@@ -298,15 +298,3 @@ confirmPlan.addEventListener("click", ()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
-
-// --- 日付の自動更新 ---
-function updateTodayDate() {
-    const newToday = new Date().toISOString().split("T")[0];
-    if (newToday !== todayDate) {
-        todayDate = newToday;
-        document.getElementById("today-date").textContent = todayDate;
-        renderTodayPlans();
-    }
-}
-
-setInterval(updateTodayDate, 60 * 1000);
