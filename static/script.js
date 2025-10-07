@@ -243,67 +243,115 @@ function renderMaterialList() {
 }
 
 // --- 教材並び替えモーダル表示 ---
-function renderSortMaterialModal() {
-    sortMaterialList.innerHTML = "";
+function renderSortMaterialModal(materials) {
+  const modal = document.createElement('div');
+  modal.className = 'sort-modal';
 
-    materials.forEach(mat => {
-        const itemDiv = document.createElement("div");
-        itemDiv.className = `material-item ${mat.subject}`;
-        itemDiv.dataset.id = mat.id;
+  const sortMaterialList = document.createElement('div');
+  sortMaterialList.className = 'sort-material-list';
 
-        // カード名
-        const nameDiv = document.createElement("div");
-        nameDiv.textContent = mat.name;
-        itemDiv.appendChild(nameDiv);
+  // ボタンの有効/無効を更新
+  function updateSortButtons() {
+    const items = sortMaterialList.querySelectorAll('.material-item');
+    items.forEach((item, index) => {
+      const up = item.querySelector('.up-btn');
+      const down = item.querySelector('.down-btn');
+      up.disabled = (index === 0);
+      down.disabled = (index === items.length - 1);
+    });
+  }
 
-        // 上下ボタン
-        const btnDiv = document.createElement("div");
-        btnDiv.className = "buttons";
-        const upBtn = document.createElement("button");
-        upBtn.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
-        const downBtn = document.createElement("button");
-        downBtn.innerHTML = '<i class="fa-solid fa-arrow-down"></i>';
-        btnDiv.append(upBtn, downBtn);
-        itemDiv.appendChild(btnDiv);
+  // タップ/クリックで .tapped を付与
+  function addTapToggle(itemDiv) {
+    // iOSなど
+    itemDiv.addEventListener('touchstart', (e) => {
+      if (e.target.closest('button')) return;
+      document.querySelectorAll('.material-item.tapped').forEach(div => {
+        if (div !== itemDiv) div.classList.remove('tapped');
+      });
+      itemDiv.classList.add('tapped');
+    }, { passive: true });
 
-        // --- タップで矢印表示 ---
-        addTapToggle(itemDiv);
+    // PCなど
+    itemDiv.addEventListener('click', (e) => {
+      if (e.target.closest('button')) return;
+      document.querySelectorAll('.material-item.tapped').forEach(div => {
+        if (div !== itemDiv) div.classList.remove('tapped');
+      });
+      itemDiv.classList.toggle('tapped');
+    });
+  }
 
-        sortMaterialList.appendChild(itemDiv);
+  materials.forEach((mat, i) => {
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'material-item';
+    itemDiv.textContent = mat.title;
 
-        // --- 上ボタン ---
-        upBtn.addEventListener("click", e => {
-            e.stopPropagation();
-            const idx = materials.indexOf(mat);
-            if (idx <= 0) return;
+    const buttonsDiv = document.createElement('div');
+    buttonsDiv.className = 'buttons';
 
-            // 配列を入れ替え
-            [materials[idx - 1], materials[idx]] = [materials[idx], materials[idx - 1]];
+    const upBtn = document.createElement('button');
+    upBtn.className = 'up-btn';
+    upBtn.textContent = '↑';
+    upBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
 
-            // DOMを入れ替え
-            const prevDiv = itemDiv.previousElementSibling;
-            if (prevDiv) sortMaterialList.insertBefore(itemDiv, prevDiv);
+      // ← 矢印を押したら元のカードの .tapped を消す
+      itemDiv.classList.remove('tapped');
 
-            updateSortButtons();
-        });
+      const idx = materials.indexOf(mat);
+      if (idx <= 0) return;
 
-        // --- 下ボタン ---
-        downBtn.addEventListener("click", e => {
-            e.stopPropagation();
-            const idx = materials.indexOf(mat);
-            if (idx >= materials.length - 1) return;
+      // 配列の順番を入れ替え
+      [materials[idx - 1], materials[idx]] = [materials[idx], materials[idx - 1]];
 
-            [materials[idx], materials[idx + 1]] = [materials[idx + 1], materials[idx]];
+      // DOMの順番も入れ替え
+      const prevDiv = itemDiv.previousElementSibling;
+      if (prevDiv) sortMaterialList.insertBefore(itemDiv, prevDiv);
 
-            const nextDiv = itemDiv.nextElementSibling?.nextElementSibling;
-            if (nextDiv) sortMaterialList.insertBefore(itemDiv, nextDiv);
-            else sortMaterialList.appendChild(itemDiv);
+      // ← 移動後の位置で .tapped を再付与（矢印を追従させる）
+      itemDiv.classList.add('tapped');
 
-            updateSortButtons();
-        });
+      updateSortButtons();
     });
 
-    updateSortButtons(); // 先頭・末尾ボタン制御
+    const downBtn = document.createElement('button');
+    downBtn.className = 'down-btn';
+    downBtn.textContent = '↓';
+    downBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+
+      // ← 矢印を押したら元のカードの .tapped を消す
+      itemDiv.classList.remove('tapped');
+
+      const idx = materials.indexOf(mat);
+      if (idx >= materials.length - 1) return;
+
+      // 配列の順番を入れ替え
+      [materials[idx], materials[idx + 1]] = [materials[idx + 1], materials[idx]];
+
+      // DOMの順番を入れ替え
+      const nextDiv = itemDiv.nextElementSibling?.nextElementSibling;
+      if (nextDiv) sortMaterialList.insertBefore(itemDiv, nextDiv);
+      else sortMaterialList.appendChild(itemDiv);
+
+      // ← 移動後の位置で .tapped を再付与
+      itemDiv.classList.add('tapped');
+
+      updateSortButtons();
+    });
+
+    buttonsDiv.appendChild(upBtn);
+    buttonsDiv.appendChild(downBtn);
+    itemDiv.appendChild(buttonsDiv);
+
+    addTapToggle(itemDiv);
+    sortMaterialList.appendChild(itemDiv);
+  });
+
+  modal.appendChild(sortMaterialList);
+  document.body.appendChild(modal);
+  updateSortButtons();
 }
 
 // 先頭・末尾ボタンの表示を制御
@@ -422,4 +470,5 @@ confirmSortBtn.addEventListener("click",()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
 
