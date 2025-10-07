@@ -160,38 +160,66 @@ function renderTodayPlans() {
 
 // --- 教材一覧表示 ---
 function renderMaterialList() {
-    materialListDiv.innerHTML="";
-    materials.forEach(mat=>{
+    materialListDiv.innerHTML = "";
+    materials.forEach(mat => {
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
         itemDiv.textContent = mat.name;
 
         const btnDiv = document.createElement("div");
-        btnDiv.className="buttons";
+        btnDiv.className = "buttons";
 
-        const addPlanBtn = document.createElement("div");
-        addPlanBtn.id="add-plan";
-        addPlanBtn.innerHTML='<i class="fa-solid fa-square-plus"></i>';
-        
+        // --- add-plan ボタン ---
+        const addPlanBtn = document.createElement("button");
+        addPlanBtn.className = "add-plan";
+        addPlanBtn.innerHTML = '<i class="fa-solid fa-square-plus"></i>';
+
+        addPlanBtn.addEventListener("click", () => {
+            // planMaterial をクリア
+            planMaterial.innerHTML = "";
+
+            // option を作成
+            materials.forEach(m => {
+                const option = document.createElement("option");
+                option.value = m.id;
+                option.textContent = m.name;
+                if (m.id === mat.id) option.selected = true; // クリックした教材を選択
+                planMaterial.appendChild(option);
+            });
+
+            // 範囲・時間をクリア
+            planRange.value = "";
+            planTime.value = "";
+            editingIndex = null;
+
+            // モーダルを表示
+            addPlanModal.classList.remove("hidden");
+            document.body.style.overflow = "hidden";
+            wrapper.classList.add("full-height");
+            buttonGroup.style.display = "none";
+        });
+
+        // --- edit ボタン ---
         const editBtn = document.createElement("button");
-        editBtn.className="edit";
-        editBtn.innerHTML='<i class="fa-solid fa-pen"></i>';
-        editBtn.addEventListener("click", ()=>{
+        editBtn.className = "edit";
+        editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
+        editBtn.addEventListener("click", () => {
             materialSubject.value = mat.subject;
             materialName.value = mat.name;
             editingMaterialId = mat.id;
             addMaterialModal.classList.remove("hidden");
         });
 
+        // --- delete ボタン ---
         const delBtn = document.createElement("button");
-        delBtn.className="delete";
-        delBtn.innerHTML='<i class="fa-solid fa-trash-can"></i>';
-        delBtn.addEventListener("click", ()=>{
-            if(confirm(`教材「${mat.name}」を削除しますか？`)){
-                const idx = materials.findIndex(m=>m.id===mat.id);
-                if(idx!==-1) materials.splice(idx,1);
-                Object.keys(dailyPlans).forEach(date=>{
-                    dailyPlans[date] = dailyPlans[date].filter(p=>p.materialId!==mat.id);
+        delBtn.className = "delete";
+        delBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
+        delBtn.addEventListener("click", () => {
+            if (confirm(`教材「${mat.name}」を削除しますか？`)) {
+                const idx = materials.findIndex(m => m.id === mat.id);
+                if (idx !== -1) materials.splice(idx, 1);
+                Object.keys(dailyPlans).forEach(date => {
+                    dailyPlans[date] = dailyPlans[date].filter(p => p.materialId !== mat.id);
                 });
                 saveData();
                 renderMaterialList();
@@ -199,7 +227,7 @@ function renderMaterialList() {
             }
         });
 
-        btnDiv.append(editBtn, delBtn);
+        btnDiv.append(addPlanBtn, editBtn, delBtn);
         itemDiv.appendChild(btnDiv);
         addTapToggle(itemDiv);
         materialListDiv.appendChild(itemDiv);
@@ -244,22 +272,6 @@ confirmAdd.addEventListener("click", ()=>{
 });
 
 // --- 予定モーダル操作 ---
-document.getElementById("add-plan").addEventListener("click", ()=>{
-    planMaterial.innerHTML="";
-    materials.forEach(m=>{
-        const option=document.createElement("option");
-        option.value=m.id;
-        option.textContent=m.name;
-        planMaterial.appendChild(option);
-    });
-    planRange.value="";
-    planTime.value="";
-    editingIndex=null;
-    addPlanModal.classList.remove("hidden");
-    document.body.style.overflow = 'hidden';
-    wrapper.classList.add("full-height");
-    buttonGroup.style.display="none";
-});
 cancelPlan.addEventListener("click", ()=>{
     addPlanModal.classList.add("hidden");
     editingIndex=null;
@@ -302,4 +314,5 @@ confirmPlan.addEventListener("click", ()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
 
