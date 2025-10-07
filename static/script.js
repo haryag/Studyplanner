@@ -55,6 +55,20 @@ function loadData() {
     }
 }
 
+// --- タップ表示用関数 ---
+function addTapToggle(itemDiv) {
+    itemDiv.addEventListener("click", (e) => {
+        if (e.target.closest("button")) return; // ボタン押下は無視
+
+        // 他のカードの tapped を外す（1枚だけ矢印表示にしたい場合）
+        document.querySelectorAll('.material-item.tapped').forEach(div => {
+            if(div !== itemDiv) div.classList.remove('tapped');
+        });
+
+        itemDiv.classList.toggle("tapped");
+    });
+}
+
 // --- 今日の予定表示 ---
 function renderTodayPlans() {
     studyList.innerHTML = "";
@@ -432,4 +446,3 @@ confirmSortBtn.addEventListener("click",()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
-
