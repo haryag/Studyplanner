@@ -240,7 +240,7 @@ function renderMaterialList() {
 function renderSortMaterialModal() {
     sortMaterialList.innerHTML = "";
 
-    materials.forEach((mat, index) => {
+    materials.forEach(mat => {
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
         itemDiv.dataset.id = mat.id; // 後で特定用
@@ -262,6 +262,7 @@ function renderSortMaterialModal() {
         itemDiv.appendChild(btnDiv);
 
         addTapToggle(itemDiv); // タップ対応
+
         sortMaterialList.appendChild(itemDiv);
 
         // --- 上ボタン ---
@@ -270,53 +271,34 @@ function renderSortMaterialModal() {
             const idx = materials.indexOf(mat);
             if (idx <= 0) return;
 
-            // 配列を入れ替え
+            // 配列の入れ替え
             [materials[idx - 1], materials[idx]] = [materials[idx], materials[idx - 1]];
 
-            // 表示順序を n-1 番目に移動
-            const currentPos = Array.from(sortMaterialList.children).indexOf(itemDiv);
-            const targetPos = currentPos - 1;
-            if (targetPos >= 0) {
-                sortMaterialList.insertBefore(itemDiv, sortMaterialList.children[targetPos]);
-            }
+            // DOM の入れ替え
+            const prevDiv = itemDiv.previousElementSibling;
+            if (prevDiv) sortMaterialList.insertBefore(itemDiv, prevDiv); // 安定して移動
 
             updateSortButtons();
         });
 
         // --- 下ボタン ---
         downBtn.addEventListener("click", e => {
+            
             e.stopPropagation();
             const idx = materials.indexOf(mat);
             if (idx >= materials.length - 1) return;
 
             [materials[idx], materials[idx + 1]] = [materials[idx + 1], materials[idx]];
 
-            // 表示順序を n+1 番目に移動
-            const currentPos = Array.from(sortMaterialList.children).indexOf(itemDiv);
-            const targetPos = currentPos + 1;
-            const children = sortMaterialList.children;
-            if (targetPos < children.length) {
-                sortMaterialList.insertBefore(itemDiv, children[targetPos]);
-            } else {
-                sortMaterialList.appendChild(itemDiv); // 末尾
-            }
+            const nextDiv = itemDiv.nextElementSibling?.nextElementSibling;
+            if (nextDiv) sortMaterialList.insertBefore(itemDiv, nextDiv);
+            else sortMaterialList.appendChild(itemDiv); // 末尾なら最後に移動
 
             updateSortButtons();
         });
     });
 
-    updateSortButtons();
-}
-
-// 先頭・末尾ボタンの表示を制御
-function updateSortButtons() {
-    const items = Array.from(sortMaterialList.children);
-    items.forEach((item, i) => {
-        const upBtn = item.querySelector('button:nth-child(1)');
-        const downBtn = item.querySelector('button:nth-child(2)');
-        upBtn.classList.toggle('invisible', i === 0);
-        downBtn.classList.toggle('invisible', i === items.length - 1);
-    });
+    updateSortButtons(); // 初期状態のボタン表示を更新
 }
 
 // 先頭・末尾ボタンの表示を制御
@@ -435,9 +417,3 @@ confirmSortBtn.addEventListener("click",()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
-
-
-
-
-
-
