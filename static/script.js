@@ -238,6 +238,47 @@ function renderMaterialList() {
     });
 }
 
+// --- 教材並び替えモーダル ---
+function renderSortMaterialModal() {
+    const sortListDiv = document.getElementById("sort-material-list");
+    sortListDiv.innerHTML = "";
+
+    materials.forEach((mat, index) => {
+        const itemDiv = document.createElement("div");
+        itemDiv.className = `material-item ${mat.subject}`;
+
+        const nameDiv = document.createElement("div");
+        nameDiv.textContent = mat.name;
+        itemDiv.appendChild(nameDiv);
+
+        const btnDiv = document.createElement("div");
+        btnDiv.className = "buttons";
+
+        // ↑ボタン
+        const upBtn = document.createElement("button");
+        upBtn.textContent = "↑";
+        if(index === 0) upBtn.classList.add("invisible");
+        upBtn.addEventListener("click", () => {
+            [materials[index-1], materials[index]] = [materials[index], materials[index-1]];
+            renderSortMaterialModal();
+        });
+
+        // ↓ボタン
+        const downBtn = document.createElement("button");
+        downBtn.textContent = "↓";
+        if(index === materials.length - 1) downBtn.classList.add("invisible");
+        downBtn.addEventListener("click", () => {
+            [materials[index], materials[index+1]] = [materials[index+1], materials[index]];
+            renderSortMaterialModal();
+        });
+
+        btnDiv.append(upBtn, downBtn);
+        itemDiv.appendChild(btnDiv);
+
+        sortListDiv.appendChild(itemDiv);
+    });
+}
+
 // --- 教材モーダル操作 ---
 document.getElementById("add-material").addEventListener("click", ()=>{
     materialName.value="";
@@ -303,6 +344,25 @@ confirmPlan.addEventListener("click", ()=>{
     renderTodayPlans();
 });
 
+// --- 教材並び替えモーダル操作 ---
+document.getElementById("open-sort-modal").addEventListener("click", () => {
+    renderSortMaterialModal();
+    document.getElementById("sort-material-modal").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+});
+
+document.getElementById("cancel-sort").addEventListener("click", () => {
+    document.getElementById("sort-material-modal").classList.add("hidden");
+    document.body.style.overflow = "";
+});
+
+document.getElementById("confirm-sort").addEventListener("click", () => {
+    document.getElementById("sort-material-modal").classList.add("hidden");
+    document.body.style.overflow = "";
+    saveData();
+    renderMaterialList();
+});
+
 // Enterキーでモーダル送信
 [addMaterialModal, addPlanModal].forEach(modal=>{
     modal.addEventListener("keydown", e=>{
@@ -318,6 +378,7 @@ confirmPlan.addEventListener("click", ()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
 
 
 
