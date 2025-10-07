@@ -239,9 +239,10 @@ function renderMaterialList() {
 // --- 教材並び替えモーダル表示 ---
 function renderSortMaterialModal() {
     sortMaterialList.innerHTML = "";
-    materials.forEach((mat,index)=>{
+    materials.forEach(mat => {
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
+        itemDiv.dataset.id = mat.id; // 後で特定用
 
         const nameDiv = document.createElement("div");
         nameDiv.textContent = mat.name;
@@ -252,27 +253,36 @@ function renderSortMaterialModal() {
 
         const upBtn = document.createElement("button");
         upBtn.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
-        if(index===0) upBtn.classList.add("invisible");
-        upBtn.addEventListener("click",()=>{
-            [materials[index-1],materials[index]]=[materials[index],materials[index-1]];
-            renderSortMaterialModal();
-        });
-
         const downBtn = document.createElement("button");
         downBtn.innerHTML = '<i class="fa-solid fa-arrow-down"></i>';
-        if(index===materials.length-1) downBtn.classList.add("invisible");
-        downBtn.addEventListener("click",()=>{
-            [materials[index],materials[index+1]]=[materials[index+1],materials[index]];
-            renderSortMaterialModal();
-        });
 
         btnDiv.append(upBtn, downBtn);
         itemDiv.appendChild(btnDiv);
 
-        // ここでタップ対応
-        addTapToggle(itemDiv);
+        addTapToggle(itemDiv); // タップ対応
 
         sortMaterialList.appendChild(itemDiv);
+
+        // --- 上ボタン ---
+        upBtn.addEventListener("click", e => {
+            e.stopPropagation();
+            const idx = materials.indexOf(mat);
+            if (idx <= 0) return;
+            // 配列の入れ替え
+            [materials[idx - 1], materials[idx]] = [materials[idx], materials[idx - 1]];
+            // DOMの入れ替え
+            sortMaterialList.insertBefore(itemDiv, itemDiv.previousElementSibling);
+        });
+
+        // --- 下ボタン ---
+        downBtn.addEventListener("click", e => {
+            e.stopPropagation();
+            const idx = materials.indexOf(mat);
+            if (idx >= materials.length - 1) return;
+            [materials[idx], materials[idx + 1]] = [materials[idx + 1], materials[idx]];
+            // DOMの入れ替え
+            sortMaterialList.insertBefore(itemDiv.nextElementSibling, itemDiv);
+        });
     });
 }
 
@@ -381,6 +391,7 @@ confirmSortBtn.addEventListener("click",()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
 
 
 
