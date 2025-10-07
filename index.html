@@ -37,7 +37,7 @@
     <div id="add-material-modal" class="modal hidden">
         <div class="modal-content">
             <h2>教材を追加 / 編集</h2>
-            <label onclick="">
+            <label>
                 教科：
                 <select id="material-subject">
                     <option value="math">数学</option>
@@ -49,7 +49,7 @@
                     <option value="others">その他</option>
                 </select>
             </label>
-            <label onclick="">
+            <label>
                 教材名：
                 <input type="text" id="material-name" placeholder="教材名を入力">
             </label>
@@ -62,19 +62,19 @@
 
     <!-- 予定追加モーダル -->
     <div id="add-plan-modal" class="modal hidden">
-        <div class="modal-content" onclick="">
+        <div class="modal-content">
             <h2>予定を追加 / 編集</h2>
-            <label onclick="">
+            <label>
                 教材：
                 <select id="plan-material"></select>
             </label>
-            <label onclick="">
+            <label>
                 範囲：
                 <input type="text" id="plan-range" placeholder="例：p.10〜20">
             </label>
-            <label onclick="">
+            <label>
                 時間：
-                <input type="time" id="plan-time" placeholder="xx:yy">
+                <input type="time" id="plan-time">
             </label>
             <div class="modal-buttons">
                 <button id="cancel-plan" class="cancel">キャンセル</button>
