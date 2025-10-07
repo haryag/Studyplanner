@@ -159,7 +159,7 @@ body {
 
 .modal-content label {
     display: block;
-    margin-top: 16px;
+    margin-top: 8px;
     font-size: 14px;
 }
 
@@ -268,5 +268,3 @@ body {
 .material-item .buttons button i {
     font-size: 16px !important;
 }
-
-
