@@ -246,7 +246,7 @@ body {
 .material-item.tapped .buttons,
 .study-item.tapped .buttons {
     display: flex;
-    gap: px;
+    gap: 6px;
 }
 
 .material-item button,
@@ -262,11 +262,10 @@ body {
 .material-item button.edit i,
 .study-item button.edit i { color: #007bff; }
 .study-item button.check i { color: green; }
-.material-item button.add-plan i { color: green; }
-.material-item button.sortBtn i { color: green; }
+.material-item button.add-plan i { color: black; }
+.material-item button.sortBtn i { color: black; }
 
 .study-item .buttons button i,
 .material-item .buttons button i {
     font-size: 16px !important;
 }
-
