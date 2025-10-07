@@ -58,7 +58,13 @@ function loadData() {
 // --- タップ表示用関数 ---
 function addTapToggle(itemDiv) {
     itemDiv.addEventListener("click", (e) => {
-        if (e.target.closest("button")) return;
+        if (e.target.closest("button")) return; // ボタン押下は無視
+
+        // 他のカードの tapped を外す（1枚だけ矢印表示にしたい場合）
+        document.querySelectorAll('.material-item.tapped').forEach(div => {
+            if(div !== itemDiv) div.classList.remove('tapped');
+        });
+
         itemDiv.classList.toggle("tapped");
     });
 }
@@ -243,25 +249,25 @@ function renderSortMaterialModal() {
     materials.forEach(mat => {
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
-        itemDiv.dataset.id = mat.id; // 後で特定用
+        itemDiv.dataset.id = mat.id;
 
+        // カード名
         const nameDiv = document.createElement("div");
         nameDiv.textContent = mat.name;
         itemDiv.appendChild(nameDiv);
 
+        // 上下ボタン
         const btnDiv = document.createElement("div");
         btnDiv.className = "buttons";
-
         const upBtn = document.createElement("button");
         upBtn.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
-
         const downBtn = document.createElement("button");
         downBtn.innerHTML = '<i class="fa-solid fa-arrow-down"></i>';
-
         btnDiv.append(upBtn, downBtn);
         itemDiv.appendChild(btnDiv);
 
-        addTapToggle(itemDiv); // タップ対応
+        // --- タップで矢印表示 ---
+        addTapToggle(itemDiv);
 
         sortMaterialList.appendChild(itemDiv);
 
@@ -271,19 +277,18 @@ function renderSortMaterialModal() {
             const idx = materials.indexOf(mat);
             if (idx <= 0) return;
 
-            // 配列の入れ替え
+            // 配列を入れ替え
             [materials[idx - 1], materials[idx]] = [materials[idx], materials[idx - 1]];
 
-            // DOM の入れ替え
+            // DOMを入れ替え
             const prevDiv = itemDiv.previousElementSibling;
-            if (prevDiv) sortMaterialList.insertBefore(itemDiv, prevDiv); // 安定して移動
+            if (prevDiv) sortMaterialList.insertBefore(itemDiv, prevDiv);
 
             updateSortButtons();
         });
 
         // --- 下ボタン ---
         downBtn.addEventListener("click", e => {
-            
             e.stopPropagation();
             const idx = materials.indexOf(mat);
             if (idx >= materials.length - 1) return;
@@ -292,13 +297,13 @@ function renderSortMaterialModal() {
 
             const nextDiv = itemDiv.nextElementSibling?.nextElementSibling;
             if (nextDiv) sortMaterialList.insertBefore(itemDiv, nextDiv);
-            else sortMaterialList.appendChild(itemDiv); // 末尾なら最後に移動
+            else sortMaterialList.appendChild(itemDiv);
 
             updateSortButtons();
         });
     });
 
-    updateSortButtons(); // 初期状態のボタン表示を更新
+    updateSortButtons(); // 先頭・末尾ボタン制御
 }
 
 // 先頭・末尾ボタンの表示を制御
@@ -417,3 +422,4 @@ confirmSortBtn.addEventListener("click",()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
