@@ -169,6 +169,10 @@ function renderMaterialList() {
         const btnDiv = document.createElement("div");
         btnDiv.className="buttons";
 
+        const addPlanBtn = document.createElement("div");
+        addPlanBtn.id="add-plan";
+        addPlanBtn.innerHTML='<i class="fa-solid fa-square-plus"></i>';
+        
         const editBtn = document.createElement("button");
         editBtn.className="edit";
         editBtn.innerHTML='<i class="fa-solid fa-pen"></i>';
@@ -298,3 +302,4 @@ confirmPlan.addEventListener("click", ()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
