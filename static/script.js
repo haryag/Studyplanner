@@ -236,6 +236,17 @@ function renderMaterialList() {
     });
 }
 
+// ボタン表示の更新
+function updateSortButtons() {
+    const items = Array.from(sortMaterialList.children);
+    items.forEach((item, i) => {
+        const upBtn = item.querySelector('button:nth-child(1)');
+        const downBtn = item.querySelector('button:nth-child(2)');
+        upBtn.classList.toggle('invisible', i === 0);
+        downBtn.classList.toggle('invisible', i === items.length - 1);
+    });
+}
+
 // --- 教材並び替えモーダル表示 ---
 function renderSortMaterialModal() {
     sortMaterialList.innerHTML = "";
@@ -265,6 +276,7 @@ function renderSortMaterialModal() {
 
         // --- 上ボタン ---
         upBtn.addEventListener("click", e => {
+            updateSortButtons();
             e.stopPropagation();
             const idx = materials.indexOf(mat);
             if (idx <= 0) return;
@@ -276,6 +288,7 @@ function renderSortMaterialModal() {
 
         // --- 下ボタン ---
         downBtn.addEventListener("click", e => {
+            updateSortButtons();
             e.stopPropagation();
             const idx = materials.indexOf(mat);
             if (idx >= materials.length - 1) return;
@@ -391,6 +404,7 @@ confirmSortBtn.addEventListener("click",()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
 
 
 
