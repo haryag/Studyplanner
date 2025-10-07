@@ -251,7 +251,7 @@ function renderSortMaterialModal() {
         btnDiv.className = "buttons";
 
         const upBtn = document.createElement("button");
-        upBtn.textContent = "<i class="fa-solid fa-arrow-up"></i>";
+        upBtn.innerHTML = "<i class="fa-solid fa-arrow-up"></i>";
         if(index===0) upBtn.classList.add("invisible");
         upBtn.addEventListener("click",()=>{
             [materials[index-1],materials[index]]=[materials[index],materials[index-1]];
@@ -259,7 +259,7 @@ function renderSortMaterialModal() {
         });
 
         const downBtn = document.createElement("button");
-        downBtn.textContent = "<i class="fa-solid fa-arrow-down"></i>";
+        downBtn.innerHTML = "<i class="fa-solid fa-arrow-down"></i>";
         if(index===materials.length-1) downBtn.classList.add("invisible");
         downBtn.addEventListener("click",()=>{
             [materials[index],materials[index+1]]=[materials[index+1],materials[index]];
@@ -343,15 +343,21 @@ document.getElementById("sort-btn").addEventListener("click",()=>{
     renderSortMaterialModal();
     sortMaterialModal.classList.remove("hidden");
     document.body.style.overflow = "hidden";
+    wrapper.classList.add("full-height");
+    buttonGroup.style.display="none";
 });
 cancelSortBtn.addEventListener("click",()=>{
     materials.splice(0,materials.length,...backupMaterials);
     sortMaterialModal.classList.add("hidden");
     document.body.style.overflow = "";
+    wrapper.classList.remove("full-height");
+    buttonGroup.style.display="flex";
 });
 confirmSortBtn.addEventListener("click",()=>{
     sortMaterialModal.classList.add("hidden");
     document.body.style.overflow = "";
+    wrapper.classList.remove("full-height");
+    buttonGroup.style.display="flex";
     saveData();
     renderMaterialList();
 });
