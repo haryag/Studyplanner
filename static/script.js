@@ -251,6 +251,7 @@ function renderSortMaterialModal() {
         btnDiv.className = "buttons";
 
         const upBtn = document.createElement("button");
+        upBtn.className = "sortBtn";
         upBtn.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
         if(index===0) upBtn.classList.add("invisible");
         upBtn.addEventListener("click",()=>{
@@ -259,6 +260,7 @@ function renderSortMaterialModal() {
         });
 
         const downBtn = document.createElement("button");
+        downBtn.className = "sortBtn";
         downBtn.innerHTML = '<i class="fa-solid fa-arrow-down"></i>';
         if(index===materials.length-1) downBtn.classList.add("invisible");
         downBtn.addEventListener("click",()=>{
@@ -377,4 +379,5 @@ confirmSortBtn.addEventListener("click",()=>{
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
 
