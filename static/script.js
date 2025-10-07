@@ -236,20 +236,10 @@ function renderMaterialList() {
     });
 }
 
-// ボタン表示の更新
-function updateSortButtons() {
-    const items = Array.from(sortMaterialList.children);
-    items.forEach((item, i) => {
-        const upBtn = item.querySelector('button:nth-child(1)');
-        const downBtn = item.querySelector('button:nth-child(2)');
-        upBtn.classList.toggle('invisible', i === 0);
-        downBtn.classList.toggle('invisible', i === items.length - 1);
-    });
-}
-
 // --- 教材並び替えモーダル表示 ---
 function renderSortMaterialModal() {
     sortMaterialList.innerHTML = "";
+
     materials.forEach(mat => {
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
@@ -264,6 +254,7 @@ function renderSortMaterialModal() {
 
         const upBtn = document.createElement("button");
         upBtn.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
+
         const downBtn = document.createElement("button");
         downBtn.innerHTML = '<i class="fa-solid fa-arrow-down"></i>';
 
@@ -276,26 +267,48 @@ function renderSortMaterialModal() {
 
         // --- 上ボタン ---
         upBtn.addEventListener("click", e => {
-            updateSortButtons();
             e.stopPropagation();
             const idx = materials.indexOf(mat);
             if (idx <= 0) return;
+
             // 配列の入れ替え
             [materials[idx - 1], materials[idx]] = [materials[idx], materials[idx - 1]];
-            // DOMの入れ替え
-            sortMaterialList.insertBefore(itemDiv, itemDiv.previousElementSibling);
+
+            // DOM の入れ替え
+            const prevDiv = itemDiv.previousElementSibling;
+            if (prevDiv) sortMaterialList.insertBefore(itemDiv, prevDiv); // 安定して移動
+
+            updateSortButtons();
         });
 
         // --- 下ボタン ---
         downBtn.addEventListener("click", e => {
-            updateSortButtons();
+            
             e.stopPropagation();
             const idx = materials.indexOf(mat);
             if (idx >= materials.length - 1) return;
+
             [materials[idx], materials[idx + 1]] = [materials[idx + 1], materials[idx]];
-            // DOMの入れ替え
-            sortMaterialList.insertBefore(itemDiv.nextElementSibling, itemDiv);
+
+            const nextDiv = itemDiv.nextElementSibling?.nextElementSibling;
+            if (nextDiv) sortMaterialList.insertBefore(itemDiv, nextDiv);
+            else sortMaterialList.appendChild(itemDiv); // 末尾なら最後に移動
+
+            updateSortButtons();
         });
+    });
+
+    updateSortButtons(); // 初期状態のボタン表示を更新
+}
+
+// 先頭・末尾ボタンの表示を制御
+function updateSortButtons() {
+    const items = Array.from(sortMaterialList.children);
+    items.forEach((item, i) => {
+        const upBtn = item.querySelector('button:nth-child(1)');
+        const downBtn = item.querySelector('button:nth-child(2)');
+        upBtn.classList.toggle('invisible', i === 0);
+        downBtn.classList.toggle('invisible', i === items.length - 1);
     });
 }
 
