@@ -4,10 +4,9 @@
     box-sizing: border-box;
 }
 
-/* html 要素の高さを 100% にし、スクロールを禁止 */
 html {
     height: 100%;
-    overflow: hidden;
+    overflow: hidden; /* ←①はそのまま残しています */
 }
 
 body {
@@ -15,7 +14,7 @@ body {
     padding: 0;
     max-width: 600px;
     height: 100%;
-    position: relative; /* 必要に応じて追加 */
+    position: relative;
 }
 
 .header {
@@ -26,17 +25,18 @@ body {
 .main-content-scroll-wrapper {
     width: 100%;
     max-width: 540px;
-    height: calc(100dvh - (45px + env(safe-area-inset-bottom))); /* body の子要素として、フッターの高さ分を 100vh から差し引く */
+    height: calc(100dvh - (45px + env(safe-area-inset-bottom)));
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     margin: 0 auto;
     padding: 0 16px;
     padding-bottom: 12px;
 }
-.main-content-scroll-wrapper::-webkit-scrollbar { display: none; } /* Chromeでスクロールバー非表示 */
+.main-content-scroll-wrapper::-webkit-scrollbar { display: none; }
 
 .full-height {
     height: 100dvh !important;
+    overflow: hidden; /* ⑦ モーダル時のスクロール抑止 */
 }
 
 /* --- 今日の学習リスト --- */
@@ -70,7 +70,7 @@ body {
     display: flex;
     flex-direction: column;
     flex: 1 1 auto;
-    word-break: break-word; /* 長文テキスト折り返し */
+    word-break: break-word;
 }
 
 /* 教科ごとの色設定 */
@@ -91,10 +91,11 @@ body {
 
 /* --- ボタン群 --- */
 .button-group {
+    width: 100%; /* 修正② */
+    max-width: 600px;
+    margin: 0 auto;
     display: flex;
     justify-content: space-between;
-    margin: 0 auto;
-    max-width: 600px;
     height: 45px;
     position: fixed;
     bottom: 0;
@@ -102,7 +103,6 @@ body {
     right: 0;
     z-index: 200;
     box-shadow: 0 -3px 3px -2px #ccc;
-    /* iOS Safari向け */
     -webkit-transform: translate3d(0,0,0);
     transform: translate3d(0,0,0);
     padding-bottom: env(safe-area-inset-bottom);
@@ -136,7 +136,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 100;
+    z-index: 1000; /* 修正③ */
 }
 
 .modal.hidden { display: none; }
@@ -148,7 +148,7 @@ body {
     width: 90%;
     max-width: 400px;
     max-height: 80vh;
-    overflow-y: auto; /* 高さオーバー時スクロール */
+    overflow-y: auto;
 }
 
 /* --- モーダルヘッダー・ラベル --- */
@@ -165,7 +165,19 @@ body {
 
 /* --- モーダル内 input/select --- */
 .modal-content input,
-.modal-content input[type="time"],
+.modal-content input[type="time"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    color: black !important;
+    background-color: #ffffff !important;
+    border: 1px solid #000 !important;
+    border-radius: 0 !important;
+    margin: 4px 0;
+    padding: 4px 8px;
+    font-size: 16px !important;
+    box-sizing: border-box !important;
+}
+
 .modal-content select {
     width: 100% !important;
     max-width: 100% !important;
@@ -261,9 +273,12 @@ body {
 .study-item button.delete i { color: #ff0000; }
 .material-item button.edit i,
 .study-item button.edit i { color: #007bff; }
-.study-item button.check i { color: green; }
+
+/* .study-item button.check i は削除（修正⑤） */
+
+/* sortボタンのクラス名チェック（修正④） */
+.material-item button.sort-btn i { color: black; }
 .material-item button.add-plan i { color: black; }
-.material-item button.sortBtn i { color: black; }
 
 .study-item .buttons button i,
 .material-item .buttons button i {
