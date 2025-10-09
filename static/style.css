@@ -32,7 +32,7 @@ body {
     padding: 0 16px;
     padding-bottom: 12px;
 }
-.main-content-scroll-wrapper::-webkit-scrollbar { display: none; }
+/* .main-content-scroll-wrapper::-webkit-scrollbar { display: none; } */
 
 .full-height {
     height: 100dvh !important;
@@ -242,12 +242,10 @@ body {
 }
 
 /* PCでのホバー時、またはタップ/選択時（active/tappedクラス）に表示 */
-.material-item:hover .buttons,
-.study-item:hover .buttons,
 .material-item.tapped .buttons,
 .study-item.tapped .buttons {
     display: flex;
-    gap: 6px;
+    gap: 8px;
 }
 
 .material-item button,
@@ -273,6 +271,3 @@ body {
 .material-item .buttons button i {
     font-size: 16px !important;
 }
-
-
-
