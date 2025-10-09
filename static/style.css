@@ -165,19 +165,7 @@ body {
 
 /* --- モーダル内 input/select --- */
 .modal-content input,
-.modal-content input[type="time"] {
-    width: 100% !important;
-    max-width: 100% !important;
-    color: black !important;
-    background-color: #ffffff !important;
-    border: 1px solid #000 !important;
-    border-radius: 0 !important;
-    margin: 4px 0;
-    padding: 4px 8px;
-    font-size: 16px !important;
-    box-sizing: border-box !important;
-}
-
+.modal-content input[type="time"],
 .modal-content select {
     appearance: none !important;
     -webkit-appearance: none !important;
@@ -285,5 +273,6 @@ body {
 .material-item .buttons button i {
     font-size: 16px !important;
 }
+
 
 
