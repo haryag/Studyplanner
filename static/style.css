@@ -256,13 +256,6 @@ body {
     cursor: pointer;
 }
 
-.material-item button.delete i,
-.study-item button.delete i { color: #ff0000; }
-.material-item button.edit i,
-.study-item button.edit i { color: #007bff; }
-
-/* .study-item button.check i は削除（修正⑤） */
-
 /* sortボタンのクラス名チェック（修正④） */
 .material-item button.sort-btn i { color: black; }
 .material-item button.add-plan i { color: black; }
