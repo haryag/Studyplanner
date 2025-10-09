@@ -4,7 +4,7 @@ document.getElementById("today-date").textContent = todayDate;
 
 const materials = [];
 const dailyPlans = {};
-let backupMaterials = []; // 並び替え用バックアップ
+let backupMaterials = [];
 
 // --- DOM要素 ---
 const wrapper = document.getElementById("wrapper");
@@ -76,11 +76,10 @@ function populateMaterialSelect(selectedId = null) {
 }
 
 // ボタン生成
-function createIconButton(className, iconHtml, color, onClick) {
+function createIconButton(className, iconHtml, onClick) {
     const btn = document.createElement("button");
     btn.className = className;
     btn.innerHTML = iconHtml;
-    btn.style.color = color;
     btn.addEventListener("click", e => {
         e.stopPropagation();
         onClick(e);
@@ -127,12 +126,14 @@ function renderTodayPlans() {
         if (plan.checked) {
             item.style.backgroundColor = "#f0f0f0";
             item.style.color = "#808080";
+            item.classList.add("checked");
+        } else {
+            item.classList.remove("checked");
         }
 
         const iconDiv = document.createElement("div");
         iconDiv.className = "study-icon";
         iconDiv.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
-        if (plan.checked) iconDiv.querySelector("i").style.color = "#808080";
 
         const infoDiv = document.createElement("div");
         infoDiv.className = "study-info";
@@ -140,19 +141,15 @@ function renderTodayPlans() {
         nameDiv.textContent = material.name;
         const rangeDiv = document.createElement("div");
         rangeDiv.innerHTML = `<i class="fa-solid fa-pencil"></i> ${plan.range}`;
-        if (plan.checked) rangeDiv.querySelector("i").style.color = "#808080";
 
         const timeDiv = document.createElement("div");
         if (plan.time) {
             timeDiv.innerHTML = `<i class="fa-regular fa-clock"></i> ${plan.time}`;
-            if (plan.checked) timeDiv.querySelector("i").style.color = "#808080";
         }
 
-        // --- ボタン ---
         const checkBtn = createIconButton(
             "check",
             '<i class="fa-solid fa-check"></i>',
-            plan.checked ? "#808080" : "green",
             () => {
                 plan.checked = !plan.checked;
                 saveData();
@@ -163,7 +160,6 @@ function renderTodayPlans() {
         const editBtn = createIconButton(
             "edit",
             '<i class="fa-solid fa-pen"></i>',
-            plan.checked ? "#808080" : "#007bff",
             () => {
                 populateMaterialSelect(plan.materialId);
                 planRange.value = plan.range;
@@ -176,7 +172,6 @@ function renderTodayPlans() {
         const delBtn = createIconButton(
             "delete",
             '<i class="fa-solid fa-trash-can"></i>',
-            plan.checked ? "#808080" : "red",
             () => {
                 if (confirm("この予定を削除しますか？")) {
                     const idx = todayPlans.indexOf(plan);
@@ -218,7 +213,6 @@ function renderMaterialList() {
         const addPlanBtn = createIconButton(
             "add-plan",
             '<i class="fa-solid fa-square-plus"></i>',
-            "",
             () => {
                 populateMaterialSelect(mat.id);
                 planRange.value = "";
@@ -231,7 +225,6 @@ function renderMaterialList() {
         const editBtn = createIconButton(
             "edit",
             '<i class="fa-solid fa-pen"></i>',
-            "",
             () => {
                 materialSubject.value = mat.subject;
                 materialName.value = mat.name;
@@ -243,7 +236,6 @@ function renderMaterialList() {
         const delBtn = createIconButton(
             "delete",
             '<i class="fa-solid fa-trash-can"></i>',
-            "",
             () => {
                 if (confirm(`教材「${mat.name}」を削除しますか？`)) {
                     const idx = materials.findIndex(m => m.id === mat.id);
@@ -263,7 +255,7 @@ function renderMaterialList() {
     });
 }
 
-// --- 教材並び替えモーダル表示 ---
+// --- 教材並び替えモーダル ---
 function renderSortMaterialModal() {
     sortMaterialList.innerHTML = "";
     materials.forEach(mat => {
@@ -331,10 +323,12 @@ document.getElementById("add-material").addEventListener("click", () => {
     editingMaterialId = null;
     toggleModal(addMaterialModal, true);
 });
+
 cancelAdd.addEventListener("click", () => {
     editingMaterialId = null;
     toggleModal(addMaterialModal, false);
 });
+
 confirmAdd.addEventListener("click", () => {
     const name = materialName.value.trim();
     const subject = materialSubject.value;
@@ -355,6 +349,7 @@ cancelPlan.addEventListener("click", () => {
     editingIndex = null;
     toggleModal(addPlanModal, false);
 });
+
 confirmPlan.addEventListener("click", () => {
     const materialId = parseInt(planMaterial.value);
     const range = planRange.value.trim();
@@ -377,10 +372,12 @@ document.getElementById("sort-btn").addEventListener("click", () => {
     renderSortMaterialModal();
     toggleModal(sortMaterialModal, true);
 });
+
 cancelSortBtn.addEventListener("click", () => {
     materials.splice(0, materials.length, ...backupMaterials);
     toggleModal(sortMaterialModal, false);
 });
+
 confirmSortBtn.addEventListener("click", () => {
     toggleModal(sortMaterialModal, false);
     saveAndRender();
