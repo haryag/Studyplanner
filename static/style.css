@@ -179,6 +179,10 @@ body {
 }
 
 .modal-content select {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    
     width: 100% !important;
     max-width: 100% !important;
     color: black !important;
@@ -189,9 +193,6 @@ body {
     padding: 4px 8px;
     font-size: 16px !important;
     box-sizing: border-box !important;
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;
 }
 
 /* --- モーダルボタン --- */
@@ -284,3 +285,4 @@ body {
 .material-item .buttons button i {
     font-size: 16px !important;
 }
+
