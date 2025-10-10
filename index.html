@@ -10,28 +10,18 @@
     <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
-    <div class="main-content-scroll-wrapper" id="wrapper">
-        <header class="header">
+    <!-- メインコンテナ -->
+    <main class="main-content-scroll-wrapper" id="wrapper">
+        <div class="header">
             <h1>今日の学習リスト</h1>
             <p id="today-date"></p>
-        </header>
-
-        <main class="card-list"></main>
-
-        <section class="material-list-section">
+        </div>
+        <div class="card-list"></div>
+        <div class="material-list-section">
             <h2>教材一覧</h2>
             <div id="material-list" class="material-list"></div>
-        </section>
-    </div>
-
-    <footer class="button-group">
-        <button id="add-material" class="action-button">
-            <i class="fa-solid fa-plus"></i> 教材追加
-        </button>
-        <button id="sort-btn" class="action-button">
-            <i class="fa-solid fa-arrows-up-down"></i> 並び替え
-        </button>
-    </footer>
+        </div>
+    </main>
 
     <!-- 教材追加モーダル -->
     <div id="add-material-modal" class="modal hidden">
@@ -69,11 +59,11 @@
                 <select id="plan-material"></select>
             </label>
             <label>
-                範囲：
+                範囲・内容：
                 <input type="text" id="plan-range" placeholder="例：p.10〜20">
             </label>
             <label>
-                時間：
+                開始時間：
                 <input type="time" id="plan-time">
             </label>
             <div class="modal-buttons">
@@ -95,9 +85,20 @@
         </div>
     </div>
 
+    <!-- フッターボタン -->
+    <footer class="button-group">
+        <button id="add-material" class="action-button">
+            <i class="fa-solid fa-plus"></i> 教材追加
+        </button>
+        <button id="sort-btn" class="action-button">
+            <i class="fa-solid fa-arrows-up-down"></i> 並び替え
+        </button>
+    </footer>
+
     <script src="static/script.js"></script>
 </body>
 </html>
+
 
 
 
