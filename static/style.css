@@ -31,6 +31,9 @@ body {
     margin: 0 auto;
     padding: 0 16px;
     padding-bottom: 12px;
+
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 .main-content-scroll-wrapper::-webkit-scrollbar { display: none; }
 
@@ -282,3 +285,4 @@ body {
 .material-item .buttons button i {
     font-size: 16px !important;
 }
+
