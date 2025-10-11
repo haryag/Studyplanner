@@ -116,6 +116,7 @@ function renderTodayPlans() {
         if (!b.time) return -1;
         return a.time.localeCompare(b.time);
     });
+
     sortedPlans.forEach(plan => {
         const material = materials.find(m => m.id === plan.materialId);
         if (!material) return;
@@ -148,11 +149,17 @@ function renderTodayPlans() {
             item.style.color = "#808080";
 
             // アイコンも文字もグレーに
-            iconDiv.querySelector("i").style.color = "#808080";
+            const mainIcon = iconDiv.querySelector("i");
+            if (mainIcon) mainIcon.style.color = "#808080";
+
             const iconsInInfo = infoDiv.querySelectorAll("i");
             iconsInInfo.forEach(i => i.style.color = "#808080");
-            rangeDiv.querySelector("i")?.style.color = "#808080";
-            timeDiv.querySelector("i")?.style.color = "#808080";
+
+            const rangeIcon = rangeDiv.querySelector("i");
+            if (rangeIcon) rangeIcon.style.color = "#808080";
+
+            const timeIcon = timeDiv.querySelector("i");
+            if (timeIcon) timeIcon.style.color = "#808080";
         }
 
         // --- ボタン ---
@@ -202,6 +209,7 @@ function renderTodayPlans() {
         addTapToggle(item);
         studyList.appendChild(item);
     });
+}
 }
 
 // --- 教材一覧表示 ---
@@ -407,6 +415,7 @@ confirmSortBtn.addEventListener("click", () => {
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
 
 
 
