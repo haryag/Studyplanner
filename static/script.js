@@ -116,42 +116,46 @@ function renderTodayPlans() {
         if (!b.time) return -1;
         return a.time.localeCompare(b.time);
     });
-
     sortedPlans.forEach(plan => {
         const material = materials.find(m => m.id === plan.materialId);
         if (!material) return;
 
         const item = document.createElement("div");
         item.className = `study-item ${material.subject}`;
-        if (plan.checked) {
-            item.style.backgroundColor = "#f0f0f0";
-            item.style.color = "#808080";
-            item.classList.add("checked");
-        } else {
-            item.classList.remove("checked");
-        }
-        
+        item.classList.toggle("checked", plan.checked);
+
+        // --- アイコン ---
         const iconDiv = document.createElement("div");
         iconDiv.className = "study-icon";
         iconDiv.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
-        
+
+        // --- 情報 ---
         const infoDiv = document.createElement("div");
         infoDiv.className = "study-info";
-        if(plan.checked) infoDiv.querySelector("i").style.color="#808080";
-        
+
         const nameDiv = document.createElement("div");
         nameDiv.textContent = material.name;
-        
+
         const rangeDiv = document.createElement("div");
         rangeDiv.innerHTML = `<i class="fa-solid fa-pencil"></i> ${plan.range}`;
-        if(plan.checked) rangeDiv.querySelector("i").style.color="#808080";
 
         const timeDiv = document.createElement("div");
-        if (plan.time) {
-            timeDiv.innerHTML = `<i class="fa-regular fa-clock"></i> ${plan.time}`;
-        }
-        if(plan.checked) timeDiv.querySelector("i").style.color="#808080";
+        if (plan.time) timeDiv.innerHTML = `<i class="fa-regular fa-clock"></i> ${plan.time}`;
 
+        // --- チェック済みなら色をまとめて変更 ---
+        if (plan.checked) {
+            item.style.backgroundColor = "#f0f0f0";
+            item.style.color = "#808080";
+
+            // アイコンも文字もグレーに
+            iconDiv.querySelector("i").style.color = "#808080";
+            const iconsInInfo = infoDiv.querySelectorAll("i");
+            iconsInInfo.forEach(i => i.style.color = "#808080");
+            rangeDiv.querySelector("i")?.style.color = "#808080";
+            timeDiv.querySelector("i")?.style.color = "#808080";
+        }
+
+        // --- ボタン ---
         const checkBtn = createIconButton(
             "check",
             '<i class="fa-solid fa-check"></i>',
@@ -403,5 +407,6 @@ confirmSortBtn.addEventListener("click", () => {
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
 
 
