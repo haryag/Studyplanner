@@ -210,7 +210,6 @@ function renderTodayPlans() {
         studyList.appendChild(item);
     });
 }
-}
 
 // --- 教材一覧表示 ---
 function renderMaterialList() {
@@ -415,6 +414,7 @@ confirmSortBtn.addEventListener("click", () => {
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
 
 
 
