@@ -141,8 +141,11 @@ function renderTodayPlans() {
         
         const nameDiv = document.createElement("div");
         nameDiv.textContent = material.name;
+        if(plan.checked) nameDiv.querySelector("i").style.color="#808080";
+        
         const rangeDiv = document.createElement("div");
         rangeDiv.innerHTML = `<i class="fa-solid fa-pencil"></i> ${plan.range}`;
+        if(plan.checked) rangeDiv.querySelector("i").style.color="#808080";
 
         const timeDiv = document.createElement("div");
         if (plan.time) {
@@ -400,3 +403,4 @@ confirmSortBtn.addEventListener("click", () => {
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
