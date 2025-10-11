@@ -123,17 +123,19 @@ function renderTodayPlans() {
 
         const item = document.createElement("div");
         item.className = `study-item ${material.subject}`;
-        if (plan.checked) {
-            item.style.backgroundColor = "#f0f0f0";
-            item.style.color = "#808080";
-            item.classList.add("checked");
-        } else {
-            item.classList.remove("checked");
-        }
 
         const iconDiv = document.createElement("div");
         iconDiv.className = "study-icon";
         iconDiv.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+        
+        if (plan.checked) {
+            item.style.backgroundColor = "#f0f0f0";
+            item.style.color = "#808080";
+            item.classList.add("checked");
+            iconDiv.querySelector("i").style.color = "#808080";
+        } else {
+            item.classList.remove("checked");
+        }
 
         const infoDiv = document.createElement("div");
         infoDiv.className = "study-info";
