@@ -248,7 +248,7 @@ body {
 .material-item.tapped .buttons,
 .study-item.tapped .buttons {
     display: flex;
-    gap: 8px;
+    gap: 2px;
 }
 
 .material-item button,
@@ -285,6 +285,3 @@ body {
 .material-item .buttons button i {
     font-size: 16px !important;
 }
-
-
-
