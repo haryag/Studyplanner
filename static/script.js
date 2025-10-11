@@ -141,7 +141,6 @@ function renderTodayPlans() {
         
         const nameDiv = document.createElement("div");
         nameDiv.textContent = material.name;
-        if(plan.checked) nameDiv.querySelector("i").style.color="#808080";
         
         const rangeDiv = document.createElement("div");
         rangeDiv.innerHTML = `<i class="fa-solid fa-pencil"></i> ${plan.range}`;
@@ -151,6 +150,7 @@ function renderTodayPlans() {
         if (plan.time) {
             timeDiv.innerHTML = `<i class="fa-regular fa-clock"></i> ${plan.time}`;
         }
+        if(plan.checked) timeDiv.querySelector("i").style.color="#808080";
 
         const checkBtn = createIconButton(
             "check",
@@ -403,4 +403,5 @@ confirmSortBtn.addEventListener("click", () => {
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
 
