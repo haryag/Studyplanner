@@ -239,8 +239,8 @@ body {
     display: none;
     position: absolute;
     font-size: 16px;
-    padding: 6px;
     top: 50%;
+    right: 8px;
     transform: translateY(-50%);
 }
 
@@ -248,14 +248,14 @@ body {
 .material-item.tapped .buttons,
 .study-item.tapped .buttons {
     display: flex;
-    gap: 4px;
+    gap: 8px;
 }
 
 .material-item button,
 .study-item button {
     background: transparent;
     border: 0;
-    padding: 0;
+    padding: 6px;
     cursor: pointer;
 }
 
@@ -285,5 +285,6 @@ body {
 .material-item .buttons button i {
     font-size: 16px !important;
 }
+
 
 
