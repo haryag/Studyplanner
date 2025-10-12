@@ -41,7 +41,11 @@
             </label>
             <label>
                 教材名：
-                <input type="text" id="material-name" placeholder="教材名を入力">
+                <input type="text" id="material-name" placeholder="教材名を選択">
+            </label>
+            <label>
+                進度（単位：%）：
+                <input type="number" id="material-progress" min="0" max="100" placeholder="0～100の値を入力">
             </label>
             <div class="modal-buttons">
                 <button id="cancel-add" class="cancel">キャンセル</button>
@@ -98,12 +102,3 @@
     <script src="static/script.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
