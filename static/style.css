@@ -88,6 +88,30 @@ body {
     word-break: break-word;
 }
 
+/* --- 教材一覧 --- */
+.material-list-section {
+    margin: 8px 0;
+}
+.material-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    border: 0;
+    border-left: 4px solid transparent;
+    margin-bottom: 4px;
+    font-size: 15px;
+    position: relative;
+}
+/* 教科ごとの左枠色設定 */
+.material-item.math { border-color: #00008b; }
+.material-item.english { border-color: #ff69b4; }
+.material-item.modernjp { border-color: #ffa600; }
+.material-item.classicjp { border-color: #a0522d; }
+.material-item.science { border-color: #228b22; }
+.material-item.social { border-color: #ffd700; }
+.material-item.others { border-color: #808080; }
+
 /* --- フッター --- */
 .button-group {
     width: 100%;
@@ -196,30 +220,6 @@ body {
     cursor: pointer;
 }
 
-/* --- 教材一覧 --- */
-.material-list-section {
-    margin: 8px 0;
-}
-.material-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 8px;
-    border: 0;
-    border-left: 4px solid transparent;
-    margin-bottom: 4px;
-    font-size: 15px;
-    position: relative;
-}
-/* 教科ごとの左枠色 */
-.material-item.math { border-color: #00008b; }
-.material-item.english { border-color: #ff69b4; }
-.material-item.modernjp { border-color: #ffa600; }
-.material-item.classicjp { border-color: #a0522d; }
-.material-item.science { border-color: #228b22; }
-.material-item.social { border-color: #ffd700; }
-.material-item.others { border-color: #808080; }
-
 /* --- チェック・編集・削除ボタン --- */
 .material-item .buttons,
 .plan-item .buttons {
@@ -253,6 +253,7 @@ body {
 .material-item button.delete i { color: red !important; }
 .plan-item .buttons button i,
 .material-item .buttons button i { font-size: 16px !important; }
+
 
 
 
