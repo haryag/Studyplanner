@@ -52,7 +52,7 @@ body {
     display: flex;
     width: 100%;
     margin: 4px 0;
-    padding: 8px;
+    padding: 6px 8px;
     border-radius: 12px;
     font-size: 15px;
     align-items: center;
@@ -253,6 +253,7 @@ body {
 .material-item button.delete i { color: red !important; }
 .plan-item .buttons button i,
 .material-item .buttons button i { font-size: 16px !important; }
+
 
 
 
