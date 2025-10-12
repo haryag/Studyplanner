@@ -14,6 +14,7 @@ const materialListDiv = document.getElementById("material-list");
 const addMaterialModal = document.getElementById("add-material-modal");
 const materialSubject = document.getElementById("material-subject");
 const materialName = document.getElementById("material-name");
+const materialProgress = document.getElementById("material-progress");
 const cancelAdd = document.getElementById("cancel-add");
 const confirmAdd = document.getElementById("confirm-add");
 const addPlanModal = document.getElementById("add-plan-modal");
@@ -138,7 +139,7 @@ function renderTodayPlans() {
         nameDiv.textContent = material.name;
 
         const rangeDiv = document.createElement("div");
-        rangeDiv.innerHTML = `<i class="fa-solid fa-pencil"></i> ${plan.range}`;
+        rangeDiv.innerHTML = `<i class="fa-regular fa-pen-to-square"></i> ${plan.range}`;
 
         const timeDiv = document.createElement("div");
         if (plan.time) timeDiv.innerHTML = `<i class="fa-regular fa-clock"></i> ${plan.time}`;
@@ -217,6 +218,8 @@ function renderMaterialList() {
     materials.forEach(mat => {
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
+        itemDiv.style.setProperty('--material-bg-color', `var(--bg-color-${mat.subject})`);
+        itemDiv.style.setProperty('--material-bg-width', `${mat.progress}%`);
 
         const nameDiv = document.createElement("div");
         nameDiv.className = "material-name";
@@ -228,7 +231,7 @@ function renderMaterialList() {
 
         const addPlanBtn = createIconButton(
             "add-plan",
-            '<i class="fa-solid fa-square-plus"></i>',
+            '<i class="fa-solid fa-plus"></i>',
             () => {
                 populateMaterialSelect(mat.id);
                 planRange.value = "";
@@ -244,6 +247,7 @@ function renderMaterialList() {
             () => {
                 materialSubject.value = mat.subject;
                 materialName.value = mat.name;
+                materialProgress.value = mat.progress;
                 editingMaterialId = mat.id;
                 toggleModal(addMaterialModal, true);
             }
@@ -336,6 +340,7 @@ function updateSortButtons() {
 document.getElementById("add-material").addEventListener("click", () => {
     materialName.value = "";
     materialSubject.value = "math";
+    materialProgress.value = 0;
     editingMaterialId = null;
     toggleModal(addMaterialModal, true);
 });
@@ -348,13 +353,15 @@ cancelAdd.addEventListener("click", () => {
 confirmAdd.addEventListener("click", () => {
     const name = materialName.value.trim();
     const subject = materialSubject.value;
+    const progress = parseInt(materialProgress.value);
     if (!name) return alert("教材名を入力してください");
+    if (isNaN(progress) || progress < 0 || progress > 100) return alert("進度は0～100の値で入力してください");
     if (editingMaterialId !== null) {
         const mat = materials.find(m => m.id === editingMaterialId);
-        if (mat) { mat.name = name; mat.subject = subject; }
+        if (mat) { mat.name = name; mat.subject = subject; mat.progress = progress; }
     } else {
         const newId = materials.length ? Math.max(...materials.map(m => m.id)) + 1 : 1;
-        materials.push({ id: newId, name, subject });
+        materials.push({ id: newId, name, subject , progress });
     }
     editingMaterialId = null;
     toggleModal(addMaterialModal, false);
@@ -414,9 +421,3 @@ confirmSortBtn.addEventListener("click", () => {
 loadData();
 renderMaterialList();
 renderTodayPlans();
-
-
-
-
-
-
