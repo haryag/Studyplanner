@@ -1,4 +1,20 @@
 /* --- 全体 --- */
+:root {
+    --main-color-math: #00008b;
+    --main-color-english: #ff69b4;
+    --main-color-modernjp: #f49200;
+    --main-color-classicjp: #a0522d;
+    --main-color-science: #228b22;
+    --main-color-social: #e6c700;
+    --main-color-others: #808080;
+    --bg-color-math: #e6efff;
+    --bg-color-english: #ffe6f0;
+    --bg-color-modernjp: #fff4e6;
+    --bg-color-classicjp: #f5f0e6;
+    --bg-color-science: #e7f7ee;
+    --bg-color-social: #fffbde;
+    --bg-color-others: #f0f0f0;
+}
 * {
     font-family: sans-serif;
     box-sizing: border-box;
@@ -59,20 +75,20 @@ body {
     position: relative;  /* 子要素のpositionを絶対指定したいときに必要 */
 }
 /* 教科ごとの色設定 */
-.plan-item.math { background-color: #e6efff; }
-.plan-item.math i { color: #00008b; }
-.plan-item.english { background-color: #ffe6f0; }
-.plan-item.english i { color: #ff69b4; }
-.plan-item.modernjp { background-color: #fff4e6; }
-.plan-item.modernjp i { color: #ffa600; }
-.plan-item.classicjp { background-color: #f5f0e6; }
-.plan-item.classicjp i { color: #a0522d; }
-.plan-item.science { background-color: #e6fff0; }
-.plan-item.science i { color: #228b22; }
-.plan-item.social { background-color: #fffde6; }
-.plan-item.social i { color: #ffd700; }
-.plan-item.others { background-color: #f0f0f0; }
-.plan-item.others i { color: #808080; }
+.plan-item.math { background-color: var(--bg-color-math); }
+.plan-item.math i { color: var(--main-color-math); }
+.plan-item.english { background-color: var(--bg-color-english); }
+.plan-item.english i { color: var(--main-color-english); }
+.plan-item.modernjp { background-color: var(--bg-color-modernjp); }
+.plan-item.modernjp i { color: var(--main-color-modernjp); }
+.plan-item.classicjp { background-color: var(--bg-color-classicjp); }
+.plan-item.classicjp i { color: var(--main-color-classicjp); }
+.plan-item.science { background-color: var(--bg-color-science); }
+.plan-item.science i { color: var(--main-color-science); }
+.plan-item.social { background-color: var(--bg-color-social); }
+.plan-item.social i { color: var(--main-color-social); }
+.plan-item.others { background-color: var(--bg-color-others); }
+.plan-item.others i { color: var(--main-color-others); }
 
 .plan-icon {
     width: 40px;
@@ -93,6 +109,8 @@ body {
     margin: 8px 0;
 }
 .material-item {
+    --material-bg-color: #f5f5fe;
+    --material-bg-width: 90%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -103,14 +121,25 @@ body {
     font-size: 15px;
     position: relative;
 }
+.material-item::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--material-bg-width);
+    height: 100%;
+    background-color: var(--material-bg-color);
+    opacity: 0.8;
+    z-index: -1;
+}
 /* 教科ごとの左枠色設定 */
-.material-item.math { border-color: #00008b; }
-.material-item.english { border-color: #ff69b4; }
-.material-item.modernjp { border-color: #ffa600; }
-.material-item.classicjp { border-color: #a0522d; }
-.material-item.science { border-color: #228b22; }
-.material-item.social { border-color: #ffd700; }
-.material-item.others { border-color: #808080; }
+.material-item.math { border-color: var(--main-color-math); }
+.material-item.english { border-color: var(--main-color-english); }
+.material-item.modernjp { border-color: var(--main-color-modernjp); }
+.material-item.classicjp { border-color: var(--main-color-classicjp); }
+.material-item.science { border-color: var(--main-color-science); }
+.material-item.social { border-color: var(--main-color-social); }
+.material-item.others { border-color: var(--main-color-others); }
 
 /* --- フッター --- */
 .button-group {
@@ -253,9 +282,3 @@ body {
 .material-item button.delete i { color: red !important; }
 .plan-item .buttons button i,
 .material-item .buttons button i { font-size: 16px !important; }
-
-
-
-
-
-
