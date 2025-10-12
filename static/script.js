@@ -9,7 +9,7 @@ let backupMaterials = [];
 // --- DOM要素 ---
 const wrapper = document.getElementById("wrapper");
 const buttonGroup = document.querySelector(".button-group");
-const studyList = document.querySelector(".card-list");
+const planList = document.querySelector(".plan-list-section");
 const materialListDiv = document.getElementById("material-list");
 const addMaterialModal = document.getElementById("add-material-modal");
 const materialSubject = document.getElementById("material-subject");
@@ -91,7 +91,7 @@ function createIconButton(className, iconHtml, onClick) {
 function addTapToggle(itemDiv) {
     itemDiv.addEventListener("click", (e) => {
         if (e.target.closest("button")) return;
-        document.querySelectorAll('.material-item.tapped, .study-item.tapped').forEach(div => {
+        document.querySelectorAll('.material-item.tapped, .plan-item.tapped').forEach(div => {
             if (div !== itemDiv) div.classList.remove('tapped');
         });
         itemDiv.classList.toggle("tapped");
@@ -107,7 +107,7 @@ function saveAndRender() {
 
 // --- 今日の予定表示 ---
 function renderTodayPlans() {
-    studyList.innerHTML = "";
+    planList.innerHTML = "";
     const todayPlans = dailyPlans[todayDate] || [];
     const sortedPlans = [...todayPlans].sort((a, b) => {
         if (a.checked && !b.checked) return 1;
@@ -122,17 +122,17 @@ function renderTodayPlans() {
         if (!material) return;
 
         const item = document.createElement("div");
-        item.className = `study-item ${material.subject}`;
+        item.className = `plan-item ${material.subject}`;
         item.classList.toggle("checked", plan.checked);
 
         // --- アイコン ---
         const iconDiv = document.createElement("div");
-        iconDiv.className = "study-icon";
+        iconDiv.className = "plan-icon";
         iconDiv.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
 
         // --- 情報 ---
         const infoDiv = document.createElement("div");
-        infoDiv.className = "study-info";
+        infoDiv.className = "plan-info";
 
         const nameDiv = document.createElement("div");
         nameDiv.textContent = material.name;
@@ -207,7 +207,7 @@ function renderTodayPlans() {
 
         item.append(iconDiv, infoDiv, btnContainer);
         addTapToggle(item);
-        studyList.appendChild(item);
+        planList.appendChild(item);
     });
 }
 
@@ -414,6 +414,7 @@ confirmSortBtn.addEventListener("click", () => {
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
 
 
 
