@@ -91,7 +91,7 @@ body {
 /* --- フッター --- */
 .button-group {
     width: 100%;
-    max-width: 600px;
+    max-width: 700px;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
@@ -253,6 +253,7 @@ body {
 .material-item button.delete i { color: red !important; }
 .plan-item .buttons button i,
 .material-item .buttons button i { font-size: 16px !important; }
+
 
 
 
