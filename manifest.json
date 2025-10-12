@@ -1,10 +1,10 @@
 {
-  "name": "StudyPlanner",
-  "short_name": "StudyPlanner",
+  "name": "Studyplanner",
+  "short_name": "Studyplanner",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#007bff",
+  "background_color": "#808080",
+  "theme_color": "#000000",
   "icons": [
     {
       "src": "icon/icon-192.png",
