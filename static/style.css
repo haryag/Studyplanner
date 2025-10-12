@@ -53,7 +53,7 @@ body {
     margin: 4px 0;
     padding: 8px;
     border-radius: 12px;
-    /* font-size: 16px; */
+    font-size: 15px;
     align-items: center;
     position: relative;  /* 子要素のpositionを絶対指定したいときに必要 */
 }
@@ -196,7 +196,7 @@ body {
 }
 
 /* --- 教材一覧 --- */
-.material-list {
+.material-list-section {
     margin: 8px 0;
 }
 .material-item {
@@ -207,6 +207,7 @@ body {
     border: 0;
     border-left: 4px solid transparent;
     margin-bottom: 4px;
+    font-size: 15px;
     position: relative;
 }
 /* 教科ごとの左枠色 */
@@ -251,4 +252,5 @@ body {
 .material-item button.delete i { color: red !important; }
 .plan-item .buttons button i,
 .material-item .buttons button i { font-size: 16px !important; }
+
 
