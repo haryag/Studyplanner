@@ -60,14 +60,14 @@ body {
 
 /* --- 予定リスト --- */
 .plan-list-section {
-    display: flex;
-    flex-direction: column;
+    /* display: flex;
+    flex-direction: column; */
     width: 100%;
 }
 .plan-item {
     display: flex;
     width: 100%;
-    margin: 4px 0;
+    margin: 8px 0;
     padding: 6px 8px;
     border-radius: 12px;
     font-size: 15px;
@@ -296,7 +296,6 @@ body {
         overflow: visible !important;
     }
     .plan-item, .material-item {
-        display: block !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;  /* 要素の改ページを防止 */
     }
