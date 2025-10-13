@@ -161,7 +161,7 @@ body {
 }
 /* ボタン */
 .action-button {
-    flex: 1;
+    flex: 2;
     margin: 0;
     border-radius: 0;
     border: none;
@@ -282,3 +282,25 @@ body {
 .material-item button.delete i { color: red !important; }
 .plan-item .buttons button i,
 .material-item .buttons button i { font-size: 16px !important; }
+
+@media print {
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    body {
+        max-width: 100%;
+    }
+    .main-content-scroll-wrapper {
+        height: auto !important;
+        overflow: visible !important;
+    }
+    .plan-item, .material-item {
+        break-inside: avoid;  /* 要素の改ページを防止 */
+    }
+    .button-group,
+    .plan-item .buttons,
+    .material-item .buttons {
+        display: none !important;
+    }
+}
