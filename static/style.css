@@ -296,7 +296,7 @@ body {
         overflow: visible !important;
     }
     .plan-item, .material-item {
-        break-inside: avoid;  /* 要素の改ページを防止 */
+        break-inside: avoid !important;  /* 要素の改ページを防止 */
     }
     .button-group,
     .plan-item .buttons,
