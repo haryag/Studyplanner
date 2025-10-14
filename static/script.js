@@ -227,7 +227,7 @@ function renderMaterialList() {
         const nameDiv = document.createElement("div");
         nameDiv.className = "material-name";
         nameDiv.textContent = mat.name;
-        if (today < startDate || today > endDate) {
+        if (today < mat.startDate || today > mat.endDate) {
             nameDiv.style.color = "#808080";
         }
         itemDiv.appendChild(nameDiv);
@@ -434,5 +434,6 @@ confirmSortBtn.addEventListener("click", () => {
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
 
 
