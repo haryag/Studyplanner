@@ -15,6 +15,8 @@ const addMaterialModal = document.getElementById("add-material-modal");
 const materialSubject = document.getElementById("material-subject");
 const materialName = document.getElementById("material-name");
 const materialProgress = document.getElementById("material-progress");
+const materialTimeStart = document.getElementById("material-time-start");
+const materialTimeEnd = document.getElementById("material-time-end");
 const cancelAdd = document.getElementById("cancel-add");
 const confirmAdd = document.getElementById("confirm-add");
 const addPlanModal = document.getElementById("add-plan-modal");
@@ -214,13 +216,14 @@ function renderTodayPlans() {
 
 // --- 教材一覧表示 ---
 function renderMaterialList() {
+    const today = new Date();
     materialListDiv.innerHTML = "";
     materials.forEach(mat => {
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
         itemDiv.style.setProperty('--material-bg-color', `var(--bg-color-${mat.subject})`);
         itemDiv.style.setProperty('--material-bg-width', `${mat.progress}%`);
-
+        
         const nameDiv = document.createElement("div");
         nameDiv.className = "material-name";
         nameDiv.textContent = mat.name;
@@ -248,6 +251,8 @@ function renderMaterialList() {
                 materialSubject.value = mat.subject;
                 materialName.value = mat.name;
                 materialProgress.value = mat.progress;
+                materialTimeStart.value = mat.startDate;
+                materialTimeEnd.value = mat.endDate;
                 editingMaterialId = mat.id;
                 toggleModal(addMaterialModal, true);
             }
@@ -341,6 +346,8 @@ document.getElementById("add-material").addEventListener("click", () => {
     materialName.value = "";
     materialSubject.value = "math";
     materialProgress.value = 0;
+    materialTimeStart.value = "";
+    materialTimeEnd.value = "";
     editingMaterialId = null;
     toggleModal(addMaterialModal, true);
 });
@@ -354,14 +361,16 @@ confirmAdd.addEventListener("click", () => {
     const name = materialName.value.trim();
     const subject = materialSubject.value;
     const progress = parseInt(materialProgress.value);
+    const startDate = new Date(materialTimeStart.value);
+    const endDate = new Date(materialTimeEnd.value);
     if (!name) return alert("教材名を入力してください");
     if (isNaN(progress) || progress < 0 || progress > 100) return alert("進度は0～100の値で入力してください");
     if (editingMaterialId !== null) {
         const mat = materials.find(m => m.id === editingMaterialId);
-        if (mat) { mat.name = name; mat.subject = subject; mat.progress = progress; }
+        if (mat) { mat.name = name; mat.subject = subject; mat.progress = progress; mat.startDate = startDate; mat.endDate = endDate; }
     } else {
         const newId = materials.length ? Math.max(...materials.map(m => m.id)) + 1 : 1;
-        materials.push({ id: newId, name, subject , progress });
+        materials.push({ id: newId, name, subject , progress , startDate , endDate });
     }
     editingMaterialId = null;
     toggleModal(addMaterialModal, false);
@@ -421,3 +430,4 @@ confirmSortBtn.addEventListener("click", () => {
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
