@@ -218,7 +218,7 @@ body {
     -moz-appearance: none !important;
     width: 100% !important;
     max-width: 100% !important;
-    min-height: 30px;
+    min-height: 30px !important;
     color: black !important;
     background-color: #ffffff !important;
     border: 0;
@@ -307,5 +307,6 @@ body {
         display: none !important;
     }
 }
+
 
 
