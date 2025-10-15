@@ -224,12 +224,12 @@ body {
     border: 0;
     border-bottom: 1px solid #000 !important;
     border-radius: 0 !important;
-    margin: 2px 0;
+    margin: 2px;
     padding: 4px 8px;
     font-size: 15px !important;
     box-sizing: border-box !important;
 }
-.modal-content input[type="date"] { width: 50% !important; }
+.modal-content input[type="date"] { width: calc(50% - 2px) !important; }
 
 .modal-buttons {
     display: flex;
@@ -308,6 +308,7 @@ body {
         display: none !important;
     }
 }
+
 
 
 
