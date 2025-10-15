@@ -226,9 +226,10 @@ body {
     border-radius: 0 !important;
     margin: 2px 0;
     padding: 4px 8px;
-    font-size: 16px !important;
+    font-size: 15px !important;
     box-sizing: border-box !important;
 }
+.modal-content input[type="date"] { width: 50% !important; }
 
 .modal-buttons {
     display: flex;
@@ -307,6 +308,7 @@ body {
         display: none !important;
     }
 }
+
 
 
 
