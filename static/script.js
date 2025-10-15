@@ -368,7 +368,7 @@ confirmAdd.addEventListener("click", () => {
     const endDate = materialTimeEnd.value;
     if (!name) return alert("教材名を入力してください");
     if (isNaN(progress) || progress < 0 || progress > 100) return alert("進度は0～100の値で入力してください");
-    if (isNaN(new Date(startDate)) || isNaN(new Date(endDate)) || new Date(startDate) >= new Date(endDate) ) return alert("正しい日付を入力してください");
+    // if (isNaN(new Date(startDate)) || isNaN(new Date(endDate)) || new Date(startDate) >= new Date(endDate) ) return alert("正しい日付を入力してください");
     if (editingMaterialId !== null) {
         const mat = materials.find(m => m.id === editingMaterialId);
         if (mat) { mat.name = name; mat.subject = subject; mat.progress = progress; mat.startDate = startDate; mat.endDate = endDate; }
@@ -434,8 +434,3 @@ confirmSortBtn.addEventListener("click", () => {
 loadData();
 renderMaterialList();
 renderTodayPlans();
-
-
-
-
-
