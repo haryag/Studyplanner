@@ -229,7 +229,7 @@ body {
     font-size: 15px !important;
     box-sizing: border-box !important;
 }
-.modal-content input[type="date"] { width: calc(50% - 2px) !important; }
+.modal-content input[type="date"] { width: calc(50% - 4px) !important; }
 
 .modal-buttons {
     display: flex;
@@ -308,6 +308,7 @@ body {
         display: none !important;
     }
 }
+
 
 
 
