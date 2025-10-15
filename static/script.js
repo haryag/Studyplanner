@@ -227,8 +227,8 @@ function renderMaterialList() {
         const nameDiv = document.createElement("div");
         nameDiv.className = "material-name";
         nameDiv.textContent = mat.name;
-        if (today < mat.startDate || today > mat.endDate) {
-            nameDiv.style.color = "#808080";
+        if (today < new Date(mat.startDate) || today > new Date(mat.endDate)) {
+            nameDiv.style.color = "#c0c0c0";
         }
         itemDiv.appendChild(nameDiv);
 
@@ -364,8 +364,8 @@ confirmAdd.addEventListener("click", () => {
     const name = materialName.value.trim();
     const subject = materialSubject.value;
     const progress = parseInt(materialProgress.value);
-    const startDate = new Date(materialTimeStart.value);
-    const endDate = new Date(materialTimeEnd.value);
+    const startDate = materialTimeStart.value;
+    const endDate = materialTimeEnd.value;
     if (!name) return alert("教材名を入力してください");
     if (isNaN(progress) || progress < 0 || progress > 100) return alert("進度は0～100の値で入力してください");
     if (isNaN(startDate) || isNaN(endDate) || startDate >= endDate ) return alert("正しい日付を入力してください");
@@ -434,6 +434,7 @@ confirmSortBtn.addEventListener("click", () => {
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
 
 
 
