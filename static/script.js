@@ -373,7 +373,7 @@ function renderSortMaterialModal() {
                 [materials[idx], materials[idx + 1]] = [materials[idx + 1], materials[idx]];
                 const nextDiv = itemDiv.nextElementSibling;
                 if (nextDiv) sortMaterialList.insertBefore(itemDiv, nextDiv);
-                else sortMaterialList.appendChild(itemDiv);
+                // else sortMaterialList.appendChild(itemDiv);
                 itemDiv.classList.add('tapped');
                 updateSortButtons();
             }
@@ -522,5 +522,6 @@ confirmInfo.addEventListener("click", () => {
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
 
 
