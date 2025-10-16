@@ -10,16 +10,28 @@
     <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
-    <main class="main-content-scroll-wrapper" id="wrapper">
+    <main id="wrapper" class="main-content-wrapper">
         <!-- メインコンテナ -->
-        <div class="header">
-            <h1>今日の学習リスト</h1>
-            <p id="today-date"></p>
+        <div id="plan-list-section" class="list-section hidden">
+            <div class="header">
+                <h1>今日の学習リスト</h1>
+                <p id="today-date"></p>
+            </div>
+            <div id="plan-list"></div>
         </div>
-        <div class="plan-list-section"></div>
-        <div class="material-list-section">
-            <h2>教材一覧</h2>
+        <div id="material-list-section" class="list-section">
+            <div class="header">
+                <h1>教材一覧</h1>
+            </div>
             <div id="material-list" class="material-list"></div>
+            <div>
+                <button id="add-material-btn" class="bottom-button">
+                    <i class="fa-solid fa-plus"></i> 教材追加
+                </button>
+                <button id="sort-btn" class="bottom-button">
+                    <i class="fa-solid fa-arrows-up-down"></i> 並び替え
+                </button>
+            </div>
         </div>
     </main>
 
@@ -43,10 +55,6 @@
                 教材名：
                 <input type="text" id="material-name" placeholder="教材名を選択">
             </label>
-            <label>
-                進度（単位：%）：
-                <input type="number" id="material-progress" min="0" max="100" placeholder="0～100の値を入力">
-            </label>
             <div class="modal-buttons">
                 <button id="cancel-add" class="cancel">キャンセル</button>
                 <button id="confirm-add" class="ok">OK</button>
@@ -64,7 +72,7 @@
             </label>
             <label>
                 範囲・内容：
-                <input type="text" id="plan-range" placeholder="例：p.10〜20">
+                <input type="text" id="plan-content" placeholder="例：p.10〜20">
             </label>
             <label>
                 開始時間：
@@ -89,16 +97,42 @@
         </div>
     </div>
 
+    <div id="info-material-modal" class="modal hidden">
+        <!-- 教材情報モーダル -->
+        <div class="modal-content">
+            <h2>教材の詳細</h2>
+            <p id="material-name-div"></p>
+            <label>
+                期間：
+                <input type="text" id="material-date" placeholder="日付を入力">
+            </label>
+            <label>
+                進度（単位：%）：
+                <input type="number" id="material-progress" min="0" max="100" placeholder="0～100の値を入力">
+            </label>
+            <label>
+                コメント：
+                <textarea id="material-detail" placeholder="入力してください（改行できます）" rows="3"></textarea>
+            </label>
+            <p>
+                <label>
+                    <input type="checkbox" id="material-ongoing">学習中</p>
+                </label>
+            <div class="modal-buttons">
+                <button id="cancel-info" class="cancel">キャンセル</button>
+                <button id="confirm-info" class="ok">OK</button>
+            </div>
+        </div>
+
+    </div>
+
     <footer class="button-group">
         <!-- フッター要素 -->
-        <button id="add-material" class="action-button">
-            <i class="fa-solid fa-plus"></i> 教材追加
+        <button id="view-section" class="footer-button">
+            <i class="fa-solid fa-list"></i> 表示切替
         </button>
-        <button id="print-btn" class="action-button" onclick="window.print()">
+        <button id="print-btn" class="footer-button" onclick="window.print()">
             <i class="fa-solid fa-print"></i> 印刷
-        </button>
-        <button id="sort-btn" class="action-button">
-            <i class="fa-solid fa-arrows-up-down"></i> 並び替え
         </button>
     </footer>
 
