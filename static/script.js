@@ -9,26 +9,41 @@ let backupMaterials = [];
 // --- DOM要素 ---
 const wrapper = document.getElementById("wrapper");
 const buttonGroup = document.querySelector(".button-group");
-const planList = document.querySelector(".plan-list-section");
+const planListSection = document.getElementById("plan-list-section");
+const planListDiv = document.getElementById("plan-list");
+const materialListSection = document.getElementById("material-list-section");
 const materialListDiv = document.getElementById("material-list");
-const addMaterialModal = document.getElementById("add-material-modal");
-const materialSubject = document.getElementById("material-subject");
-const materialName = document.getElementById("material-name");
-const materialProgress = document.getElementById("material-progress");
-const cancelAdd = document.getElementById("cancel-add");
-const confirmAdd = document.getElementById("confirm-add");
+
+// 予定追加モーダル
 const addPlanModal = document.getElementById("add-plan-modal");
 const planMaterial = document.getElementById("plan-material");
-const planRange = document.getElementById("plan-range");
+const planContent = document.getElementById("plan-content");
 const planTime = document.getElementById("plan-time");
 const cancelPlan = document.getElementById("cancel-plan");
 const confirmPlan = document.getElementById("confirm-plan");
 
-// 並び替えモーダル
+// 教材追加モーダル
+const addMaterialModal = document.getElementById("add-material-modal");
+const materialName = document.getElementById("material-name");
+const materialSubject = document.getElementById("material-subject");
+const cancelAdd = document.getElementById("cancel-add");
+const confirmAdd = document.getElementById("confirm-add");
+
+// 教材情報モーダル
+const infoMaterialModal = document.getElementById("info-material-modal");
+const materialNameDiv = document.getElementById("material-name-div");
+const materialOngoing = document.getElementById("material-ongoing");
+const materialDate = document.getElementById("material-date");
+const materialProgress = document.getElementById("material-progress");
+const materialDetail = document.getElementById("material-detail");
+const cancelInfo = document.getElementById("cancel-info");
+const confirmInfo = document.getElementById("confirm-info");
+
+// 教材並び替えモーダル
 const sortMaterialModal = document.getElementById("sort-material-modal");
 const sortMaterialList = document.getElementById("sort-material-list");
-const cancelSortBtn = document.getElementById("cancel-sort");
-const confirmSortBtn = document.getElementById("confirm-sort");
+const cancelSort = document.getElementById("cancel-sort");
+const confirmSort = document.getElementById("confirm-sort");
 
 let editingMaterialId = null;
 let editingIndex = null;
@@ -54,6 +69,14 @@ function loadData() {
             if (parsed && typeof parsed === "object") Object.assign(dailyPlans, parsed);
         } catch (e) { console.error(e); }
     }
+}
+
+// セクション入れ替え
+
+function toggleSections() {
+    const planVisible = !planListSection.classList.contains("hidden");
+    planListSection.classList.toggle("hidden", planVisible);
+    materialListSection.classList.toggle("hidden", !planVisible);
 }
 
 // モーダル開閉
@@ -108,7 +131,7 @@ function saveAndRender() {
 
 // --- 今日の予定表示 ---
 function renderTodayPlans() {
-    planList.innerHTML = "";
+    planListDiv.innerHTML = "";
     const todayPlans = dailyPlans[todayDate] || [];
     const sortedPlans = [...todayPlans].sort((a, b) => {
         if (a.checked && !b.checked) return 1;
@@ -179,7 +202,7 @@ function renderTodayPlans() {
             '<i class="fa-solid fa-pen"></i>',
             () => {
                 populateMaterialSelect(plan.materialId);
-                planRange.value = plan.range;
+                planContent.value = plan.range;
                 planTime.value = plan.time || "";
                 editingIndex = todayPlans.indexOf(plan);
                 toggleModal(addPlanModal, true);
@@ -208,7 +231,7 @@ function renderTodayPlans() {
 
         item.append(iconDiv, infoDiv, btnContainer);
         addTapToggle(item);
-        planList.appendChild(item);
+        planListDiv.appendChild(item);
     });
 }
 
@@ -221,11 +244,36 @@ function renderMaterialList() {
         itemDiv.style.setProperty('--material-bg-color', `var(--bg-color-${mat.subject})`);
         itemDiv.style.setProperty('--material-bg-width', `${mat.progress}%`);
 
+        // カード（ボタン以外）
         const nameDiv = document.createElement("div");
         nameDiv.className = "material-name";
-        nameDiv.textContent = mat.name;
+
+        const nameTitleDiv = document.createElement("div");
+        nameTitleDiv.className = "material-name-title";
+        nameTitleDiv.textContent = mat.name;
+        
+        const nameDateDiv = document.createElement("div");
+        nameDateDiv.className = "material-name-date";
+        if(mat.date) nameDateDiv.textContent = `期間：${mat.date}`;
+        
+        const nameProgressDiv = document.createElement("div");
+        nameProgressDiv.className = "material-name-progress";
+        nameProgressDiv.textContent = `進度：${mat.progress}%`;
+        
+        const nameCommentDiv = document.createElement("div");
+        nameCommentDiv.className = "material-name-comment";
+        if(mat.detail) nameCommentDiv.innerHTML = mat.detail.replace(/\n/g, "<br>");
+        
+        if(mat.ongoing) {
+            nameTitleDiv.style.fontWeight = "bold";
+        } else {
+            nameDiv.style.color = "#808080";
+            itemDiv.style.setProperty('--material-bg-color', `#f0f0f0`);
+        }
+        nameDiv.append(nameTitleDiv, nameDateDiv, nameProgressDiv, nameCommentDiv);
         itemDiv.appendChild(nameDiv);
 
+        // ボタン群
         const btnDiv = document.createElement("div");
         btnDiv.className = "buttons";
 
@@ -234,7 +282,7 @@ function renderMaterialList() {
             '<i class="fa-solid fa-plus"></i>',
             () => {
                 populateMaterialSelect(mat.id);
-                planRange.value = "";
+                planContent.value = "";
                 planTime.value = "";
                 editingIndex = null;
                 toggleModal(addPlanModal, true);
@@ -247,9 +295,22 @@ function renderMaterialList() {
             () => {
                 materialSubject.value = mat.subject;
                 materialName.value = mat.name;
-                materialProgress.value = mat.progress;
                 editingMaterialId = mat.id;
                 toggleModal(addMaterialModal, true);
+            }
+        );
+        
+        const infoBtn = createIconButton(
+            "info",
+            '<i class="fa-solid fa-info"></i>',
+            () => {
+                materialNameDiv.textContent = mat.name;
+                materialOngoing.checked = mat.ongoing || false;
+                materialDate.value = mat.date || "";
+                materialProgress.value = mat.progress;
+                materialDetail.value = mat.detail || "";
+                editingMaterialId = mat.id;
+                toggleModal(infoMaterialModal, true);
             }
         );
 
@@ -267,8 +328,8 @@ function renderMaterialList() {
                 }
             }
         );
-
-        btnDiv.append(addPlanBtn, editBtn, delBtn);
+        
+        btnDiv.append(addPlanBtn, editBtn, infoBtn, delBtn);
         itemDiv.appendChild(btnDiv);
         addTapToggle(itemDiv);
         materialListDiv.appendChild(itemDiv);
@@ -290,26 +351,39 @@ function renderSortMaterialModal() {
         const btnDiv = document.createElement("div");
         btnDiv.className = "buttons";
 
-        const upBtn = document.createElement("button");
-        upBtn.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
-        const downBtn = document.createElement("button");
-        downBtn.innerHTML = '<i class="fa-solid fa-arrow-down"></i>';
+        const upBtn = createIconButton(
+            "sort-up",
+            '<i class="fa-solid fa-arrow-up"></i>',
+            () => {
+                const idx = materials.indexOf(mat);
+                if (idx <= 0) return;
+                [materials[idx - 1], materials[idx]] = [materials[idx], materials[idx - 1]];
+                const prevDiv = itemDiv.previousElementSibling;
+                if (prevDiv) sortMaterialList.insertBefore(itemDiv, prevDiv);
+                itemDiv.classList.add('tapped');
+                updateSortButtons();
+            }
+        );
+        const downBtn = createIconButton(
+            "sort-down",
+            '<i class="fa-solid fa-arrow-down"></i>',
+            () => {
+                const idx = materials.indexOf(mat);
+                if (idx >= materials.length - 1) return;
+                [materials[idx], materials[idx + 1]] = [materials[idx + 1], materials[idx]];
+                const nextDiv = itemDiv.nextElementSibling;
+                if (nextDiv) sortMaterialList.insertBefore(itemDiv, nextDiv);
+                else sortMaterialList.appendChild(itemDiv);
+                itemDiv.classList.add('tapped');
+                updateSortButtons();
+            }
+        );
+
         btnDiv.append(upBtn, downBtn);
         itemDiv.appendChild(btnDiv);
 
         addTapToggle(itemDiv);
         sortMaterialList.appendChild(itemDiv);
-
-        upBtn.addEventListener("click", e => {
-            e.stopPropagation();
-            const idx = materials.indexOf(mat);
-            if (idx <= 0) return;
-            [materials[idx - 1], materials[idx]] = [materials[idx], materials[idx - 1]];
-            const prevDiv = itemDiv.previousElementSibling;
-            if (prevDiv) sortMaterialList.insertBefore(itemDiv, prevDiv);
-            itemDiv.classList.add('tapped');
-            updateSortButtons();
-        });
 
         downBtn.addEventListener("click", e => {
             e.stopPropagation();
@@ -337,7 +411,7 @@ function updateSortButtons() {
 }
 
 // --- 各種イベント ---
-document.getElementById("add-material").addEventListener("click", () => {
+document.getElementById("add-material-btn").addEventListener("click", () => {
     materialName.value = "";
     materialSubject.value = "math";
     materialProgress.value = 0;
@@ -349,19 +423,16 @@ cancelAdd.addEventListener("click", () => {
     editingMaterialId = null;
     toggleModal(addMaterialModal, false);
 });
-
 confirmAdd.addEventListener("click", () => {
     const name = materialName.value.trim();
     const subject = materialSubject.value;
-    const progress = parseInt(materialProgress.value);
     if (!name) return alert("教材名を入力してください");
-    if (isNaN(progress) || progress < 0 || progress > 100) return alert("進度は0～100の値で入力してください");
     if (editingMaterialId !== null) {
         const mat = materials.find(m => m.id === editingMaterialId);
-        if (mat) { mat.name = name; mat.subject = subject; mat.progress = progress; }
+        if (mat) { mat.name = name; mat.subject = subject; }
     } else {
         const newId = materials.length ? Math.max(...materials.map(m => m.id)) + 1 : 1;
-        materials.push({ id: newId, name, subject , progress });
+        materials.push({ id: newId, name, subject });
     }
     editingMaterialId = null;
     toggleModal(addMaterialModal, false);
@@ -375,7 +446,7 @@ cancelPlan.addEventListener("click", () => {
 
 confirmPlan.addEventListener("click", () => {
     const materialId = parseInt(planMaterial.value);
-    const range = planRange.value.trim();
+    const range = planContent.value.trim();
     const time = planTime.value;
     if (!range) return alert("範囲を入力してください");
     if (editingIndex !== null) {
@@ -396,13 +467,36 @@ document.getElementById("sort-btn").addEventListener("click", () => {
     toggleModal(sortMaterialModal, true);
 });
 
-cancelSortBtn.addEventListener("click", () => {
+cancelSort.addEventListener("click", () => {
     materials.splice(0, materials.length, ...backupMaterials);
     toggleModal(sortMaterialModal, false);
 });
 
-confirmSortBtn.addEventListener("click", () => {
+confirmSort.addEventListener("click", () => {
     toggleModal(sortMaterialModal, false);
+    saveAndRender();
+});
+
+// 教材情報モーダル
+document.getElementById("view-section").addEventListener("click", toggleSections);
+cancelInfo.addEventListener("click", () => {
+    editingMaterialId = null;
+    toggleModal(infoMaterialModal, false);
+});
+confirmInfo.addEventListener("click", () => {
+    const ongoing = materialOngoing.checked;
+    const date = materialDate.value;
+    const progress = parseInt(materialProgress.value);
+    const detail = materialDetail.value.replace(/^\s+|\s+$/g, '');;
+    if (ongoing && !date) return alert("学習開始日を入力してください");
+    if (isNaN(progress) || progress < 0 || progress > 100) return alert("進度は0～100の数値で入力してください");
+    if (editingMaterialId !== null) {
+        const mat = materials.find(m => m.id === editingMaterialId);
+        if (mat) { mat.ongoing = ongoing; mat.date = date; mat.progress = progress; mat.detail = detail;
+        }
+    }
+    editingMaterialId = null;
+    toggleModal(infoMaterialModal, false);
     saveAndRender();
 });
 
@@ -413,6 +507,14 @@ confirmSortBtn.addEventListener("click", () => {
             e.preventDefault();
             if (modal === addMaterialModal) confirmAdd.click();
             else confirmPlan.click();
+        }
+    });
+});
+[materialProgress, materialDate].forEach(input => {
+    input.addEventListener("keydown", e => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            confirmInfo.click();
         }
     });
 });
