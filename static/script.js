@@ -372,7 +372,7 @@ function renderSortMaterialModal() {
                 if (idx >= materials.length - 1) return;
                 [materials[idx], materials[idx + 1]] = [materials[idx + 1], materials[idx]];
                 const nextDiv = itemDiv.nextElementSibling;
-                if (nextDiv) sortMaterialList.insertBefore(itemDiv, nextDiv.nextSibling);
+                if (nextDiv) sortMaterialList.insertBefore(itemDiv, nextDiv.nextElementSibling);
                 // else sortMaterialList.appendChild(itemDiv);
                 itemDiv.classList.add('tapped');
                 updateSortButtons();
@@ -384,18 +384,6 @@ function renderSortMaterialModal() {
 
         addTapToggle(itemDiv);
         sortMaterialList.appendChild(itemDiv);
-
-        downBtn.addEventListener("click", e => {
-            e.stopPropagation();
-            const idx = materials.indexOf(mat);
-            if (idx >= materials.length - 1) return;
-            [materials[idx], materials[idx + 1]] = [materials[idx + 1], materials[idx]];
-            const nextDiv = itemDiv.nextElementSibling?.nextElementSibling;
-            if (nextDiv) sortMaterialList.insertBefore(itemDiv, nextDiv);
-            else sortMaterialList.appendChild(itemDiv);
-            itemDiv.classList.add('tapped');
-            updateSortButtons();
-        });
     });
     updateSortButtons();
 }
@@ -522,8 +510,3 @@ confirmInfo.addEventListener("click", () => {
 loadData();
 renderMaterialList();
 renderTodayPlans();
-
-
-
-
-
