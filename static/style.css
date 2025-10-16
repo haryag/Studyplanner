@@ -133,10 +133,10 @@ body {
 }
 .material-name-title {
     font-size: 16px;
-    margin-bottom: 4px;
 }
 .material-name-date, .material-name-progress {
     font-size: 12px;
+    margin: 2px 0;
 }
 .material-name-comment {
     font-size: 12px;
@@ -343,3 +343,4 @@ textarea {
         display: none !important;
     }
 }
+
