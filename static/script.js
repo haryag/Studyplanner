@@ -258,7 +258,7 @@ function renderMaterialList() {
         
         const nameProgressDiv = document.createElement("div");
         nameProgressDiv.className = "material-name-progress";
-        nameProgressDiv.textContent = `進度：${mat.progress}%`;
+        if(mat.progress) nameProgressDiv.textContent = `進度：${mat.progress}%`;
         
         const nameCommentDiv = document.createElement("div");
         nameCommentDiv.className = "material-name-comment";
@@ -523,3 +523,4 @@ confirmInfo.addEventListener("click", () => {
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
