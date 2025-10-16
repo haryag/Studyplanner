@@ -37,7 +37,7 @@ body {
     width: 100%;
     max-width: 540px;
     height: calc(100dvh - (45px + env(safe-area-inset-bottom)));
-    /* -webkit-overflow-scrolling: touch; */
+    -webkit-overflow-scrolling: touch;
     margin: 0 auto;
     padding: 0 16px;
 }
@@ -343,4 +343,5 @@ textarea {
         display: none !important;
     }
 }
+
 
