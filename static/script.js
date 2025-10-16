@@ -371,7 +371,7 @@ function renderSortMaterialModal() {
                 const idx = materials.indexOf(mat);
                 if (idx >= materials.length - 1) return;
                 [materials[idx], materials[idx + 1]] = [materials[idx + 1], materials[idx]];
-                const nextDiv = itemDiv;
+                const nextDiv = itemDiv.nextElementSibling;
                 if (nextDiv) sortMaterialList.insertBefore(itemDiv, nextDiv);
                 // else sortMaterialList.appendChild(itemDiv);
                 itemDiv.classList.add('tapped');
@@ -510,4 +510,3 @@ confirmInfo.addEventListener("click", () => {
 loadData();
 renderMaterialList();
 renderTodayPlans();
-
