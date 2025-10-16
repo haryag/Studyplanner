@@ -17,7 +17,7 @@
 }
 * {
     font-family: sans-serif;
-    box-sizing: border-box;
+    box-sizing: border-box !important;
 }
 html {
     height: 100%;
@@ -33,23 +33,30 @@ body {
 }
 
 /* --- メインコンテナ --- */
-.main-content-scroll-wrapper {
+.main-content-wrapper {
     width: 100%;
     max-width: 540px;
     height: calc(100dvh - (45px + env(safe-area-inset-bottom)));
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    /* -webkit-overflow-scrolling: touch; */
     margin: 0 auto;
     padding: 0 16px;
+}
+.main-content-wrapper.full-height {
+    height: 100dvh !important;
+    overflow: hidden;
+}
+.list-section {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
     padding-bottom: 12px;
     /* スクロールバー非表示 */
     -ms-overflow-style: none;  /* MSブラウザ */
     scrollbar-width: none;  /* Firefox */
 }
-.main-content-scroll-wrapper::-webkit-scrollbar { display: none; }  /* Chrome, Safari */
-.main-content-scroll-wrapper.full-height {
-    height: 100dvh !important;
-    overflow: hidden;
+.list-section::-webkit-scrollbar { display: none; }  /* Chrome, Safari */
+.list-section.hidden {
+    display: none;
 }
 
 /* 見出し */
@@ -59,11 +66,6 @@ body {
 }
 
 /* --- 予定リスト --- */
-.plan-list-section {
-    /* display: flex;
-    flex-direction: column; */
-    width: 100%;
-}
 .plan-item {
     display: flex;
     width: 100%;
@@ -105,19 +107,16 @@ body {
 }
 
 /* --- 教材一覧 --- */
-.material-list-section {
-    margin: 8px 0;
-}
 .material-item {
     --material-bg-color: #f5f5fe;
     --material-bg-width: 90%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6px 8px;
+    padding: 6px 12px;
     border: 0;
     border-left: 4px solid transparent;
-    margin-bottom: 4px;
+    margin: 6px 0;
     font-size: 15px;
     position: relative;
 }
@@ -132,6 +131,18 @@ body {
     opacity: 0.8;
     z-index: -1;
 }
+.material-name-title {
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+.material-name-date, .material-name-progress {
+    font-size: 12px;
+}
+.material-name-comment {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+}
 /* 教科ごとの左枠色設定 */
 .material-item.math { border-color: var(--main-color-math); }
 .material-item.english { border-color: var(--main-color-english); }
@@ -140,6 +151,25 @@ body {
 .material-item.science { border-color: var(--main-color-science); }
 .material-item.social { border-color: var(--main-color-social); }
 .material-item.others { border-color: var(--main-color-others); }
+
+/* --- セクション下部のボタン --- */
+.bottom-button {
+    width: 100%;
+    height: 40px;
+    margin: 4px 0;
+    border-radius: 2px;
+    border: 0.5px solid #006ce0;
+    background-color: white;
+    color: #006ce0;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.bottom-button:hover {
+    background-color: #f0f0f0;
+    border-color: #00008b;
+    color: #00008b;
+}
 
 /* --- フッター --- */
 .button-group {
@@ -160,18 +190,18 @@ body {
     padding-bottom: env(safe-area-inset-bottom);
 }
 /* ボタン */
-.action-button {
+.footer-button {
     flex: 2;
     margin: 0;
     border-radius: 0;
     border: none;
     background-color: white;
-    color: #007bff;
-    font-size: 16px;
+    color: #006ce0;
+    font-size: 15px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
-.action-button:hover {
+.footer-button:hover {
     background-color: #f0f0f0;
     color: #00008b;
 }
@@ -200,18 +230,20 @@ body {
     max-height: 80vh;
     overflow-y: auto;
 }
-.modal-content h2 {
-    margin-top: 0;
+.modal-content h2, p {
+    margin-top: 4px;
     text-align: center;
 }
 .modal-content label {
     display: block;
-    margin-top: 8px;
+    margin-top: 4px;
     font-size: 14px;
 }
-.modal-content input,
+.modal-content input[type="text"],
+.modal-content input[type="number"],
 .modal-content input[type="time"],
-.modal-content select {
+.modal-content select,
+textarea {
     /* デフォルトのCSSがかなり強いので強制的に解除 */
     appearance: none !important;
     -webkit-appearance: none !important;
@@ -220,12 +252,15 @@ body {
     max-width: 100% !important;
     color: black !important;
     background-color: #ffffff !important;
-    border: 1px solid #000 !important;
-    border-radius: 0 !important;
+    border: 0.5px solid #666 !important;
+    border-radius: 2px !important;
     margin: 4px 0;
     padding: 4px 8px;
     font-size: 16px !important;
     box-sizing: border-box !important;
+}
+textarea {
+    resize: none;
 }
 
 .modal-buttons {
@@ -242,7 +277,7 @@ body {
     cursor: pointer;
 }
 .modal-buttons .ok {
-    background: #007bff;
+    background: #006ce0;
     color: white;
     border: none;
     padding: 6px 12px;
@@ -280,6 +315,9 @@ body {
 .material-item button.edit i { color: #006ce0 !important; }
 .plan-item button.delete i,
 .material-item button.delete i { color: red !important; }
+.material-item button.sort-up i,
+.material-item button.sort-down i { color: #666 !important; }
+.material-item button.info i { color: #333 !important; }
 .plan-item .buttons button i,
 .material-item .buttons button i { font-size: 16px !important; }
 
@@ -291,7 +329,7 @@ body {
     body {
         max-width: 100%;
     }
-    .main-content-scroll-wrapper {
+    .main-content-wrapper {
         height: auto !important;
         overflow: visible !important;
     }
