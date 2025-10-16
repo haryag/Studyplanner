@@ -488,7 +488,6 @@ confirmInfo.addEventListener("click", () => {
     const date = materialDate.value;
     const progress = parseInt(materialProgress.value);
     const detail = materialDetail.value.replace(/^\s+|\s+$/g, '');;
-    if (ongoing && !date) return alert("学習開始日を入力してください");
     if (isNaN(progress) || progress < 0 || progress > 100) return alert("進度は0～100の数値で入力してください");
     if (editingMaterialId !== null) {
         const mat = materials.find(m => m.id === editingMaterialId);
@@ -523,4 +522,5 @@ confirmInfo.addEventListener("click", () => {
 loadData();
 renderMaterialList();
 renderTodayPlans();
+
 
