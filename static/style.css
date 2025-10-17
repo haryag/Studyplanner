@@ -54,7 +54,7 @@ body {
     -ms-overflow-style: none;  /* MSブラウザ */
     scrollbar-width: none;  /* Firefox */
 }
-/* .list-section::-webkit-scrollbar { display: none; }  Chrome, Safari */
+.list-section::-webkit-scrollbar { display: none; }  /* Chrome, Safari */
 .list-section.hidden {
     display: none;
 }
@@ -343,6 +343,7 @@ textarea {
         display: none !important;
     }
 }
+
 
 
 
