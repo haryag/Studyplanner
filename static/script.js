@@ -49,30 +49,95 @@ let editingMaterialId = null;
 let editingIndex = null;
 
 // --- 共通関数 ---
-// localStorage
-function saveData() {
-    localStorage.setItem("materials", JSON.stringify(materials));
-    localStorage.setItem("dailyPlans", JSON.stringify(dailyPlans));
+// --- IndexedDBベースの保存・読み込み ---
+// IndexedDB を初期化
+const dbPromise = new Promise((resolve, reject) => {
+    const request = indexedDB.open("StudyAppDB", 1);
+    request.onupgradeneeded = (event) => {
+        const db = event.target.result;
+        if (!db.objectStoreNames.contains("data")) {
+            db.createObjectStore("data", { keyPath: "key" });
+        }
+    };
+    request.onsuccess = (event) => resolve(event.target.result);
+    request.onerror = (event) => reject(event.target.error);
+});
+
+// --- 汎用的な読み書き関数 ---
+async function saveAll(key, value) {
+    const db = await dbPromise;
+    const tx = db.transaction("data", "readwrite");
+    const store = tx.objectStore("data");
+    store.put({ key, value });
+    return tx.complete;
 }
-function loadData() {
-    const savedMaterials = localStorage.getItem("materials");
-    const savedPlans = localStorage.getItem("dailyPlans");
-    if (savedMaterials) {
-        try {
-            const parsed = JSON.parse(savedMaterials);
-            if (Array.isArray(parsed)) materials.splice(0, materials.length, ...parsed);
-        } catch (e) { console.error(e); }
-    }
-    if (savedPlans) {
-        try {
-            const parsed = JSON.parse(savedPlans);
-            if (parsed && typeof parsed === "object") Object.assign(dailyPlans, parsed);
-        } catch (e) { console.error(e); }
+
+async function getAll(key) {
+    const db = await dbPromise;
+    const tx = db.transaction("data", "readonly");
+    const store = tx.objectStore("data");
+    return new Promise((resolve, reject) => {
+        const req = store.get(key);
+        req.onsuccess = () => resolve(req.result ? req.result.value : null);
+        req.onerror = () => reject(req.error);
+    });
+}
+
+// --- 保存処理 ---
+async function saveData() {
+    await saveAll("materials", materials);
+    await saveAll("dailyPlans", dailyPlans);
+}
+
+// --- 読み込み処理（localStorageからの移行付き） ---
+async function loadData() {
+    let savedMaterials = await getAll("materials");
+    let savedPlans = await getAll("dailyPlans");
+
+    // --- 初回起動時：localStorage → IndexedDB 自動移行 ---
+    if (!savedMaterials && !savedPlans) {
+        console.log("📦 IndexedDB が空のため、localStorage から移行します...");
+
+        const oldMaterials = localStorage.getItem("materials");
+        const oldPlans = localStorage.getItem("dailyPlans");
+
+        if (oldMaterials) {
+            try {
+                const parsed = JSON.parse(oldMaterials);
+                if (Array.isArray(parsed)) {
+                    materials.splice(0, materials.length, ...parsed);
+                    await saveAll("materials", materials);
+                }
+            } catch (e) {
+                console.error("❌ 教材データ移行エラー:", e);
+            }
+        }
+
+        if (oldPlans) {
+            try {
+                const parsed = JSON.parse(oldPlans);
+                if (parsed && typeof parsed === "object") {
+                    Object.assign(dailyPlans, parsed);
+                    await saveAll("dailyPlans", dailyPlans);
+                }
+            } catch (e) {
+                console.error("❌ 予定データ移行エラー:", e);
+            }
+        }
+
+        // ✅ 移行成功後に localStorage を完全削除
+        localStorage.removeItem("materials");
+        localStorage.removeItem("dailyPlans");
+        console.log("🧹 localStorage の旧データを削除しました。");
+    } else {
+        // --- 通常読み込み（2回目以降） ---
+        if (savedMaterials) materials.splice(0, materials.length, ...savedMaterials);
+        if (savedPlans) Object.assign(dailyPlans, savedPlans);
     }
 }
+
 
 // セクション入れ替え
-
 function toggleSections() {
     const planVisible = !planListSection.classList.contains("hidden");
     planListSection.classList.toggle("hidden", planVisible);
@@ -507,6 +572,7 @@ confirmInfo.addEventListener("click", () => {
 });
 
 // --- 初期読み込み ---
-loadData();
-renderMaterialList();
-renderTodayPlans();
+loadData().then(() => {
+    renderMaterialList();
+    renderTodayPlans();
+});
