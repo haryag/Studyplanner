@@ -52,7 +52,7 @@ let editingIndex = null;
 // --- IndexedDBベースの保存・読み込み ---
 // IndexedDB を初期化
 const dbPromise = new Promise((resolve, reject) => {
-    const request = indexedDB.open("StudyAppDB", 1);
+    const request = indexedDB.open("Studyplanner", 1);
     request.onupgradeneeded = (event) => {
         const db = event.target.result;
         if (!db.objectStoreNames.contains("data")) {
@@ -576,3 +576,4 @@ loadData().then(() => {
     renderMaterialList();
     renderTodayPlans();
 });
+
