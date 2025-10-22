@@ -229,7 +229,12 @@ body {
     max-width: 400px;
     max-height: 80vh;
     overflow-y: auto;
+    /* スクロールバー非表示 */
+    -ms-overflow-style: none;  /* MSブラウザ */
+    scrollbar-width: none;  /* Firefox */
 }
+.modal-content::-webkit-scrollbar { display: none; }  /* Chrome, Safari */
+
 .modal-content h2, p {
     margin-top: 4px;
     text-align: center;
@@ -343,7 +348,3 @@ textarea {
         display: none !important;
     }
 }
-
-
-
-
