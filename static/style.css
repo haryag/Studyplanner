@@ -16,7 +16,7 @@
     --bg-color-others: #f0f0f0;
 }
 * {
-    font-family: sans-serif;
+    font-family: 'Noto Sans JP', sans-serif;
     box-sizing: border-box !important;
 }
 html {
@@ -349,6 +349,7 @@ textarea {
         display: none !important;
     }
 }
+
 
 
 
