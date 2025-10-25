@@ -1,4 +1,4 @@
-const CACHE_NAME = 'static-v1.0.1'; // バージョン管理
+const CACHE_NAME = 'static-v1.0.2'; // バージョン管理
 const FILES_TO_CACHE = [
   './',
   './index.html',
