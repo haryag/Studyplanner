@@ -1,30 +1,35 @@
-// インストール時：即座にアクティブ化
+const CACHE_NAME = 'static-v1.0'; // バージョン管理
+const FILES_TO_CACHE = [
+  '/',
+  '/index.html',
+  '/static/style.css',
+  '/static/script.js'
+];
+
+// インストール時：静的リソースをキャッシュ
 self.addEventListener('install', event => {
-  self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(FILES_TO_CACHE))
+  );
+  self.skipWaiting(); // 即座にアクティブ化
 });
 
-// 有効化時：古いキャッシュを全部削除
+// 有効化時：古いキャッシュを削除
 self.addEventListener('activate', event => {
   event.waitUntil(
-    (async () => {
-      const keys = await caches.keys();
-      await Promise.all(keys.map(key => caches.delete(key)));
-      // クライアントを即時制御
-      await self.clients.claim();
-    })()
+    caches.keys().then(keys =>
+      Promise.all(
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+      )
+    ).then(() => self.clients.claim())
   );
 });
 
-// すべてのリクエストをネットワーク経由にする
+// fetch: キャッシュ優先戦略
 self.addEventListener('fetch', event => {
   event.respondWith(
-    fetch(event.request).catch(err => {
-      console.error('Fetch failed for:', event.request.url, err);
-      // 必要に応じて fallback を返すことも可能
-      return new Response('Network error occurred', {
-        status: 408,
-        statusText: 'Network Error'
-      });
-    })
+    caches.match(event.request)
+      .then(response => response || fetch(event.request))
   );
 });
