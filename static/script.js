@@ -1,9 +1,20 @@
 // --- Service Worker ---
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-        .catch(err => {
-            window.alert('Service Workerの登録に失敗しました：' + err);
-        });
+  // まず既存の SW をすべて削除
+  navigator.serviceWorker.getRegistrations()
+    .then(registrations => {
+      return Promise.all(registrations.map(reg => reg.unregister()));
+    })
+    .then(() => {
+      // 古い SW を削除した後、新しい SW を登録
+      return navigator.serviceWorker.register('/sw.js');
+    })
+    .then(() => {
+      console.log('Service Worker が登録されました');
+    })
+    .catch(err => {
+      window.alert('Service Worker の登録に失敗しました：' + err);
+    });
 }
 
 // --- データ初期化 ---
@@ -584,6 +595,7 @@ loadData().then(() => {
     renderMaterialList();
     renderTodayPlans();
 });
+
 
 
 
