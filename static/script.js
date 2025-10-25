@@ -119,53 +119,14 @@ async function saveData() {
     await saveAll("dailyPlans", dailyPlans);
 }
 
-// --- 読み込み処理（localStorageからの移行付き） ---
+// --- 読み込み処理 ---
 async function loadData() {
     let savedMaterials = await getAll("materials");
     let savedPlans = await getAll("dailyPlans");
 
-    // --- 初回起動時：localStorage → IndexedDB 自動移行 ---
-    if (!savedMaterials && !savedPlans) {
-        console.log("📦 IndexedDB が空のため、localStorage から移行します...");
-
-        const oldMaterials = localStorage.getItem("materials");
-        const oldPlans = localStorage.getItem("dailyPlans");
-
-        if (oldMaterials) {
-            try {
-                const parsed = JSON.parse(oldMaterials);
-                if (Array.isArray(parsed)) {
-                    materials.splice(0, materials.length, ...parsed);
-                    await saveAll("materials", materials);
-                }
-            } catch (e) {
-                console.error("❌ 教材データ移行エラー:", e);
-            }
-        }
-
-        if (oldPlans) {
-            try {
-                const parsed = JSON.parse(oldPlans);
-                if (parsed && typeof parsed === "object") {
-                    Object.assign(dailyPlans, parsed);
-                    await saveAll("dailyPlans", dailyPlans);
-                }
-            } catch (e) {
-                console.error("❌ 予定データ移行エラー:", e);
-            }
-        }
-
-        // ✅ 移行成功後に localStorage を完全削除
-        localStorage.removeItem("materials");
-        localStorage.removeItem("dailyPlans");
-        console.log("🧹 localStorage の旧データを削除しました。");
-    } else {
-        // --- 通常読み込み（2回目以降） ---
-        if (savedMaterials) materials.splice(0, materials.length, ...savedMaterials);
-        if (savedPlans) Object.assign(dailyPlans, savedPlans);
-    }
+    if (savedMaterials) materials.splice(0, materials.length, ...savedMaterials);
+    if (savedPlans) Object.assign(dailyPlans, savedPlans);
 }
-
 
 // セクション入れ替え
 function toggleSections() {
@@ -608,7 +569,3 @@ loadData().then(() => {
     renderMaterialList();
     renderTodayPlans();
 });
-
-
-
-
