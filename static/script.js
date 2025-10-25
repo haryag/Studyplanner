@@ -10,10 +10,10 @@ if ('serviceWorker' in navigator) {
       if (needUpdate) {
         // 古い SW を削除して新しいものを登録
         return Promise.all(regs.map(r => r.unregister()))
-          .then(() => navigator.serviceWorker.register(`/sw.js?version=${SW_VERSION}`));
+          .then(() => navigator.serviceWorker.register(`sw.js?version=${SW_VERSION}`));
       } else if (regs.length === 0) {
         // SW がまだ登録されていない場合
-        return navigator.serviceWorker.register(`/sw.js?version=${SW_VERSION}`);
+        return navigator.serviceWorker.register(`sw.js?version=${SW_VERSION}`);
       }
     })
     .then(() => console.log('Service Worker 登録完了'))
@@ -598,6 +598,7 @@ loadData().then(() => {
     renderMaterialList();
     renderTodayPlans();
 });
+
 
 
 
