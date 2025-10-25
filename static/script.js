@@ -1,7 +1,9 @@
 // --- Service Worker ---
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
-    .catch(window.alart('Service Workerの登録に失敗しました：' + err));
+    .catch(err => {
+      window.alert('Service Workerの登録に失敗しました：' + err);
+    });
 }
 
 // --- データ初期化 ---
@@ -582,5 +584,6 @@ loadData().then(() => {
     renderMaterialList();
     renderTodayPlans();
 });
+
 
 
