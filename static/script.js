@@ -22,6 +22,7 @@ if ('serviceWorker' in navigator) {
 }
 
 // --- データ初期化 ---
+const todayDate = new Date().toLocaleDateString('ja-JP');
 const materials = [];
 const dailyPlans = {};
 let backupMaterials = [];
@@ -72,8 +73,10 @@ let editingIndex = null;
 // ロード前に表示する関数
 function renderAppShell() {
     // 今日の日付だけ先に表示
-    const todayDate = new Date().toLocaleDateString('ja-JP');
     document.getElementById("today-date").textContent = todayDate;
+
+    // ロード表示
+    document.getElementById("material-list").textContent = "=== Loading ===";
 }
 
 // --- IndexedDBベースの保存・読み込み ---
@@ -605,5 +608,6 @@ loadData().then(() => {
     renderMaterialList();
     renderTodayPlans();
 });
+
 
 
