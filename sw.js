@@ -17,5 +17,14 @@ self.addEventListener('activate', event => {
 
 // すべてのリクエストをネットワーク経由にする
 self.addEventListener('fetch', event => {
-  event.respondWith(fetch(event.request));
+  event.respondWith(
+    fetch(event.request).catch(err => {
+      console.error('Fetch failed for:', event.request.url, err);
+      // 必要に応じて fallback を返すことも可能
+      return new Response('Network error occurred', {
+        status: 408,
+        statusText: 'Network Error'
+      });
+    })
+  );
 });
