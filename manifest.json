@@ -1,7 +1,8 @@
 {
   "name": "Studyplanner",
   "short_name": "Studyplanner",
-  "start_url": ".",
+  "id": "/Studyplanner/",
+  "start_url": "https://haryag.github.io/Studyplanner/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
