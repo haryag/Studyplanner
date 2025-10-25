@@ -1,4 +1,4 @@
-const SW_VERSION = 'v1.0.5';
+const SW_VERSION = 'v1.0.4';
 const BASE_PATH = '/Studyplanner/';
 
 if ('serviceWorker' in navigator) {
@@ -18,11 +18,10 @@ if ('serviceWorker' in navigator) {
         .catch(err => console.error('SW登録失敗:', err));
 }
 
-// --- データ初期化 ---
+// --- データ ---
 const todayDate = new Date().toLocaleDateString('ja-JP');
 const materials = [];
 const dailyPlans = {};
-
 let backupMaterials = [];
 
 // --- DOM ---
@@ -33,7 +32,7 @@ const planListDiv = document.getElementById("plan-list");
 const materialListSection = document.getElementById("material-list-section");
 const materialListDiv = document.getElementById("material-list");
 
-// モーダル
+// --- モーダル ---
 const addPlanModal = document.getElementById("add-plan-modal");
 const planMaterial = document.getElementById("plan-material");
 const planContent = document.getElementById("plan-content");
@@ -78,17 +77,15 @@ const dbPromise = new Promise((resolve, reject) => {
 async function saveAll(key, value) {
     const db = await dbPromise;
     const tx = db.transaction("data", "readwrite");
-    const store = tx.objectStore("data");
-    store.put({ key, value });
+    tx.objectStore("data").put({ key, value });
     return tx.complete;
 }
 
 async function getAll(key) {
     const db = await dbPromise;
     const tx = db.transaction("data", "readonly");
-    const store = tx.objectStore("data");
     return new Promise((resolve, reject) => {
-        const req = store.get(key);
+        const req = tx.objectStore("data").get(key);
         req.onsuccess = () => resolve(req.result ? req.result.value : null);
         req.onerror = () => reject(req.error);
     });
@@ -99,15 +96,6 @@ async function saveData() {
     await saveAll("dailyPlans", dailyPlans);
 }
 
-async function loadData() {
-    const [savedMaterials, savedPlans] = await Promise.all([
-        getAll("materials"),
-        getAll("dailyPlans")
-    ]);
-    if (savedMaterials) materials.splice(0, materials.length, ...savedMaterials);
-    if (savedPlans) Object.assign(dailyPlans, savedPlans);
-}
-
 // --- App Shell ---
 function renderAppShell() {
     document.getElementById("today-date").textContent = todayDate;
@@ -115,55 +103,102 @@ function renderAppShell() {
     planListDiv.textContent = "=== Loading ===";
 }
 
-// --- Material List: Shell + Details ---
-function renderMaterialListShell(materials) {
+// --- 共通関数 ---
+function toggleModal(modal, show = true) {
+    modal.classList.toggle("hidden", !show);
+    document.body.style.overflow = show ? "hidden" : "";
+    wrapper.classList.toggle("full-height", show);
+    buttonGroup.style.display = show ? "none" : "flex";
+}
+
+function createIconButton(className, iconHtml, onClick) {
+    const btn = document.createElement("button");
+    btn.className = className;
+    btn.innerHTML = iconHtml;
+    btn.addEventListener("click", e => {
+        e.stopPropagation();
+        onClick(e);
+    });
+    return btn;
+}
+
+// --- 教材リスト描画 ---
+function renderMaterialList() {
     materialListDiv.innerHTML = "";
     const fragment = document.createDocumentFragment();
     materials.forEach(mat => {
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
-
         const nameDiv = document.createElement("div");
         nameDiv.className = "material-name";
+
         const titleDiv = document.createElement("div");
         titleDiv.className = "material-name-title";
         titleDiv.textContent = mat.name;
+
         const progressDiv = document.createElement("div");
         progressDiv.className = "material-name-progress";
         progressDiv.textContent = `進度：${mat.progress || 0}%`;
 
         nameDiv.append(titleDiv, progressDiv);
         itemDiv.appendChild(nameDiv);
+
+        // ボタン群
+        const btnDiv = document.createElement("div");
+        btnDiv.className = "buttons";
+
+        const addPlanBtn = createIconButton("add-plan", '<i class="fa-solid fa-plus"></i>', () => {
+            planMaterial.innerHTML = "";
+            materials.forEach(m => {
+                const option = document.createElement("option");
+                option.value = m.id;
+                option.textContent = m.name;
+                planMaterial.appendChild(option);
+            });
+            planContent.value = "";
+            planTime.value = "";
+            editingIndex = null;
+            toggleModal(addPlanModal, true);
+        });
+
+        const editBtn = createIconButton("edit", '<i class="fa-solid fa-pen"></i>', () => {
+            materialName.value = mat.name;
+            materialSubject.value = mat.subject;
+            editingMaterialId = mat.id;
+            toggleModal(addMaterialModal, true);
+        });
+
+        const infoBtn = createIconButton("info", '<i class="fa-solid fa-info"></i>', () => {
+            materialNameDiv.textContent = mat.name;
+            materialOngoing.checked = mat.ongoing || false;
+            materialDate.value = mat.date || "";
+            materialProgress.value = mat.progress || 0;
+            materialDetail.value = mat.detail || "";
+            editingMaterialId = mat.id;
+            toggleModal(infoMaterialModal, true);
+        });
+
+        const delBtn = createIconButton("delete", '<i class="fa-solid fa-trash-can"></i>', () => {
+            if (!confirm(`教材「${mat.name}」を削除しますか？`)) return;
+            const idx = materials.findIndex(m => m.id === mat.id);
+            if (idx !== -1) materials.splice(idx, 1);
+            Object.keys(dailyPlans).forEach(date => {
+                dailyPlans[date] = dailyPlans[date].filter(p => p.materialId !== mat.id);
+            });
+            saveData();
+            renderMaterialList();
+            renderTodayPlans();
+        });
+
+        btnDiv.append(addPlanBtn, editBtn, infoBtn, delBtn);
+        itemDiv.appendChild(btnDiv);
+
         fragment.appendChild(itemDiv);
     });
     materialListDiv.appendChild(fragment);
 }
 
-function renderMaterialListDetails(materials) {
-    const items = materialListDiv.children;
-    materials.forEach((mat, idx) => {
-        const itemDiv = items[idx];
-        requestAnimationFrame(() => {
-            const nameDiv = itemDiv.querySelector(".material-name");
-            if (mat.detail) {
-                const commentDiv = document.createElement("div");
-                commentDiv.className = "material-name-comment";
-                commentDiv.innerHTML = mat.detail.replace(/\n/g, "<br>");
-                nameDiv.appendChild(commentDiv);
-            }
-            // ボタン群
-            const btnDiv = document.createElement("div");
-            btnDiv.className = "buttons";
-            itemDiv.appendChild(btnDiv);
-        });
-    });
-}
-
-// --- Today Plans ---
-function renderTodayPlansDelayed() {
-    setTimeout(() => renderTodayPlans(), 50);
-}
-
+// --- 今日の予定描画 ---
 function renderTodayPlans() {
     planListDiv.innerHTML = "";
     const todayPlans = dailyPlans[todayDate] || [];
@@ -180,7 +215,6 @@ function renderTodayPlans() {
 
         const item = document.createElement("div");
         item.className = `plan-item ${material.subject}`;
-        item.classList.toggle("checked", plan.checked);
         item.innerHTML = `<div class="plan-icon"><i class="fa-solid fa-bookmark"></i></div>
                           <div class="plan-info">
                             <div>${material.name}</div>
@@ -191,26 +225,15 @@ function renderTodayPlans() {
     });
 }
 
-// --- Section Toggle ---
-function toggleSections() {
-    const planVisible = !planListSection.classList.contains("hidden");
-    planListSection.classList.toggle("hidden", planVisible);
-    materialListSection.classList.toggle("hidden", !planVisible);
-}
-
-// --- Modal Toggle ---
-function toggleModal(modal, show = true) {
-    modal.classList.toggle("hidden", !show);
-    document.body.style.overflow = show ? "hidden" : "";
-    wrapper.classList.toggle("full-height", show);
-    buttonGroup.style.display = show ? "none" : "flex";
-}
-
-// --- Initial Load ---
+// --- 初期読み込み ---
 renderAppShell();
 
-loadData().then(() => {
-    renderMaterialListShell(materials);
-    requestAnimationFrame(() => renderMaterialListDetails(materials));
-    renderTodayPlansDelayed();
+getAll("materials").then(savedMaterials => {
+    if (savedMaterials) materials.push(...savedMaterials);
+    renderMaterialList();
+});
+
+getAll("dailyPlans").then(savedPlans => {
+    if (savedPlans) Object.assign(dailyPlans, savedPlans);
+    renderTodayPlans();
 });
