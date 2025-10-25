@@ -1,4 +1,4 @@
-const SW_VERSION = 'v1.0.2';    // sw.js と同期させる
+const SW_VERSION = 'v1.0.3';    // sw.js と同期させる
 const BASE_PATH = '/Studyplanner/';
 
 if ('serviceWorker' in navigator) {
@@ -74,13 +74,6 @@ function renderAppShell() {
     // 今日の日付だけ先に表示
     const todayDate = new Date().toLocaleDateString('ja-JP');
     document.getElementById("today-date").textContent = todayDate;
-
-    // 教材リスト・予定リストに読み込み中メッセージ
-    const planListDiv = document.getElementById("plan-list");
-    planListDiv.textContent = "Now Loading...";
-
-    const materialListDiv = document.getElementById("material-list");
-    materialListDiv.textContent = "Now Loading...";
 }
 
 // --- IndexedDBベースの保存・読み込み ---
@@ -612,4 +605,5 @@ loadData().then(() => {
     renderMaterialList();
     renderTodayPlans();
 });
+
 
