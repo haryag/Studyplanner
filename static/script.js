@@ -1,21 +1,23 @@
-console.log("読み込み終わり");
-// --- Service Worker ---
+const SW_VERSION = 'v1.0';    // sw.js と同期させる
+
 if ('serviceWorker' in navigator) {
-  // まず既存の SW をすべて削除
   navigator.serviceWorker.getRegistrations()
-    .then(registrations => {
-      return Promise.all(registrations.map(reg => reg.unregister()));
+    .then(regs => {
+      // バージョンが異なる SW がある場合のみ更新
+      const needUpdate = regs.some(r =>
+        !(r.active || r.waiting || r.installing)?.scriptURL.includes(`sw.js?version=${SW_VERSION}`)
+      );
+      if (needUpdate) {
+        // 古い SW を削除して新しいものを登録
+        return Promise.all(regs.map(r => r.unregister()))
+          .then(() => navigator.serviceWorker.register(`/sw.js?version=${SW_VERSION}`));
+      } else if (regs.length === 0) {
+        // SW がまだ登録されていない場合
+        return navigator.serviceWorker.register(`/sw.js?version=${SW_VERSION}`);
+      }
     })
-    .then(() => {
-      // 古い SW を削除した後、新しい SW を登録
-      return navigator.serviceWorker.register('/sw.js');
-    })
-    .then(() => {
-      console.log('Service Worker が登録されました');
-    })
-    .catch(err => {
-      window.alert('Service Worker の登録に失敗しました：' + err);
-    });
+    .then(() => console.log('Service Worker 登録完了'))
+    .catch(err => console.error('SW登録失敗:', err));
 }
 
 // --- データ初期化 ---
@@ -596,6 +598,7 @@ loadData().then(() => {
     renderMaterialList();
     renderTodayPlans();
 });
+
 
 
 
