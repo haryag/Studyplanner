@@ -7,17 +7,33 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Studyplanner</title>
+
+    <!-- Manifest & favicon -->
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="icon/icon.ico">
+
+    <style>
+        body { margin: 0; font-family: sans-serif; background-color: #fff; }
+    </style>
+
     <link rel="preload" href="static/style.css" as="style" onload="this.rel='stylesheet'">
     <noscript>
         <link rel="stylesheet" href="static/style.css">
     </noscript>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" as="style" onload="this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    </noscript>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" as="style" onload="this.rel='stylesheet'">
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+    </noscript>
 </head>
+
 <body>
     <main id="wrapper" class="main-content-wrapper">
         <!-- メインコンテナ -->
@@ -148,3 +164,4 @@
     <script src="static/script.js?v=2" defer></script>
 </body>
 </html>
+
