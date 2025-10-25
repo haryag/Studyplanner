@@ -1,3 +1,4 @@
+console.log("読み込み終わり");
 // --- Service Worker ---
 if ('serviceWorker' in navigator) {
   // まず既存の SW をすべて削除
@@ -595,6 +596,7 @@ loadData().then(() => {
     renderMaterialList();
     renderTodayPlans();
 });
+
 
 
 
