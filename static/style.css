@@ -108,8 +108,8 @@ body {
 
 /* --- 教材一覧 --- */
 .material-item {
-    --material-bg-color: #f5f5fe;
-    --material-bg-width: 90%;
+    --material-bg-color: #ffffff;
+    --material-bg-width: 0%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -349,3 +349,4 @@ textarea {
         display: none !important;
     }
 }
+
