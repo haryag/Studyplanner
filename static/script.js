@@ -6,7 +6,7 @@ if ('serviceWorker' in navigator) {
     .then(regs => {
       // バージョンが異なる SW がある場合のみ更新
       const needUpdate = regs.some(r =>
-        !(r.active || r.waiting || r.installing)?.scriptURL.includes(`sw.js?version=${SW_VERSION}`)
+        !(r.active || r.waiting || r.installing)?.scriptURL.includes(`${BASE_PATH}sw.js?version=${SW_VERSION}`)
       );
       if (needUpdate) {
         // 古い SW を削除して新しいものを登録
@@ -599,6 +599,7 @@ loadData().then(() => {
     renderMaterialList();
     renderTodayPlans();
 });
+
 
 
 
