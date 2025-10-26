@@ -1,4 +1,4 @@
-const CACHE_NAME = 'static-v1.0.4'; // バージョン管理
+const CACHE_NAME = 'static-v1.1.0';
 const FILES_TO_CACHE = [
   './',
   './index.html',
@@ -6,22 +6,23 @@ const FILES_TO_CACHE = [
   './static/script.js'
 ];
 
-// インストール時：静的リソースをキャッシュ
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => 
-      Promise.all(FILES_TO_CACHE.map(file =>
-        fetch(file).then(resp => {
+    caches.open(CACHE_NAME).then(cache =>
+      Promise.all(FILES_TO_CACHE.map(async file => {
+        try {
+          const resp = await fetch(file);
           if (!resp.ok) throw new Error(`${file} を取得できません`);
-          return cache.put(file, resp);
-        })
-      ))
-    ).catch(err => console.error('キャッシュ失敗:', err))
+          await cache.put(file, resp);
+        } catch (err) {
+          console.warn('キャッシュ失敗（無視）:', err);
+        }
+      }))
+    )
   );
   self.skipWaiting();
 });
 
-// 有効化時：古いキャッシュを削除
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -32,10 +33,14 @@ self.addEventListener('activate', event => {
   );
 });
 
-// fetch: キャッシュ優先戦略
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
+    fetch(event.request)
+      .then(resp => {
+        const respClone = resp.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, respClone));
+        return resp;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
