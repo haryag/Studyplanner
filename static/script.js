@@ -550,21 +550,21 @@ loadData().then(() => {
     renderTodayPlans();
 });
 
-if ('serviceWorker' in navigator) {
-  // まずはすぐに登録（UIブロックしない）
-  navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`)
-    .then(reg => {
-      console.log('SW登録完了:', reg);
+// if ('serviceWorker' in navigator) {
+//   // まずはすぐに登録（UIブロックしない）
+//   navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`)
+//     .then(reg => {
+//       console.log('SW登録完了:', reg);
 
-      // バックグラウンドでバージョン確認
-      setTimeout(() => {
-        if (reg.active && !reg.active.scriptURL.includes(`version=${SW_VERSION}`)) {
-          console.log('SWのバージョン変更を検出、再登録します');
-          reg.unregister().then(() => {
-            navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`);
-          });
-        }
-      }, 3000); // UI描画から3秒後にチェック
-    })
-    .catch(err => console.error('SW登録失敗:', err));
-}
+//       // バックグラウンドでバージョン確認
+//       setTimeout(() => {
+//         if (reg.active && !reg.active.scriptURL.includes(`version=${SW_VERSION}`)) {
+//           console.log('SWのバージョン変更を検出、再登録します');
+//           reg.unregister().then(() => {
+//             navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`);
+//           });
+//         }
+//       }, 3000); // UI描画から3秒後にチェック
+//     })
+//     .catch(err => console.error('SW登録失敗:', err));
+// }
