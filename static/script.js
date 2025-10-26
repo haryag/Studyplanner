@@ -53,11 +53,8 @@ let editingIndex = null;
 // --- 共通関数 ---
 // ロード前に表示する関数
 function renderAppShell() {
-    // 今日の日付だけ先に表示
-    document.getElementById("today-date").textContent = todayDate;
-
-    // ロード表示
-    document.getElementById("material-list").textContent = "=== Loading ===";
+    // 今日の日付のところにロード表示
+    document.getElementById("today-date").textContent = "Loading...";
 }
 
 // --- IndexedDBベースの保存・読み込み ---
@@ -168,6 +165,7 @@ function saveAndRender() {
 
 // --- 今日の予定表示 ---
 function renderTodayPlans() {
+    document.getElementById("today-date").textContent = todayDate;
     planListDiv.innerHTML = "";
     const todayPlans = dailyPlans[todayDate] || [];
     const sortedPlans = [...todayPlans].sort((a, b) => {
@@ -560,3 +558,4 @@ setTimeout(() => {
         renderTodayPlans();
     });
 }, 500);
+
