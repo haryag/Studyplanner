@@ -1,4 +1,4 @@
-const SW_VERSION = 'v1.0.4';    // sw.js と同期させる
+const SW_VERSION = 'v1.1.0';    // sw.js と同期させる
 const BASE_PATH = '/Studyplanner/';
 
 if ('serviceWorker' in navigator) {
@@ -569,3 +569,4 @@ loadData().then(() => {
     renderMaterialList();
     renderTodayPlans();
 });
+
