@@ -557,4 +557,4 @@ setTimeout(() => {
         renderMaterialList();
         renderTodayPlans();
     });
-}, 1500);
+}, 1000);
