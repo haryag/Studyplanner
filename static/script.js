@@ -2,23 +2,22 @@ const SW_VERSION = 'v1.1.0';    // sw.js と同期させる
 const BASE_PATH = '/Studyplanner/';
 
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations()
-        .then(regs => {
-        // バージョンが異なる SW がある場合のみ更新
-        const needUpdate = regs.some(r =>
-            !(r.active || r.waiting || r.installing)?.scriptURL.includes(`${BASE_PATH}sw.js?version=${SW_VERSION}`)
-        );
-        if (needUpdate) {
-            // 古い SW を削除して新しいものを登録
-            return Promise.all(regs.map(r => r.unregister()))
-            .then(() => navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`));
-        } else if (regs.length === 0) {
-            // SW がまだ登録されていない場合
-            return navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`);
+  // まずはすぐに登録（UIブロックしない）
+  navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`)
+    .then(reg => {
+      console.log('SW登録完了:', reg);
+
+      // バックグラウンドでバージョン確認
+      setTimeout(() => {
+        if (reg.active && !reg.active.scriptURL.includes(`version=${SW_VERSION}`)) {
+          console.log('SWのバージョン変更を検出、再登録します');
+          reg.unregister().then(() => {
+            navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`);
+          });
         }
-        })
-        .then(() => console.log('Service Worker 登録完了'))
-        .catch(err => console.error('SW登録失敗:', err));
+      }, 3000); // UI描画から3秒後にチェック
+    })
+    .catch(err => console.error('SW登録失敗:', err));
 }
 
 // --- データ初期化 ---
@@ -569,4 +568,5 @@ loadData().then(() => {
     renderMaterialList();
     renderTodayPlans();
 });
+
 
