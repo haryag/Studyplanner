@@ -553,8 +553,10 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.error('SW登録失敗:', err));
 }
 
-// データ読み込み + 初期レンダリング
-loadData().then(() => {
-    renderMaterialList();
-    renderTodayPlans();
-});
+// データ読み込み + 初期レンダリング（ややディレイ）
+setTimeout(() => {
+    loadData().then(() => {
+        renderMaterialList();
+        renderTodayPlans();
+    });
+}, 500);
