@@ -1,7 +1,8 @@
 // app.js
 import { currentUser } from './login.js'; // login.jsのcurrentUserをインポート
-import { getStorage, ref, uploadString, getDownloadURL, getBlob } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
-const storage = getStorage();
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+const db = getFirestore();
 
 // --- Service Worker ---
 const SW_VERSION = 'v1.2.0';    // sw.js と同期させる
@@ -97,23 +98,19 @@ async function getAll(key) {
 }
 
 // アップロードボタン
-const uploadBtn = document.getElementById("upload-btn");
 uploadBtn.addEventListener("click", async () => {
     if (!window.confirm("データをアップロードします。よろしいですか？")) return;
 
     if (!currentUser) return alert("まずログインしてください");
 
     try {
-        // IndexedDB のデータを取得
         const materials = await getAll("materials");
         const dailyPlans = await getAll("dailyPlans");
 
-        // JSON化
-        const data = JSON.stringify({ materials, dailyPlans });
+        const data = { materials, dailyPlans, updatedAt: new Date().toISOString() };
 
-        // Storage にアップロード（ユーザーUIDをファイル名に）
-        const storageRef = ref(storage, `backup/${currentUser.uid}.json`);
-        await uploadString(storageRef, data);
+        // Firestoreに保存（ドキュメントIDをユーザーUIDに）
+        await setDoc(doc(db, "backups", currentUser.uid), data);
 
         alert("アップロード完了しました！");
     } catch (err) {
@@ -123,34 +120,30 @@ uploadBtn.addEventListener("click", async () => {
 });
 
 // --- ダウンロード処理 ---
-const downloadBtn = document.getElementById("download-btn");
 downloadBtn.addEventListener("click", async () => {
-    if (!window.confirm("データをダウンロードします。上書きされたデータは2度と復元できませんが、よろしいですか？")) return;
+    if (!window.confirm("データをダウンロードします。上書きされますがよろしいですか？")) return;
 
-    if (!currentUser) {
-        alert("まずログインしてください");
-        return;
-    }
+    if (!currentUser) return alert("まずログインしてください");
 
     try {
-        const storageRef = ref(storage, `backup/${currentUser.uid}.json`);
-        const url = await getDownloadURL(storageRef);
+        const snapshot = await getDoc(doc(db, "backups", currentUser.uid));
 
-        const response = await fetch(url);
-        const data = await response.json();
+        if (!snapshot.exists()) {
+            alert("バックアップデータが存在しません。");
+            return;
+        }
 
-        // IndexedDB に復元
-        await saveAll("materials", data.materials);
-        await saveAll("dailyPlans", data.dailyPlans);
+        const data = snapshot.data();
+
+        await saveAll("materials", data.materials || []);
+        await saveAll("dailyPlans", data.dailyPlans || {});
 
         alert("ダウンロード完了しました！");
-        
-        // 画面再描画
         renderMaterialList();
         renderTodayPlans();
     } catch (err) {
         console.error(err);
-        alert("ダウンロードに失敗しました。データが存在しないか、ネットワークエラーです。");
+        alert("ダウンロードに失敗しました。");
     }
 });
 
@@ -621,3 +614,4 @@ setTimeout(() => {
         renderTodayPlans();
     });
 }, 1000);
+
