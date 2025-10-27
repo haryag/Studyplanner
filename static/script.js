@@ -1,5 +1,10 @@
+// app.js
+import { currentUser } from './login.js'; // login.jsのcurrentUserをインポート
+import { getStorage, ref, uploadString, getDownloadURL, getBlob } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+const storage = getStorage();
+
 // --- Service Worker ---
-const SW_VERSION = 'v1.1.0';    // sw.js と同期させる
+const SW_VERSION = 'v1.2.0';    // sw.js と同期させる
 const BASE_PATH = '/Studyplanner/';
 
 // --- データ初期化 ---
@@ -90,6 +95,64 @@ async function getAll(key) {
         req.onerror = () => reject(req.error);
     });
 }
+
+// アップロードボタン
+const uploadBtn = document.getElementById("upload-btn");
+uploadBtn.addEventListener("click", async () => {
+    if (!window.confirm("データをアップロードします。よろしいですか？")) return;
+
+    if (!currentUser) return alert("まずログインしてください");
+
+    try {
+        // IndexedDB のデータを取得
+        const materials = await getAll("materials");
+        const dailyPlans = await getAll("dailyPlans");
+
+        // JSON化
+        const data = JSON.stringify({ materials, dailyPlans });
+
+        // Storage にアップロード（ユーザーUIDをファイル名に）
+        const storageRef = ref(storage, `backup/${currentUser.uid}.json`);
+        await uploadString(storageRef, data);
+
+        alert("アップロード完了しました！");
+    } catch (err) {
+        console.error(err);
+        alert("アップロードに失敗しました。");
+    }
+});
+
+// --- ダウンロード処理 ---
+const downloadBtn = document.getElementById("download-btn");
+downloadBtn.addEventListener("click", async () => {
+    if (!window.confirm("データをダウンロードします。上書きされたデータは2度と復元できませんが、よろしいですか？")) return;
+
+    if (!currentUser) {
+        alert("まずログインしてください");
+        return;
+    }
+
+    try {
+        const storageRef = ref(storage, `backup/${currentUser.uid}.json`);
+        const url = await getDownloadURL(storageRef);
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        // IndexedDB に復元
+        await saveAll("materials", data.materials);
+        await saveAll("dailyPlans", data.dailyPlans);
+
+        alert("ダウンロード完了しました！");
+        
+        // 画面再描画
+        renderMaterialList();
+        renderTodayPlans();
+    } catch (err) {
+        console.error(err);
+        alert("ダウンロードに失敗しました。データが存在しないか、ネットワークエラーです。");
+    }
+});
 
 // --- 保存処理 ---
 async function saveData() {
@@ -545,11 +608,11 @@ confirmInfo.addEventListener("click", () => {
 renderAppShell();
 
 // Service Worker登録（非同期でバックグラウンド）
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`)
-    .then(reg => console.log('SW登録完了:', reg))
-    .catch(err => console.error('SW登録失敗:', err));
-}
+// if ('serviceWorker' in navigator) {
+//   navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`)
+//     .then(reg => console.log('SW登録完了:', reg))
+//     .catch(err => console.error('SW登録失敗:', err));
+// }
 
 // データ読み込み + 初期レンダリング（ややディレイ）
 setTimeout(() => {
