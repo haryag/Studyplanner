@@ -21,6 +21,10 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
+provider.setCustomParameters({
+    prompt: 'select_account'
+});
+
 export let currentUser = null;
 
 const loginBtn = document.getElementById("login-btn");
@@ -61,3 +65,4 @@ onAuthStateChanged(auth, (user) => {
         status.textContent = "未ログイン";
     }
 });
+
