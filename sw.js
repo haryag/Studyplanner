@@ -35,12 +35,13 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   event.respondWith(
-    fetch(event.request)
-      .then(resp => {
-        const respClone = resp.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, respClone));
-        return resp;
-      })
-      .catch(() => caches.match(event.request))
+    (async () => {
+      const response = await fetch(event.request);
+      if (event.request.method === 'GET') {
+        const cache = await caches.open('v1');
+        cache.put(event.request, response.clone());
+      }
+      return response;
+    })()
   );
 });
