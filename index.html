@@ -35,11 +35,24 @@
             </div>
             <div id="material-list" class="material-list"></div>
             <div>
+                <h3>教材管理</h3>
                 <button id="add-material-btn" class="bottom-button">
                     <i class="fa-solid fa-plus"></i> 教材追加
                 </button>
                 <button id="sort-btn" class="bottom-button">
                     <i class="fa-solid fa-arrows-up-down"></i> 並び替え
+                </button>
+                
+                <h3>データを共有</h3>                
+                <p id="login-status"></p>
+                <button id="upload-btn" class="bottom-button">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> アップロード
+                </button>
+                <button id="download-btn" class="bottom-button">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> ダウンロード
+                </button>
+                <button id="logout-btn" class="bottom-button">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> ログアウト
                 </button>
             </div>
         </div>
@@ -138,15 +151,15 @@
 
     <footer class="button-group">
         <!-- フッター要素 -->
-        <button id="print-btn" class="footer-button" onclick="window.print()">
-            <i class="fa-solid fa-print"></i> 印刷
+        <button id="login-btn" class="footer-button">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i> ログイン
         </button>
         <button id="view-section" class="footer-button">
             <i class="fa-solid fa-list"></i> 表示切替
         </button>
     </footer>
 
-    <script src="static/script.js" defer></script>
+    <script type="module" src="static/login.js"></script>
+    <script type="module" src="static/script.js"></script>
 </body>
 </html>
-
