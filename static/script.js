@@ -98,6 +98,7 @@ async function getAll(key) {
 }
 
 // アップロードボタン
+const uploadBtn = document.getElementById('uploadBtn');
 uploadBtn.addEventListener("click", async () => {
     if (!window.confirm("データをアップロードします。よろしいですか？")) return;
 
@@ -120,6 +121,7 @@ uploadBtn.addEventListener("click", async () => {
 });
 
 // --- ダウンロード処理 ---
+const downloadBtn = document.getElementById('downloadBtn');
 downloadBtn.addEventListener("click", async () => {
     if (!window.confirm("データをダウンロードします。上書きされますがよろしいですか？")) return;
 
@@ -614,4 +616,5 @@ setTimeout(() => {
         renderTodayPlans();
     });
 }, 1000);
+
 
