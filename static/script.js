@@ -1,11 +1,9 @@
-// app.js
-import { currentUser } from './login.js'; // login.jsのcurrentUserをインポート
+import { currentUser } from './login.js';
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v1.2.0';    // sw.js と同期させる
+const SW_VERSION = 'v1.3.0';    // sw.js と同期させる
 const BASE_PATH = '/Studyplanner/';
 
 // --- データ初期化 ---
@@ -98,91 +96,78 @@ async function getAll(key) {
 }
 
 // --- アップロードボタン ---
-const uploadBtn = document.getElementById('upload-btn');
-uploadBtn.addEventListener("click", async () => {
+document.getElementById('upload-btn').addEventListener("click", async () => {
     if (!window.confirm("データをアップロードします。よろしいですか？")) return;
-
     if (!navigator.onLine) {
         alert("オフラインのためアップロードできません。ネットワーク接続を確認してください。");
         return;
     }
-
     if (!currentUser) {
         console.error("currentUser is null");
         alert("まずログインしてください。");
         return;
     }
-
+    
     uploadBtn.disabled = true;
     uploadBtn.textContent = "アップロード中...";
 
     try {
         const materials = (await getAll("materials")) || [];
         const dailyPlans = (await getAll("dailyPlans")) || {};
-
         const data = {
             materials,
             dailyPlans,
             updatedAt: new Date().toISOString(),
         };
-
-        // Firestoreに保存（既存データを上書きではなくマージ）
+        // Firestoreに保存
         await setDoc(doc(db, "backups", currentUser.uid), data, { merge: true });
-
         alert("アップロード完了しました！");
     } catch (err) {
         console.error("アップロード失敗:", err);
         alert("アップロードに失敗しました。");
     } finally {
         uploadBtn.disabled = false;
-        uploadBtn.textContent = "アップロード";
+        uploadBtn.innerHTML = "<i class="fa-solid fa-cloud-arrow-up"></i> アップロード";
     }
 });
 
 // --- ダウンロードボタン ---
-const downloadBtn = document.getElementById('download-btn');
-downloadBtn.addEventListener("click", async () => {
+document.getElementById('download-btn').addEventListener("click", async () => {
     if (!window.confirm("データをダウンロードします。上書きされますがよろしいですか？")) return;
-
     if (!navigator.onLine) {
         alert("オフラインのためダウンロードできません。");
         return;
     }
-
     if (!currentUser) {
         console.error("currentUser is null");
         alert("まずログインしてください。");
         return;
     }
-
+    
     downloadBtn.disabled = true;
     downloadBtn.textContent = "ダウンロード中...";
 
     try {
         const snapshot = await getDoc(doc(db, "backups", currentUser.uid));
-
         if (!snapshot.exists()) {
             alert("バックアップデータが存在しません。");
             return;
         }
-
         const data = snapshot.data();
-
         await saveAll("materials", data.materials || []);
         await saveAll("dailyPlans", data.dailyPlans || {});
-
+        
         // UIを最新に再描画
         await loadData();
         renderMaterialList();
         renderTodayPlans();
-
         alert("ダウンロード完了しました！");
     } catch (err) {
         console.error("ダウンロード失敗:", err);
         alert("ダウンロードに失敗しました。");
     } finally {
         downloadBtn.disabled = false;
-        downloadBtn.textContent = "ダウンロード";
+        downloadBtn.innerHTML = "<i class="fa-solid fa-cloud-arrow-down"></i> ダウンロード";
     }
 });
 
@@ -653,6 +638,7 @@ setTimeout(() => {
         renderTodayPlans();
     });
 }, 1000);
+
 
 
 
