@@ -96,7 +96,8 @@ async function getAll(key) {
 }
 
 // --- アップロードボタン ---
-document.getElementById('upload-btn').addEventListener("click", async () => {
+const uploadBtn = document.getElementById('upload-btn');
+uploadBtn.addEventListener("click", async () => {
     if (!window.confirm("データをアップロードします。よろしいですか？")) return;
     if (!navigator.onLine) {
         alert("オフラインのためアップロードできません。ネットワーク接続を確認してください。");
@@ -132,7 +133,8 @@ document.getElementById('upload-btn').addEventListener("click", async () => {
 });
 
 // --- ダウンロードボタン ---
-document.getElementById('download-btn').addEventListener("click", async () => {
+const downloadBtn = document.getElementById('download-btn');
+downloadBtn.addEventListener("click", async () => {
     if (!window.confirm("データをダウンロードします。上書きされますがよろしいですか？")) return;
     if (!navigator.onLine) {
         alert("オフラインのためダウンロードできません。");
@@ -638,6 +640,7 @@ setTimeout(() => {
         renderTodayPlans();
     });
 }, 1000);
+
 
 
 
