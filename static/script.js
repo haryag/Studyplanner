@@ -127,7 +127,7 @@ document.getElementById('upload-btn').addEventListener("click", async () => {
         alert("アップロードに失敗しました。");
     } finally {
         uploadBtn.disabled = false;
-        uploadBtn.innerHTML = "<i class="fa-solid fa-cloud-arrow-up"></i> アップロード";
+        uploadBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> アップロード';
     }
 });
 
@@ -167,7 +167,7 @@ document.getElementById('download-btn').addEventListener("click", async () => {
         alert("ダウンロードに失敗しました。");
     } finally {
         downloadBtn.disabled = false;
-        downloadBtn.innerHTML = "<i class="fa-solid fa-cloud-arrow-down"></i> ダウンロード";
+        downloadBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> ダウンロード';
     }
 });
 
@@ -638,6 +638,7 @@ setTimeout(() => {
         renderTodayPlans();
     });
 }, 1000);
+
 
 
 
