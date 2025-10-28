@@ -1,12 +1,5 @@
-// login.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { 
-    getAuth,
-    GoogleAuthProvider,
-    signInWithPopup,
-    onAuthStateChanged,
-    signOut
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCgDtdyFtxtLEMZ6Gt0_haDlpLFg5UYkBQ",
@@ -20,19 +13,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-
 provider.setCustomParameters({
     prompt: 'select_account'
 });
 
 export let currentUser = null;
 
-const loginBtn = document.getElementById("login-btn");
-const logoutBtn = document.getElementById("logout-btn");
-const status = document.getElementById("login-status");
-
-// --- ログイン処理（ポップアップのみ） ---
-loginBtn.addEventListener("click", async () => {
+// --- ログイン ---
+document.getElementById("login-btn").addEventListener("click", async () => {
     try {
         const result = await signInWithPopup(auth, provider);
         currentUser = result.user;
@@ -43,12 +31,11 @@ loginBtn.addEventListener("click", async () => {
     }
 });
 
-// --- ログアウト処理 ---
-logoutBtn.addEventListener("click", async () => {
+// --- ログアウト ---
+document.getElementById("logout-btn").addEventListener("click", async () => {
     try {
         await signOut(auth);
         currentUser = null;
-        status.textContent = "未ログイン";
         alert("ログアウトしました");
     } catch (error) {
         console.error("ログアウトエラー:", error);
@@ -57,6 +44,7 @@ logoutBtn.addEventListener("click", async () => {
 });
 
 // --- ログイン状態監視 ---
+const status = document.getElementById("login-status");
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
     if (user) {
@@ -65,5 +53,3 @@ onAuthStateChanged(auth, (user) => {
         status.textContent = "未ログイン";
     }
 });
-
-
