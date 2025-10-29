@@ -627,11 +627,11 @@ confirmInfo.addEventListener("click", () => {
 renderAppShell();
 
 // Service Worker登録（非同期でバックグラウンド）
-// if ('serviceWorker' in navigator) {
-//   navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`)
-//     .then(reg => console.log('SW登録完了:', reg))
-//     .catch(err => console.error('SW登録失敗:', err));
-// }
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`)
+        .then(reg => console.log('SW登録完了:', reg))
+        .catch(err => console.error('SW登録失敗:', err));
+}
 
 // データ読み込み + 初期レンダリング（ややディレイ）
 setTimeout(() => {
@@ -639,10 +639,4 @@ setTimeout(() => {
         renderMaterialList();
         renderTodayPlans();
     });
-}, 1000);
-
-
-
-
-
-
+}, 500);
