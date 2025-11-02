@@ -40,14 +40,19 @@ self.addEventListener('fetch', event => {
         const response = await fetch(event.request);
         if (event.request.method === 'GET') {
           const cache = await caches.open(CACHE_NAME);
-          cache.put(event.request, response.clone());
+          if (response.type !== 'opaque') {
+            cache.put(event.request, response.clone());
+          }
         }
         return response;
       } catch (err) {
         const cached = await caches.match(event.request);
         if (cached) return cached;
 
-        return caches.match('./index.html');
+        if (event.request.mode === 'navigate') {
+          return caches.match('./index.html');
+        }
+        throw err;
       }
     })()
   );
