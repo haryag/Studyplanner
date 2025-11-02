@@ -36,12 +36,19 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   event.respondWith(
     (async () => {
-      const response = await fetch(event.request);
-      if (event.request.method === 'GET') {
-        const cache = await caches.open('v1');
-        cache.put(event.request, response.clone());
+      try {
+        const response = await fetch(event.request);
+        if (event.request.method === 'GET') {
+          const cache = await caches.open(CACHE_NAME);
+          cache.put(event.request, response.clone());
+        }
+        return response;
+      } catch (err) {
+        const cached = await caches.match(event.request);
+        if (cached) return cached;
+
+        return caches.match('./index.html');
       }
-      return response;
     })()
   );
 });
