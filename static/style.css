@@ -326,29 +326,3 @@ textarea {
 .material-item button.info i { color: #333 !important; }
 .plan-item .buttons button i,
 .material-item .buttons button i { font-size: 16px !important; }
-
-@media print {
-    * {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-    body {
-        max-width: 100%;
-    }
-    .main-content-wrapper {
-        height: auto !important;
-        overflow: visible !important;
-    }
-    .plan-item, .material-item {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;  /* 要素の改ページを防止 */
-    }
-    .button-group,
-    .plan-item .buttons,
-    .material-item .buttons {
-        display: none !important;
-    }
-}
-
-
-
