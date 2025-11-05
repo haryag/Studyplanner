@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v1.3.0';    // sw.js と同期させる
+const SW_VERSION = 'v1.3.1';    // sw.js と同期させる
 const BASE_PATH = '/Studyplanner/';
 
 // --- データ初期化 ---
@@ -309,8 +309,7 @@ function renderTodayPlans() {
             '<i class="fa-solid fa-check"></i>',
             () => {
                 plan.checked = !plan.checked;
-                saveData();
-                renderTodayPlans();
+                saveAndRender();
             }
         );
 
@@ -333,8 +332,7 @@ function renderTodayPlans() {
                 if (confirm("この予定を削除しますか？")) {
                     const idx = todayPlans.indexOf(plan);
                     todayPlans.splice(idx, 1);
-                    saveData();
-                    renderTodayPlans();
+                    saveAndRender();
                 }
             }
         );
@@ -640,3 +638,4 @@ setTimeout(() => {
         renderTodayPlans();
     });
 }, 500);
+
