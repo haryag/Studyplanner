@@ -78,10 +78,14 @@ const dbPromise = new Promise((resolve, reject) => {
 // --- 汎用的な読み書き関数 ---
 async function saveAll(key, value) {
     const db = await dbPromise;
-    const tx = db.transaction("data", "readwrite");
-    const store = tx.objectStore("data");
-    store.put({ key, value });
-    return tx.complete;
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction("data", "readwrite");
+        const store = tx.objectStore("data");
+        store.put({ key, value });
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error);
+    });
 }
 
 async function getAll(key) {
@@ -535,7 +539,7 @@ confirmAdd.addEventListener("click", () => {
         if (mat) { mat.name = name; mat.subject = subject; }
     } else {
         const newId = materials.length ? Math.max(...materials.map(m => m.id)) + 1 : 1;
-        materials.push({ id: newId, name, subject });
+        materials.push({ id: newId, name, subject, progress: 0 });
     }
     editingMaterialId = null;
     toggleModal(addMaterialModal, false);
@@ -553,7 +557,7 @@ confirmPlan.addEventListener("click", () => {
     const time = planTime.value;
     if (!range) return alert("範囲を入力してください");
     if (editingIndex !== null) {
-        dailyPlans[todayDate][editingIndex] = { materialId, range, time };
+        dailyPlans[todayDate].push({ materialId, range, time, checked: false });
         editingIndex = null;
     } else {
         if (!dailyPlans[todayDate]) dailyPlans[todayDate] = [];
@@ -638,4 +642,5 @@ setTimeout(() => {
         renderTodayPlans();
     });
 }, 500);
+
 
