@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v1.3.1';    // sw.js と同期させる
+const SW_VERSION = 'v1.4.0';
 const BASE_PATH = '/Studyplanner/';
 
 // --- データ初期化 ---
@@ -642,5 +642,6 @@ setTimeout(() => {
         renderTodayPlans();
     });
 }, 500);
+
 
 
