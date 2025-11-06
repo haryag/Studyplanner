@@ -109,12 +109,10 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 6px 0;
-    padding: 6px 10px;
-    border: 0;
-    border-left: 4px solid transparent;
+    margin: 4px 0;
+    padding: 4px 12px;
+    border-left: 3px solid transparent;
     border-right: 1px solid transparent;
-    border-radius: 2px 0 0 2px;
     font-size: 15px;
     position: relative;
 }
@@ -127,20 +125,16 @@ body {
     height: 100%;
     background-color: var(--material-bg-color);
     opacity: 0.8;
-    z-index: -1;
+    z-index: -10;
 }
 .material-name-title {
     font-size: 16px;
-    margin: 2px 0;
+    margin: 4px 0;
 }
-.material-name-date, .material-name-progress {
-    font-size: 12px;
-    margin: 0;
-}
-.material-name-comment {
+.material-name-date, .material-name-progress, .material-name-comment {
     font-size: 12px;
     color: #666;
-    margin: 0;
+    margin: 2px 0;
 }
 /* 教科ごとの左枠色設定 */
 .material-item.math { border-color: var(--main-color-math); }
@@ -322,7 +316,7 @@ textarea {
 .plan-item button.delete i,
 .material-item button.delete i { color: red !important; }
 .material-item button.sort-up i,
-.material-item button.sort-down i { color: #666 !important; }
+.material-item button.sort-down i { color: #006ce0 !important; }
 .material-item button.info i { color: #333 !important; }
 .plan-item .buttons button i,
 .material-item .buttons button i { font-size: 16px !important; }
