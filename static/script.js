@@ -539,7 +539,7 @@ confirmAdd.addEventListener("click", () => {
         if (mat) { mat.name = name; mat.subject = subject; }
     } else {
         const newId = materials.length ? Math.max(...materials.map(m => m.id)) + 1 : 1;
-        materials.push({ id: newId, name, subject, progress: 0 });
+        materials.push({ id: newId, name, subject, progress: 0, checked: false });
     }
     editingMaterialId = null;
     toggleModal(addMaterialModal, false);
@@ -557,7 +557,12 @@ confirmPlan.addEventListener("click", () => {
     const time = planTime.value;
     if (!range) return alert("範囲を入力してください");
     if (editingIndex !== null) {
-        dailyPlans[todayDate].push({ materialId, range, time, checked: false });
+        dailyPlans[todayDate][editingIndex] = {
+            ...dailyPlans[todayDate][editingIndex],
+            materialId,
+            range,
+            time
+        };
         editingIndex = null;
     } else {
         if (!dailyPlans[todayDate]) dailyPlans[todayDate] = [];
@@ -642,6 +647,7 @@ setTimeout(() => {
         renderTodayPlans();
     });
 }, 500);
+
 
 
 
