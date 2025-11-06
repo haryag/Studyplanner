@@ -1,9 +1,11 @@
 const CACHE_NAME = 'static-v1.3.1';
+const BASE_PATH = '/Studyplanner/';
+
 const FILES_TO_CACHE = [
-  './',
-  './index.html',
-  './static/style.css',
-  './static/script.js'
+  BASE_PATH,
+  `${BASE_PATH}index.html`,
+  `${BASE_PATH}static/style.css`,
+  `${BASE_PATH}static/script.js`,
 ];
 
 self.addEventListener('install', event => {
