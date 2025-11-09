@@ -375,9 +375,9 @@ function renderMaterialList() {
         nameDateDiv.className = "material-name-date";
         if(mat.date) nameDateDiv.textContent = `期間：${mat.date}`;
         
-        const nameProgressDiv = document.createElement("div");
-        nameProgressDiv.className = "material-name-progress";
-        if(mat.progress) nameProgressDiv.textContent = `進度：${mat.progress}%`;
+        // const nameProgressDiv = document.createElement("div");
+        // nameProgressDiv.className = "material-name-progress";
+        // if(mat.progress) nameProgressDiv.textContent = `進度：${mat.progress}%`;
         
         const nameCommentDiv = document.createElement("div");
         nameCommentDiv.className = "material-name-comment";
@@ -389,7 +389,7 @@ function renderMaterialList() {
             nameDiv.style.color = "#808080";
             itemDiv.style.setProperty('--material-bg-color', `#f0f0f0`);
         }
-        nameDiv.append(nameTitleDiv, nameDateDiv, nameProgressDiv, nameCommentDiv);
+        nameDiv.append(nameTitleDiv, nameDateDiv, nameCommentDiv);
         itemDiv.appendChild(nameDiv);
 
         // ボタン群
@@ -647,6 +647,7 @@ setTimeout(() => {
         renderTodayPlans();
     });
 }, 500);
+
 
 
 
