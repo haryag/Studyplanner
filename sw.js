@@ -1,4 +1,4 @@
-const CACHE_NAME = 'static-v1.4.0';
+const CACHE_NAME = 'static-v1.5.0';
 const BASE_PATH = '/Studyplanner/';
 
 const FILES_TO_CACHE = [
@@ -8,53 +8,55 @@ const FILES_TO_CACHE = [
   `${BASE_PATH}static/script.js`,
 ];
 
+// --- install: 事前キャッシュ ---
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache =>
-      Promise.all(FILES_TO_CACHE.map(async file => {
-        try {
-          const resp = await fetch(file);
-          if (!resp.ok) throw new Error(`${file} を取得できません`);
-          await cache.put(file, resp);
-        } catch (err) {
-          console.warn('キャッシュ失敗（無視）:', err);
-        }
-      }))
-    )
+    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
   );
   self.skipWaiting();
 });
 
+// --- activate: 古いキャッシュ削除 ---
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
         keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
       )
-    ).then(() => self.clients.claim())
+    )
   );
+  self.clients.claim();
 });
 
+// --- fetch: Cache First + 更新を裏で実行 ---
 self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+
   event.respondWith(
     (async () => {
-      try {
-        const response = await fetch(event.request);
-        if (event.request.method === 'GET') {
-          const cache = await caches.open(CACHE_NAME);
-          if (response.type !== 'opaque') {
-            cache.put(event.request, response.clone());
-          }
-        }
-        return response;
-      } catch (err) {
-        const cached = await caches.match(event.request);
-        if (cached) return cached;
+      const cache = await caches.open(CACHE_NAME);
+      const cachedResponse = await cache.match(event.request);
+      const networkFetch = fetch(event.request)
+        .then(response => {
+          if (response.ok) cache.put(event.request, response.clone());
+          return response;
+        })
+        .catch(() => null);
 
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-        throw err;
+      // キャッシュがあれば即座に返す（初期表示が速くなる）
+      if (cachedResponse) {
+        // ネットワーク更新を裏で実行
+        networkFetch;
+        return cachedResponse;
+      }
+
+      // キャッシュがなければネットワーク（初回のみ遅い）
+      const response = await networkFetch;
+      if (response) return response;
+
+      // オフライン時のフォールバック
+      if (event.request.mode === 'navigate') {
+        return caches.match(`${BASE_PATH}index.html`);
       }
     })()
   );
