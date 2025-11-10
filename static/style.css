@@ -299,10 +299,12 @@ textarea {
 .plan-item .buttons {
     display: none;
     position: absolute;
-    font-size: 16px;
-    top: 50%;
-    right: 8px;
-    transform: translateY(-50%);
+    background-color: rgb(255,255,255,0.7);
+    border-radius: 4px;
+    padding: 2px;
+    top: 6px;
+    right: 6px;
+    /* transform: translateY(-50%); */
 }
 /* タップで表示／非表示切替 */
 .plan-item.tapped .buttons,
@@ -329,4 +331,4 @@ textarea {
 .material-item button.sort-down i { color: #006ce0 !important; }
 .material-item button.info i { color: #333 !important; }
 .plan-item .buttons button i,
-.material-item .buttons button i { font-size: 16px !important; }
+.material-item .buttons button i { font-size: 15px !important; }
