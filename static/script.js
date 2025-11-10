@@ -641,14 +641,22 @@ if ('serviceWorker' in navigator) {
 }
 
 // データ読み込み + 初期レンダリング（ややディレイ）
-setTimeout(() => {
-    loadData().then(() => {
+// setTimeout(() => {
+//     loadData().then(() => {
+//         renderMaterialList();
+//         renderTodayPlans();
+//     });
+// }, 500);
+
+// --- 初期UI描画 ---
+renderAppShell();  // まず画面の骨格だけ表示
+
+// --- データ読み込み + 初期レンダリング（非同期で遅延） ---
+window.addEventListener('DOMContentLoaded', () => {
+    // ユーザーが操作可能な状態を優先
+    setTimeout(async () => {
+        await loadData();
         renderMaterialList();
         renderTodayPlans();
-    });
-}, 500);
-
-
-
-
-
+    }, 0); // 0msでも次のイベントループに回るので初期表示は速い
+});
