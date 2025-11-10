@@ -138,7 +138,7 @@ body {
     opacity: 0;
     font-size: 12px;
     color: #666;
-    margin: 2px 0;
+    /* margin: 2px 0; */
 }
 .material-item.tapped .material-name-date,
 .material-item.tapped .material-name-progress,
