@@ -1,9 +1,9 @@
 import { currentUser } from './login.js';
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc } from './static/firebase/firebase-firestore.js';
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v1.4.0';
+const SW_VERSION = 'v1.5.2';
 const BASE_PATH = '/Studyplanner/';
 
 // --- データ初期化 ---
@@ -660,4 +660,5 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0); // 0msでも次のイベントループに回るので初期表示は速い
 });
+
 
