@@ -6,6 +6,9 @@ const FILES_TO_CACHE = [
   `${BASE_PATH}static/style.css`,
   `${BASE_PATH}static/script.js`,
   `${BASE_PATH}static/login.js`,
+  `${BASE_PATH}static/firebase/firebase-app.js`,
+  `${BASE_PATH}static/firebase/firebase-auth.js`,
+  `${BASE_PATH}static/firebase/firebase-firestore.js`,
 ];
 
 // --- install ---
