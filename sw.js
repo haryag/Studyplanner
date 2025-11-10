@@ -1,63 +1,59 @@
-const CACHE_NAME = 'static-v1.5.0';
+const CACHE_NAME = 'static-v1.5.1';
 const BASE_PATH = '/Studyplanner/';
-
 const FILES_TO_CACHE = [
   BASE_PATH,
   `${BASE_PATH}index.html`,
   `${BASE_PATH}static/style.css`,
   `${BASE_PATH}static/script.js`,
+  `${BASE_PATH}static/login.js`,
 ];
 
-// --- install: 事前キャッシュ ---
+// --- install ---
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE)));
   self.skipWaiting();
 });
 
-// --- activate: 古いキャッシュ削除 ---
+// --- activate ---
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+        keys.filter(key => key.startsWith('static-') && key !== CACHE_NAME)
+            .map(key => caches.delete(key))
       )
     )
   );
   self.clients.claim();
 });
 
-// --- fetch: Cache First + 更新を裏で実行 ---
+// --- fetch ---
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
-  event.respondWith(
-    (async () => {
-      const cache = await caches.open(CACHE_NAME);
-      const cachedResponse = await cache.match(event.request);
-      const networkFetch = fetch(event.request)
-        .then(response => {
-          if (response.ok) cache.put(event.request, response.clone());
-          return response;
-        })
-        .catch(() => null);
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    const cached = await cache.match(event.request);
+    const networkFetch = fetch(event.request)
+      .then(response => {
+        if (response.ok) cache.put(event.request, response.clone());
+        return response;
+      })
+      .catch(() => null);
 
-      // キャッシュがあれば即座に返す（初期表示が速くなる）
-      if (cachedResponse) {
-        // ネットワーク更新を裏で実行
-        networkFetch;
-        return cachedResponse;
-      }
+    if (cached) {
+      networkFetch.catch(() => {}); // 裏で更新
+      return cached;
+    }
 
-      // キャッシュがなければネットワーク（初回のみ遅い）
-      const response = await networkFetch;
-      if (response) return response;
+    const response = await networkFetch;
+    if (response) return response;
 
-      // オフライン時のフォールバック
-      if (event.request.mode === 'navigate') {
-        return caches.match(`${BASE_PATH}index.html`);
-      }
-    })()
-  );
+    const fallback = await cache.match(event.request);
+    if (fallback) return fallback;
+
+    if (event.request.mode === 'navigate') {
+      return cache.match(`${BASE_PATH}index.html`);
+    }
+  })());
 });
