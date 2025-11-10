@@ -384,7 +384,7 @@ function renderMaterialList() {
         if(mat.detail) nameCommentDiv.innerHTML = mat.detail.replace(/\n/g, "<br>");
         
         if(mat.ongoing) {
-            nameTitleDiv.style.fontWeight = "bold";
+            nameTitleDiv.style.fontWeight = "medium";
         } else {
             nameDiv.style.color = "#808080";
             itemDiv.style.setProperty('--material-bg-color', `#f0f0f0`);
@@ -660,3 +660,4 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0); // 0msでも次のイベントループに回るので初期表示は速い
 });
+
