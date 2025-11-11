@@ -1,62 +1,62 @@
-const CACHE_NAME = 'static-v1.6.0';
+const CACHE_NAME = 'static-v1.7.0';
 const BASE_PATH = '/Studyplanner/';
+const CACHE_TTL = 1 * 24 * 60 * 60 * 1000; // 1日間
+
 const FILES_TO_CACHE = [
   BASE_PATH,
   `${BASE_PATH}index.html`,
   `${BASE_PATH}static/style.css`,
   `${BASE_PATH}static/script.js`,
   `${BASE_PATH}static/login.js`,
-  `${BASE_PATH}static/firebase/firebase-app.js`,
-  `${BASE_PATH}static/firebase/firebase-auth.js`,
-  `${BASE_PATH}static/firebase/firebase-firestore.js`,
 ];
 
-// --- install ---
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE)));
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
+  );
   self.skipWaiting();
 });
 
-// --- activate ---
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(key => key.startsWith('static-') && key !== CACHE_NAME)
-            .map(key => caches.delete(key))
-      )
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
     )
   );
   self.clients.claim();
 });
 
-// --- fetch ---
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_NAME);
-    const cached = await cache.match(event.request);
-    const networkFetch = fetch(event.request)
-      .then(response => {
-        if (response.ok) cache.put(event.request, response.clone());
-        return response;
-      })
-      .catch(() => null);
+    const cachedResponse = await cache.match(event.request);
 
-    if (cached) {
-      networkFetch.catch(() => {}); // 裏で更新
-      return cached;
+    // キャッシュが存在し、有効期限内ならそれを返す
+    if (cachedResponse) {
+      const dateHeader = cachedResponse.headers.get('sw-cache-time');
+      if (dateHeader && Date.now() - Number(dateHeader) < CACHE_TTL) {
+        return cachedResponse;
+      }
     }
 
-    const response = await networkFetch;
-    if (response) return response;
-
-    const fallback = await cache.match(event.request);
-    if (fallback) return fallback;
-
-    if (event.request.mode === 'navigate') {
-      return cache.match(`${BASE_PATH}index.html`);
+    try {
+      const networkResponse = await fetch(event.request);
+      if (networkResponse.ok) {
+        // 保存時刻付きでキャッシュに保存
+        const headers = new Headers(networkResponse.headers);
+        headers.append('sw-cache-time', Date.now().toString());
+        const cloned = new Response(await networkResponse.clone().blob(), { headers });
+        await cache.put(event.request, cloned);
+      }
+      return networkResponse;
+    } catch {
+      // ネットワーク失敗時は古いキャッシュでも返す
+      if (cachedResponse) return cachedResponse;
+      if (event.request.mode === 'navigate') {
+        return cache.match(`${BASE_PATH}index.html`);
+      }
     }
   })());
 });
