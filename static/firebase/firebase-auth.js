@@ -1,4 +1,4 @@
-import {_getProvider, _isFirebaseServerApp as e, _registerComponent as t, registerVersion as r, getApp as n, SDK_VERSION as i} from "./firebase-app.js";
+import {_getProvider, _isFirebaseServerApp as e, _registerComponent as t, registerVersion as r, getApp as n, SDK_VERSION as i} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 const s = {
     byteToCharMap_: null,
     charToByteMap_: null,
