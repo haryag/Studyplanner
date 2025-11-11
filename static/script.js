@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v1.6.0';
+const SW_VERSION = 'v1.7.0';
 const BASE_PATH = '/Studyplanner/';
 
 // --- データ初期化 ---
@@ -660,6 +660,7 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0); // 0msでも次のイベントループに回るので初期表示は速い
 });
+
 
 
 
