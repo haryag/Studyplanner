@@ -1,5 +1,5 @@
-import { initializeApp } from './static/firebase/firebase-app.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from './static/firebase/firebase-auth.js';
+import { initializeApp } from './firebase/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from './firebase/firebase-auth.js';
 
 const firebaseConfig = {
     apiKey: "AIzaSyCgDtdyFtxtLEMZ6Gt0_haDlpLFg5UYkBQ",
@@ -53,4 +53,5 @@ onAuthStateChanged(auth, (user) => {
         status.textContent = "未ログイン";
     }
 });
+
 
