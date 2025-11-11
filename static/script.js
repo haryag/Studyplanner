@@ -1,5 +1,5 @@
 import { currentUser } from './login.js';
-import { getFirestore, doc, setDoc, getDoc } from './static/firebase/firebase-firestore.js';
+import { getFirestore, doc, setDoc, getDoc } from './firebase/firebase-firestore.js';
 const db = getFirestore();
 
 // --- Service Worker ---
@@ -660,5 +660,6 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0); // 0msでも次のイベントループに回るので初期表示は速い
 });
+
 
 
