@@ -1,4 +1,4 @@
-const CACHE_NAME = 'static-v1.5.2';
+const CACHE_NAME = 'static-v1.6.0';
 const BASE_PATH = '/Studyplanner/';
 const FILES_TO_CACHE = [
   BASE_PATH,
