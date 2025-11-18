@@ -75,19 +75,40 @@ body {
     position: relative;  /* 子要素のpositionを絶対指定したいときに必要 */
 }
 /* 教科ごとの色設定 */
-.plan-item.math { background-color: var(--bg-color-math); }
+.plan-item.math {
+    background-color: var(--bg-color-math);
+    border-color: var(--main-color-math);
+}
 .plan-item.math i { color: var(--main-color-math); }
-.plan-item.english { background-color: var(--bg-color-english); }
+.plan-item.english {
+    background-color: var(--bg-color-english);
+    border-color: var(--main-color-english);
+}
 .plan-item.english i { color: var(--main-color-english); }
-.plan-item.modernjp { background-color: var(--bg-color-modernjp); }
+.plan-item.modernjp {
+    background-color: var(--bg-color-modernjp);
+    border-color: var(--main-color-modernjp);
+}
 .plan-item.modernjp i { color: var(--main-color-modernjp); }
-.plan-item.classicjp { background-color: var(--bg-color-classicjp); }
+.plan-item.classicjp {
+    background-color: var(--bg-color-classicjp);
+    border-color: var(--main-color-classicjp);
+}
 .plan-item.classicjp i { color: var(--main-color-classicjp); }
-.plan-item.science { background-color: var(--bg-color-science); }
+.plan-item.science {
+    background-color: var(--bg-color-science);
+    border-color: var(--main-color-science);
+}
 .plan-item.science i { color: var(--main-color-science); }
-.plan-item.social { background-color: var(--bg-color-social); }
+.plan-item.social {
+    background-color: var(--bg-color-social);
+    border-color: var(--main-color-social);
+}
 .plan-item.social i { color: var(--main-color-social); }
-.plan-item.others { background-color: var(--bg-color-others); }
+.plan-item.others {
+    background-color: var(--bg-color-others);
+    border-color: var(--main-color-others);
+}
 .plan-item.others i { color: var(--main-color-others); }
 
 .plan-icon {
@@ -334,3 +355,4 @@ textarea {
 .material-item button.info i { color: #333 !important; }
 .plan-item .buttons button i,
 .material-item .buttons button i { font-size: 15px !important; }
+
