@@ -112,11 +112,11 @@ body {
 .plan-item.others i { color: var(--main-color-others); }
 
 .plan-icon {
-    width: 40px;
+    width: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 8px;
+    margin-right: 6px;
 }
 .plan-info {
     display: flex;
@@ -132,7 +132,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 8px 0;
+    margin: 6px 0;
     padding: 6px 10px;
     border-left: 3px solid transparent;
     border-radius: 3px;
@@ -323,7 +323,7 @@ textarea {
 .plan-item .buttons {
     display: none;
     position: absolute;
-    background-color: rgb(255,255,255,0.7);
+    /* background-color: rgb(255,255,255,0.7); */
     border-radius: 4px;
     top: 6px;
     right: 4px;
@@ -355,4 +355,3 @@ textarea {
 .material-item button.info i { color: #333 !important; }
 .plan-item .buttons button i,
 .material-item .buttons button i { font-size: 15px !important; }
-
