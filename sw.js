@@ -1,4 +1,4 @@
-const CACHE_NAME = 'static-v1.7.0';
+const CACHE_NAME = 'static-v1.8.0';
 const BASE_PATH = '/Studyplanner/';
 const CACHE_TTL = 1 * 24 * 60 * 60 * 1000; // 1日間
 
