@@ -68,7 +68,8 @@ body {
     width: 100%;
     margin: 8px 0;
     padding: 6px 8px;
-    border-radius: 12px;
+    border-left: 3px solid transparent;
+    border-radius: 3px;
     font-size: 15px;
     align-items: center;
     position: relative;  /* 子要素のpositionを絶対指定したいときに必要 */
@@ -110,10 +111,11 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 4px 0;
-    padding: 4px 10px;
+    margin: 8px 0;
+    padding: 6px 10px;
     border-left: 3px solid transparent;
-    border-right: 1px solid transparent;
+    border-radius: 3px;
+    /* border-right: 1px solid transparent; */
     font-size: 15px;
     position: relative;
 }
@@ -332,4 +334,3 @@ textarea {
 .material-item button.info i { color: #333 !important; }
 .plan-item .buttons button i,
 .material-item .buttons button i { font-size: 15px !important; }
-
