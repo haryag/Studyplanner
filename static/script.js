@@ -621,7 +621,6 @@ confirmInfo.addEventListener("click", () => {
 // ユーティリティ
 const searchMaterialInput = document.getElementById("search-material");
 const filterSubjectSelect = document.getElementById("filter-subject");
-const filterOngoingSelect = document.getElementById("filter-ongoing");
 searchMaterialInput.addEventListener("input", () => {
     const query = searchMaterialInput.value.toLowerCase();
     Array.from(materialListDiv.children).forEach(item => {
@@ -633,24 +632,6 @@ filterSubjectSelect.addEventListener("change", () => {
     const subject = filterSubjectSelect.value;
     Array.from(materialListDiv.children).forEach(item => {
         if (subject === "all" || item.classList.contains(subject)) {
-            item.style.display = "";
-        } else {
-            item.style.display = "none";
-        }
-    });
-});
-filterOngoingSelect.addEventListener("change", () => {
-    const filter = filterOngoingSelect.value;
-    Array.from(materialListDiv.children).forEach(item => {
-        // const isOngoing = !item.style.color || item.style.color !== "rgb(128, 128, 128)"; // グレーでないなら学習中・・・できないので、別の方法で判定
-        const nameDiv = item.querySelector(".material-name-title");
-        const matName = nameDiv ? nameDiv.textContent : "";
-        const mat = materials.find(m => m.name === matName);
-        const isOngoing = mat ? mat.ongoing : false;
-        
-        if (filter === "all" ||
-            (filter === "ongoing" && isOngoing) ||
-            (filter === "not-ongoing" && !isOngoing)) {
             item.style.display = "";
         } else {
             item.style.display = "none";
