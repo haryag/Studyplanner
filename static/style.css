@@ -14,6 +14,7 @@
     --bg-color-science: #e7f7ee;
     --bg-color-social: #fffbde;
     --bg-color-others: #f0f0f0;
+    --bg-color-main: #eaf6ff;
 }
 * {
     font-family: "Noto Sans JP", sans-serif;
@@ -71,6 +72,7 @@ body {
     border-left: 3px solid transparent;
     border-radius: 3px;
     font-size: 15px;
+    line-height: 160%;
     align-items: center;
     position: relative;  /* 子要素のpositionを絶対指定したいときに必要 */
 }
@@ -112,7 +114,7 @@ body {
 .plan-item.others i { color: var(--main-color-others); }
 
 .plan-icon {
-    width: 36px;
+    width: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -179,6 +181,29 @@ body {
 .material-item.social { border-color: var(--main-color-social); }
 .material-item.others { border-color: var(--main-color-others); }
 
+/* オプション */
+.option-content {
+    background-color: var(--bg-color-main);
+    margin: 16px 0;
+    padding: 16px;
+    border-radius: 6px;
+    width: 100%;
+}
+.option-section {
+    margin-bottom: 12px;
+}
+.bottom-button-group {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+    font-size: 12px;
+    color: #666;
+}
+.option-section:hover .bottom-button-group {
+    max-height: 90dvh;
+    opacity: 1;
+}
 /* --- セクション下部のボタン --- */
 .bottom-button {
     width: 100%;
@@ -269,7 +294,8 @@ body {
     margin-top: 4px;
     text-align: center;
 }
-.modal-content label {
+.modal-content label,
+.option-content label {
     display: block;
     margin-top: 4px;
     font-size: 14px;
@@ -278,6 +304,8 @@ body {
 .modal-content input[type="number"],
 .modal-content input[type="time"],
 .modal-content select,
+.option-content input[type="text"],
+.option-content select,
 textarea {
     /* デフォルトのCSSがかなり強いので強制的に解除 */
     appearance: none !important;
