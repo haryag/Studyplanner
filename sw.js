@@ -1,4 +1,4 @@
-const CACHE_NAME = 'static-v1.8.0';
+const CACHE_NAME = 'static-v1.9.0';
 const BASE_PATH = '/Studyplanner/';
 const CACHE_TTL = 1 * 24 * 60 * 60 * 1000; // 1日間
 
@@ -31,29 +31,30 @@ self.addEventListener('fetch', event => {
 
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_NAME);
-    const cachedResponse = await cache.match(event.request);
+    const cached = await cache.match(event.request);
 
-    // キャッシュが存在し、有効期限内ならそれを返す
-    if (cachedResponse) {
-      const dateHeader = cachedResponse.headers.get('sw-cache-time');
-      if (dateHeader && Date.now() - Number(dateHeader) < CACHE_TTL) {
-        return cachedResponse;
+    // 有効期限内 → 即キャッシュ返す
+    if (cached) {
+      const t = Number(cached.headers.get('sw-cache-time'));
+      if (t && Date.now() - t < CACHE_TTL) {
+        return cached;
       }
     }
 
+    // 期限切れまたは未キャッシュ → ネットワーク
     try {
-      const networkResponse = await fetch(event.request);
-      if (networkResponse.ok) {
-        // 保存時刻付きでキャッシュに保存
-        const headers = new Headers(networkResponse.headers);
-        headers.append('sw-cache-time', Date.now().toString());
-        const cloned = new Response(await networkResponse.clone().blob(), { headers });
-        await cache.put(event.request, cloned);
+      if (network.type === 'opaque') return network;
+      const network = await fetch(event.request);
+      if (network.ok) {
+        const headers = new Headers(network.headers);
+        headers.set('sw-cache-time', Date.now().toString());
+        const cloned = new Response(await network.clone().blob(), { headers });
+        cache.put(event.request, cloned);
       }
-      return networkResponse;
+      return network;
     } catch {
-      // ネットワーク失敗時は古いキャッシュでも返す
-      if (cachedResponse) return cachedResponse;
+      // ネットワーク失敗 → 古いキャッシュでも返す
+      if (cached) return cached;
       if (event.request.mode === 'navigate') {
         return cache.match(`${BASE_PATH}index.html`);
       }
