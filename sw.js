@@ -1,4 +1,4 @@
-const CACHE_NAME = 'static-v1.9.0';
+const CACHE_NAME = 'static-v1.9.1';
 const BASE_PATH = '/Studyplanner/';
 const CACHE_TTL = 1 * 24 * 60 * 60 * 1000; // 1日間
 
@@ -43,7 +43,11 @@ self.addEventListener('fetch', event => {
 
     // 期限切れまたは未キャッシュ → ネットワーク
     try {
-      if (network.type === 'opaque') return network;
+      if (network.type === 'opaque') {
+        const cloned = network.clone();
+        await cache.put(event.request, cloned);
+        return network;
+      }
       const network = await fetch(event.request);
       if (network.ok) {
         const headers = new Headers(network.headers);
