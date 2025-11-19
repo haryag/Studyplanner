@@ -1,4 +1,4 @@
-const CACHE_NAME = 'static-v1.9.1';
+const CACHE_NAME = 'static-v1.9.2';
 const BASE_PATH = '/Studyplanner/';
 const CACHE_TTL = 1 * 24 * 60 * 60 * 1000; // 1日間
 
@@ -31,34 +31,29 @@ self.addEventListener('fetch', event => {
 
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_NAME);
-    const cached = await cache.match(event.request);
+    const cachedResponse = await cache.match(event.request);
 
-    // 有効期限内 → 即キャッシュ返す
-    if (cached) {
-      const t = Number(cached.headers.get('sw-cache-time'));
-      if (t && Date.now() - t < CACHE_TTL) {
-        return cached;
+    // キャッシュが存在し、有効期限内ならそれを返す
+    if (cachedResponse) {
+      const dateHeader = cachedResponse.headers.get('sw-cache-time');
+      if (dateHeader && Date.now() - Number(dateHeader) < CACHE_TTL) {
+        return cachedResponse;
       }
     }
 
-    // 期限切れまたは未キャッシュ → ネットワーク
     try {
-      if (network.type === 'opaque') {
-        const cloned = network.clone();
+      const networkResponse = await fetch(event.request);
+      if (networkResponse.ok) {
+        // 保存時刻付きでキャッシュに保存
+        const headers = new Headers(networkResponse.headers);
+        headers.append('sw-cache-time', Date.now().toString());
+        const cloned = new Response(await networkResponse.clone().blob(), { headers });
         await cache.put(event.request, cloned);
-        return network;
       }
-      const network = await fetch(event.request);
-      if (network.ok) {
-        const headers = new Headers(network.headers);
-        headers.set('sw-cache-time', Date.now().toString());
-        const cloned = new Response(await network.clone().blob(), { headers });
-        cache.put(event.request, cloned);
-      }
-      return network;
+      return networkResponse;
     } catch {
-      // ネットワーク失敗 → 古いキャッシュでも返す
-      if (cached) return cached;
+      // ネットワーク失敗時は古いキャッシュでも返す
+      if (cachedResponse) return cachedResponse;
       if (event.request.mode === 'navigate') {
         return cache.match(`${BASE_PATH}index.html`);
       }
