@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v1.7.0';
+const SW_VERSION = 'v2.0.0';
 const BASE_PATH = '/Studyplanner/';
 
 // --- データ初期化 ---
@@ -546,11 +546,18 @@ confirmAdd.addEventListener("click", () => {
     saveAndRender();
 });
 
+// 予定追加モーダル
+document.getElementById("add-plan-btn").addEventListener("click", () => {
+    populateMaterialSelect();
+    planContent.value = "";
+    planTime.value = "";
+    editingIndex = null;
+    toggleModal(addPlanModal, true);
+});
 cancelPlan.addEventListener("click", () => {
     editingIndex = null;
     toggleModal(addPlanModal, false);
 });
-
 confirmPlan.addEventListener("click", () => {
     const materialId = parseInt(planMaterial.value);
     const range = planContent.value.trim();
@@ -611,6 +618,46 @@ confirmInfo.addEventListener("click", () => {
     saveAndRender();
 });
 
+// ユーティリティ
+const searchMaterialInput = document.getElementById("search-material");
+const filterSubjectSelect = document.getElementById("filter-subject");
+const filterOngoingSelect = document.getElementById("filter-ongoing");
+searchMaterialInput.addEventListener("input", () => {
+    const query = searchMaterialInput.value.toLowerCase();
+    Array.from(materialListDiv.children).forEach(item => {
+        const name = item.querySelector(".material-name-title").textContent.toLowerCase();
+        item.style.display = name.includes(query) ? "" : "none";
+    });
+});
+filterSubjectSelect.addEventListener("change", () => {
+    const subject = filterSubjectSelect.value;
+    Array.from(materialListDiv.children).forEach(item => {
+        if (subject === "all" || item.classList.contains(subject)) {
+            item.style.display = "";
+        } else {
+            item.style.display = "none";
+        }
+    });
+});
+filterOngoingSelect.addEventListener("change", () => {
+    const filter = filterOngoingSelect.value;
+    Array.from(materialListDiv.children).forEach(item => {
+        // const isOngoing = !item.style.color || item.style.color !== "rgb(128, 128, 128)"; // グレーでないなら学習中・・・できないので、別の方法で判定
+        const nameDiv = item.querySelector(".material-name-title");
+        const matName = nameDiv ? nameDiv.textContent : "";
+        const mat = materials.find(m => m.name === matName);
+        const isOngoing = mat ? mat.ongoing : false;
+        
+        if (filter === "all" ||
+            (filter === "ongoing" && isOngoing) ||
+            (filter === "not-ongoing" && !isOngoing)) {
+            item.style.display = "";
+        } else {
+            item.style.display = "none";
+        }
+    });
+});
+
 // --- Enterキー送信 ---
 [addMaterialModal, addPlanModal].forEach(modal => {
     modal.addEventListener("keydown", e => {
@@ -640,14 +687,6 @@ if ('serviceWorker' in navigator) {
         .catch(err => console.error('SW登録失敗:', err));
 }
 
-// データ読み込み + 初期レンダリング（ややディレイ）
-// setTimeout(() => {
-//     loadData().then(() => {
-//         renderMaterialList();
-//         renderTodayPlans();
-//     });
-// }, 500);
-
 // --- 初期UI描画 ---
 renderAppShell();  // まず画面の骨格だけ表示
 
@@ -660,10 +699,3 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0); // 0msでも次のイベントループに回るので初期表示は速い
 });
-
-
-
-
-
-
-
