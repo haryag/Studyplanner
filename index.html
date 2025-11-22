@@ -38,11 +38,11 @@
             </div>
             <div class="operate-wrapper">
                 <label>
-                    教材名で検索：
+                    教材名：
                     <input type="text" id="search-material-input" placeholder="教材名で検索">
                 </label>
                 <label>
-                    教科で絞り込み：
+                    教科：
                     <select id="filter-subject-select">
                         <option value="all">すべて</option>
                         <option value="math">数学</option>
@@ -56,33 +56,42 @@
                 </label>
             </div>
             
-            <h3>教材一覧</h3>
-            <div id="material-items"></div>
-            <h3>教材管理</h3>
-            <div>
-                <button id="add-material-btn" class="bottom-btn">
-                    <i class="fa-solid fa-plus"></i> 教材追加
-                </button>
-                <button id="sort-material-btn" class="bottom-btn">
-                    <i class="fa-solid fa-arrows-up-down"></i> 並び替え
-                </button>
+            <!-- <h3>教材一覧</h3> -->
+            <div class="material-wrapper">
+                <div id="material-items"></div>
             </div>
-                
-            <h3>データを共有</h3>
+
             <div>
-                <p id="login-status-panel"></p>
-                <button id="upload-btn" class="bottom-btn">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> アップロード
-                </button>
-                <button id="download-btn" class="bottom-btn">
-                    <i class="fa-solid fa-cloud-arrow-down"></i> ダウンロード
-                </button>
-                <button id="login-btn" class="bottom-btn">
-                    <i class="fa-solid fa-arrow-right-to-bracket"></i> ログイン
-                </button>
-                <button id="logout-btn" class="bottom-btn">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i> ログアウト
-                </button>
+                <input type="checkbox" name="option-toggle-checkbox" id="option-toggle-materials">
+                <label for="option-toggle-materials">教材管理</label>
+                <div class="option-button-wrapper">
+                    <button id="add-material-btn" class="bottom-btn">
+                        <i class="fa-solid fa-plus"></i> 教材追加
+                    </button>
+                    <button id="sort-material-btn" class="bottom-btn">
+                        <i class="fa-solid fa-arrows-up-down"></i> 並び替え
+                    </button>
+                </div>
+            </div>
+        
+            <div>
+                <input type="checkbox" name="option-toggle-checkbox" id="option-toggle-sharing">
+                <label for="option-toggle-sharing">データを共有</label>
+                <div class="option-button-wrapper">
+                    <p id="login-status-panel"></p>
+                    <button id="upload-btn" class="bottom-btn">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> アップロード
+                    </button>
+                    <button id="download-btn" class="bottom-btn">
+                        <i class="fa-solid fa-cloud-arrow-down"></i> ダウンロード
+                    </button>
+                    <button id="login-btn" class="bottom-btn">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> ログイン
+                    </button>
+                    <button id="logout-btn" class="bottom-btn">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> ログアウト
+                    </button>
+                </div>
             </div>
         </div>
     </main>
@@ -129,6 +138,7 @@
             <label>
                 開始時間：
                 <input type="time" id="plan-time-input">
+                <!-- <input type="datetime-local" id="plan-time-input"> -->
             </label>
             <div class="modal-btns">
                 <button id="cancel-plan-btn" class="cancel">キャンセル</button>
