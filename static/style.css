@@ -160,7 +160,7 @@ body {
 .material-name-date, .material-name-progress, .material-name-comment {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease, opacity 0.3s ease;
+    transition: all 0.3s ease;
     opacity: 0;
     font-size: 12px;
     color: #666;
@@ -366,3 +366,4 @@ textarea {
 .material-item button.info i { color: #333 !important; }
 .plan-item .buttons button i,
 .material-item .buttons button i { font-size: 15px !important; }
+
