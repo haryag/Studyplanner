@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v2.3.0';
+const SW_VERSION = 'v2.4.0';
 const BASE_PATH = '/Studyplanner/';
 
 // --- データ初期化 ---
@@ -406,6 +406,15 @@ function renderMaterialList() {
         addTapToggle(itemDiv);
         materialItems.appendChild(itemDiv);
     });
+
+    if (materialItems.children.length === 0) {
+        const empty = document.createElement("p");
+        empty.textContent = "教材なし";
+        empty.style.textAlign = "center";
+        empty.style.color = "#000";
+        empty.style.marginTop = "16px";
+        materialItems.appendChild(empty);
+    }
 }
 
 // --- 教材並び替えモーダル ---
