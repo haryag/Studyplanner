@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v2.0.0';
+const SW_VERSION = 'v2.1.0';
 const BASE_PATH = '/Studyplanner/';
 
 // --- データ初期化 ---
@@ -14,42 +14,43 @@ let backupMaterials = [];
 
 // --- DOM要素 ---
 const wrapper = document.getElementById("wrapper");
-const buttonGroup = document.querySelector(".button-group");
-const planListSection = document.getElementById("plan-list-section");
-const planListDiv = document.getElementById("plan-list");
-const materialListSection = document.getElementById("material-list-section");
-const materialListDiv = document.getElementById("material-list");
+const todayDatePanel = document.getElementById("todaydate-panel");
+const buttonContainer = document.getElementById("button-container");
+const planContainer = document.getElementById("plan-container");
+const planItems = document.getElementById("plan-items");
+const materialContainer = document.getElementById("material-container");
+const materialItems = document.getElementById("material-items");
 
 // 予定追加モーダル
 const addPlanModal = document.getElementById("add-plan-modal");
-const planMaterial = document.getElementById("plan-material");
-const planContent = document.getElementById("plan-content");
-const planTime = document.getElementById("plan-time");
-const cancelPlan = document.getElementById("cancel-plan");
-const confirmPlan = document.getElementById("confirm-plan");
+const planMaterialInput = document.getElementById("plan-material-select");
+const planContentInput = document.getElementById("plan-content-input");
+const planTimeInput = document.getElementById("plan-time-input");
+const cancelPlanBtn = document.getElementById("cancel-plan-btn");
+const confirmPlanBtn = document.getElementById("confirm-plan-btn");
 
 // 教材追加モーダル
 const addMaterialModal = document.getElementById("add-material-modal");
-const materialName = document.getElementById("material-name");
-const materialSubject = document.getElementById("material-subject");
-const cancelAdd = document.getElementById("cancel-add");
-const confirmAdd = document.getElementById("confirm-add");
+const materialNameInput = document.getElementById("material-name-input");
+const materialSubjectSelect = document.getElementById("material-subject-select");
+const cancelAddBtn = document.getElementById("cancel-add-btn");
+const confirmAddBtn = document.getElementById("confirm-add-btn");
 
 // 教材情報モーダル
 const infoMaterialModal = document.getElementById("info-material-modal");
-const materialNameDiv = document.getElementById("material-name-div");
-const materialOngoing = document.getElementById("material-ongoing");
-const materialDate = document.getElementById("material-date");
-const materialProgress = document.getElementById("material-progress");
-const materialDetail = document.getElementById("material-detail");
-const cancelInfo = document.getElementById("cancel-info");
-const confirmInfo = document.getElementById("confirm-info");
+const materialNamePanel = document.getElementById("material-name-panel");
+const materialOngoingCheckbox = document.getElementById("material-ongoing-checkbox");
+const materialDateInput = document.getElementById("material-date-input");
+const materialProgressInput = document.getElementById("material-progress-input");
+const materialDetailInput = document.getElementById("material-detail-input");
+const cancelInfoBtn = document.getElementById("cancel-info-btn");
+const confirmInfoBtn = document.getElementById("confirm-info-btn");
 
 // 教材並び替えモーダル
 const sortMaterialModal = document.getElementById("sort-material-modal");
-const sortMaterialList = document.getElementById("sort-material-list");
-const cancelSort = document.getElementById("cancel-sort");
-const confirmSort = document.getElementById("confirm-sort");
+const sortItems = document.getElementById("sort-items");
+const cancelSortBtn = document.getElementById("cancel-sort-btn");
+const confirmSortBtn = document.getElementById("confirm-sort-btn");
 
 let editingMaterialId = null;
 let editingIndex = null;
@@ -57,8 +58,7 @@ let editingIndex = null;
 // --- 共通関数 ---
 // ロード前に表示する関数
 function renderAppShell() {
-    // 今日の日付のところにロード表示
-    document.getElementById("today-date").textContent = "Loading...";
+    todayDatePanel.textContent = "Loading...";
 }
 
 // --- IndexedDBベースの保存・読み込み ---
@@ -194,9 +194,9 @@ async function loadData() {
 
 // セクション入れ替え
 function toggleSections() {
-    const planVisible = !planListSection.classList.contains("hidden");
-    planListSection.classList.toggle("hidden", planVisible);
-    materialListSection.classList.toggle("hidden", !planVisible);
+    const planVisible = !planContainer.classList.contains("hidden");
+    planContainer.classList.toggle("hidden", planVisible);
+    materialContainer.classList.toggle("hidden", !planVisible);
 }
 
 // モーダル開閉
@@ -204,18 +204,18 @@ function toggleModal(modal, show = true) {
     modal.classList.toggle("hidden", !show);
     document.body.style.overflow = show ? "hidden" : "";
     wrapper.classList.toggle("full-height", show);
-    buttonGroup.style.display = show ? "none" : "flex";
+    buttonContainer.style.display = show ? "none" : "flex";
 }
 
 // 教材選択肢生成
 function populateMaterialSelect(selectedId = null) {
-    planMaterial.innerHTML = "";
+    planMaterialInput.innerHTML = "";
     materials.forEach(m => {
         const option = document.createElement("option");
         option.value = m.id;
         option.textContent = m.name;
         if (m.id === selectedId) option.selected = true;
-        planMaterial.appendChild(option);
+        planMaterialInput.appendChild(option);
     });
 }
 
@@ -251,8 +251,8 @@ function saveAndRender() {
 
 // --- 今日の予定表示 ---
 function renderTodayPlans() {
-    document.getElementById("today-date").textContent = todayDate;
-    planListDiv.innerHTML = "";
+    document.getElementById("todaydate-panel").textContent = todayDate;
+    planItems.innerHTML = "";
     const todayPlans = dailyPlans[todayDate] || [];
     const sortedPlans = [...todayPlans].sort((a, b) => {
         if (a.checked && !b.checked) return 1;
@@ -322,8 +322,8 @@ function renderTodayPlans() {
             '<i class="fa-solid fa-pen"></i>',
             () => {
                 populateMaterialSelect(plan.materialId);
-                planContent.value = plan.range;
-                planTime.value = plan.time || "";
+                planContentInput.value = plan.range;
+                planTimeInput.value = plan.time || "";
                 editingIndex = todayPlans.indexOf(plan);
                 toggleModal(addPlanModal, true);
             }
@@ -350,13 +350,13 @@ function renderTodayPlans() {
 
         item.append(iconDiv, infoDiv, btnContainer);
         addTapToggle(item);
-        planListDiv.appendChild(item);
+        planItems.appendChild(item);
     });
 }
 
 // --- 教材一覧表示 ---
 function renderMaterialList() {
-    materialListDiv.innerHTML = "";
+    materialItems.innerHTML = "";
     materials.forEach(mat => {
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
@@ -365,7 +365,7 @@ function renderMaterialList() {
 
         // カード（ボタン以外）
         const nameDiv = document.createElement("div");
-        nameDiv.className = "material-name";
+        nameDiv.className = "material-name-input";
 
         const nameTitleDiv = document.createElement("div");
         nameTitleDiv.className = "material-name-title";
@@ -375,21 +375,21 @@ function renderMaterialList() {
         nameDateDiv.className = "material-name-date";
         if(mat.date) nameDateDiv.textContent = `期間：${mat.date}`;
         
-        // const nameProgressDiv = document.createElement("div");
-        // nameProgressDiv.className = "material-name-progress";
-        // if(mat.progress) nameProgressDiv.textContent = `進度：${mat.progress}%`;
+        const nameProgressDiv = document.createElement("div");
+        nameProgressDiv.className = "material-name-progress";
+        if(mat.progress) nameProgressDiv.textContent = `進度：${mat.progress}%`;
         
         const nameCommentDiv = document.createElement("div");
         nameCommentDiv.className = "material-name-comment";
         if(mat.detail) nameCommentDiv.innerHTML = mat.detail.replace(/\n/g, "<br>");
         
         if(mat.ongoing) {
-            // nameTitleDiv.style.fontWeight = "medium";
+            nameTitleDiv.style.fontWeight = "medium";
         } else {
             nameDiv.style.color = "#808080";
             itemDiv.style.setProperty('--material-bg-color', `#f0f0f0`);
         }
-        nameDiv.append(nameTitleDiv, nameDateDiv, nameCommentDiv);
+        nameDiv.append(nameTitleDiv, nameProgressDiv, nameDateDiv, nameCommentDiv);
         itemDiv.appendChild(nameDiv);
 
         // ボタン群
@@ -401,8 +401,8 @@ function renderMaterialList() {
             '<i class="fa-solid fa-plus"></i>',
             () => {
                 populateMaterialSelect(mat.id);
-                planContent.value = "";
-                planTime.value = "";
+                planContentInput.value = "";
+                planTimeInput.value = "";
                 editingIndex = null;
                 toggleModal(addPlanModal, true);
             }
@@ -412,8 +412,8 @@ function renderMaterialList() {
             "edit",
             '<i class="fa-solid fa-pen"></i>',
             () => {
-                materialSubject.value = mat.subject;
-                materialName.value = mat.name;
+                materialSubjectSelect.value = mat.subject;
+                materialNameInput.value = mat.name;
                 editingMaterialId = mat.id;
                 toggleModal(addMaterialModal, true);
             }
@@ -423,11 +423,11 @@ function renderMaterialList() {
             "info",
             '<i class="fa-solid fa-info"></i>',
             () => {
-                materialNameDiv.textContent = mat.name;
-                materialOngoing.checked = mat.ongoing || false;
-                materialDate.value = mat.date || "";
-                materialProgress.value = mat.progress;
-                materialDetail.value = mat.detail || "";
+                materialNamePanel.textContent = mat.name;
+                materialOngoingCheckbox.checked = mat.ongoing || false;
+                materialDateInput.value = mat.date || "";
+                materialProgressInput.value = mat.progress;
+                materialDetailInput.value = mat.detail || "";
                 editingMaterialId = mat.id;
                 toggleModal(infoMaterialModal, true);
             }
@@ -451,13 +451,13 @@ function renderMaterialList() {
         btnDiv.append(addPlanBtn, editBtn, infoBtn, delBtn);
         itemDiv.appendChild(btnDiv);
         addTapToggle(itemDiv);
-        materialListDiv.appendChild(itemDiv);
+        materialItems.appendChild(itemDiv);
     });
 }
 
 // --- 教材並び替えモーダル ---
 function renderSortMaterialModal() {
-    sortMaterialList.innerHTML = "";
+    sortItems.innerHTML = "";
     materials.forEach(mat => {
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
@@ -478,7 +478,7 @@ function renderSortMaterialModal() {
                 if (idx <= 0) return;
                 [materials[idx - 1], materials[idx]] = [materials[idx], materials[idx - 1]];
                 const prevDiv = itemDiv.previousElementSibling;
-                if (prevDiv) sortMaterialList.insertBefore(itemDiv, prevDiv);
+                if (prevDiv) sortItems.insertBefore(itemDiv, prevDiv);
                 itemDiv.classList.add('tapped');
                 updateSortButtons();
             }
@@ -491,8 +491,8 @@ function renderSortMaterialModal() {
                 if (idx >= materials.length - 1) return;
                 [materials[idx], materials[idx + 1]] = [materials[idx + 1], materials[idx]];
                 const nextDiv = itemDiv.nextElementSibling;
-                if (nextDiv) sortMaterialList.insertBefore(itemDiv, nextDiv.nextElementSibling);
-                // else sortMaterialList.appendChild(itemDiv);
+                if (nextDiv) sortItems.insertBefore(itemDiv, nextDiv.nextElementSibling);
+                // else sortItems.appendChild(itemDiv);
                 itemDiv.classList.add('tapped');
                 updateSortButtons();
             }
@@ -502,13 +502,13 @@ function renderSortMaterialModal() {
         itemDiv.appendChild(btnDiv);
 
         addTapToggle(itemDiv);
-        sortMaterialList.appendChild(itemDiv);
+        sortItems.appendChild(itemDiv);
     });
     updateSortButtons();
 }
 
 function updateSortButtons() {
-    const items = Array.from(sortMaterialList.children);
+    const items = Array.from(sortItems.children);
     items.forEach((item, i) => {
         const upBtn = item.querySelector('button:nth-child(1)');
         const downBtn = item.querySelector('button:nth-child(2)');
@@ -519,20 +519,20 @@ function updateSortButtons() {
 
 // --- 各種イベント ---
 document.getElementById("add-material-btn").addEventListener("click", () => {
-    materialName.value = "";
-    materialSubject.value = "math";
-    materialProgress.value = 0;
+    materialNameInput.value = "";
+    materialSubjectSelect.value = "math";
+    materialProgressInput.value = 0;
     editingMaterialId = null;
     toggleModal(addMaterialModal, true);
 });
 
-cancelAdd.addEventListener("click", () => {
+cancelAddBtn.addEventListener("click", () => {
     editingMaterialId = null;
     toggleModal(addMaterialModal, false);
 });
-confirmAdd.addEventListener("click", () => {
-    const name = materialName.value.trim();
-    const subject = materialSubject.value;
+confirmAddBtn.addEventListener("click", () => {
+    const name = materialNameInput.value.trim();
+    const subject = materialSubjectSelect.value;
     if (!name) return alert("教材名を入力してください");
     if (editingMaterialId !== null) {
         const mat = materials.find(m => m.id === editingMaterialId);
@@ -549,19 +549,19 @@ confirmAdd.addEventListener("click", () => {
 // 予定追加モーダル
 document.getElementById("add-plan-btn").addEventListener("click", () => {
     populateMaterialSelect();
-    planContent.value = "";
-    planTime.value = "";
+    planContentInput.value = "";
+    planTimeInput.value = "";
     editingIndex = null;
     toggleModal(addPlanModal, true);
 });
-cancelPlan.addEventListener("click", () => {
+cancelPlanBtn.addEventListener("click", () => {
     editingIndex = null;
     toggleModal(addPlanModal, false);
 });
-confirmPlan.addEventListener("click", () => {
-    const materialId = parseInt(planMaterial.value);
-    const range = planContent.value.trim();
-    const time = planTime.value;
+confirmPlanBtn.addEventListener("click", () => {
+    const materialId = parseInt(planMaterialInput.value);
+    const range = planContentInput.value.trim();
+    const time = planTimeInput.value;
     if (!range) return alert("範囲を入力してください");
     if (editingIndex !== null) {
         dailyPlans[todayDate][editingIndex] = {
@@ -580,33 +580,33 @@ confirmPlan.addEventListener("click", () => {
 });
 
 // 並び替えモーダル
-document.getElementById("sort-btn").addEventListener("click", () => {
+document.getElementById("sort-material-btn").addEventListener("click", () => {
     backupMaterials = [...materials];
     renderSortMaterialModal();
     toggleModal(sortMaterialModal, true);
 });
 
-cancelSort.addEventListener("click", () => {
+cancelSortBtn.addEventListener("click", () => {
     materials.splice(0, materials.length, ...backupMaterials);
     toggleModal(sortMaterialModal, false);
 });
 
-confirmSort.addEventListener("click", () => {
+confirmSortBtn.addEventListener("click", () => {
     toggleModal(sortMaterialModal, false);
     saveAndRender();
 });
 
 // 教材情報モーダル
-document.getElementById("view-section").addEventListener("click", toggleSections);
-cancelInfo.addEventListener("click", () => {
+document.getElementById("toggle-section-btn").addEventListener("click", toggleSections);
+cancelInfoBtn.addEventListener("click", () => {
     editingMaterialId = null;
     toggleModal(infoMaterialModal, false);
 });
-confirmInfo.addEventListener("click", () => {
-    const ongoing = materialOngoing.checked;
-    const date = materialDate.value;
-    const progress = parseInt(materialProgress.value);
-    const detail = materialDetail.value.replace(/^\s+|\s+$/g, '');;
+confirmInfoBtn.addEventListener("click", () => {
+    const ongoing = materialOngoingCheckbox.checked;
+    const date = materialDateInput.value;
+    const progress = parseInt(materialProgressInput.value);
+    const detail = materialDetailInput.value.replace(/^\s+|\s+$/g, '');;
     if (isNaN(progress) || progress < 0 || progress > 100) return alert("進度は0～100の数値で入力してください");
     if (editingMaterialId !== null) {
         const mat = materials.find(m => m.id === editingMaterialId);
@@ -619,18 +619,18 @@ confirmInfo.addEventListener("click", () => {
 });
 
 // ユーティリティ
-const searchMaterialInput = document.getElementById("search-material");
+const searchMaterialInput = document.getElementById("search-material-input");
 const filterSubjectSelect = document.getElementById("filter-subject");
 searchMaterialInput.addEventListener("input", () => {
     const query = searchMaterialInput.value.toLowerCase();
-    Array.from(materialListDiv.children).forEach(item => {
+    Array.from(materialItems.children).forEach(item => {
         const name = item.querySelector(".material-name-title").textContent.toLowerCase();
         item.style.display = name.includes(query) ? "" : "none";
     });
 });
 filterSubjectSelect.addEventListener("change", () => {
     const subject = filterSubjectSelect.value;
-    Array.from(materialListDiv.children).forEach(item => {
+    Array.from(materialItems.children).forEach(item => {
         if (subject === "all" || item.classList.contains(subject)) {
             item.style.display = "";
         } else {
@@ -644,16 +644,16 @@ filterSubjectSelect.addEventListener("change", () => {
     modal.addEventListener("keydown", e => {
         if (e.key === "Enter") {
             e.preventDefault();
-            if (modal === addMaterialModal) confirmAdd.click();
-            else confirmPlan.click();
+            if (modal === addMaterialModal) confirmAddBtn.click();
+            else confirmPlanBtn.click();
         }
     });
 });
-[materialProgress, materialDate].forEach(input => {
+[materialProgressInput, materialDateInput].forEach(input => {
     input.addEventListener("keydown", e => {
         if (e.key === "Enter") {
             e.preventDefault();
-            confirmInfo.click();
+            confirmInfoBtn.click();
         }
     });
 });
