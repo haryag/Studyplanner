@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v2.2.0';
+const SW_VERSION = 'v2.3.0';
 const BASE_PATH = '/Studyplanner/';
 
 // --- データ初期化 ---
@@ -21,6 +21,16 @@ const planItems = document.getElementById("plan-items");
 const materialContainer = document.getElementById("material-container");
 const materialItems = document.getElementById("material-items");
 
+// ユーティリティ
+const openPlanModalBtn = document.getElementById("add-plan-btn");
+const openMaterialModalBtn = document.getElementById("add-material-btn");
+const openSortModalBtn = document.getElementById("sort-material-btn");
+const toggleSectionBtn = document.getElementById("toggle-section-btn");
+const searchMaterialInput = document.getElementById("search-material-input");
+const filterSubjectSelect = document.getElementById("filter-subject-select");
+const uploadBtn = document.getElementById('upload-btn');
+const downloadBtn = document.getElementById('download-btn');
+
 // 予定追加モーダル
 const addPlanModal = document.getElementById("add-plan-modal");
 const planMaterialInput = document.getElementById("plan-material-select");
@@ -33,8 +43,8 @@ const confirmPlanBtn = document.getElementById("confirm-plan-btn");
 const addMaterialModal = document.getElementById("add-material-modal");
 const materialNameInput = document.getElementById("material-name-input");
 const materialSubjectSelect = document.getElementById("material-subject-select");
-const cancelAddBtn = document.getElementById("cancel-add-btn");
-const confirmAddBtn = document.getElementById("confirm-add-btn");
+const cancelMaterialBtn = document.getElementById("cancel-material-btn");
+const confirmMaterialBtn = document.getElementById("confirm-material-btn");
 
 // 教材情報モーダル
 const infoMaterialModal = document.getElementById("info-material-modal");
@@ -99,84 +109,6 @@ async function getAll(key) {
     });
 }
 
-// --- アップロードボタン ---
-const uploadBtn = document.getElementById('upload-btn');
-uploadBtn.addEventListener("click", async () => {
-    if (!window.confirm("データをアップロードします。よろしいですか？")) return;
-    if (!navigator.onLine) {
-        alert("オフラインのためアップロードできません。ネットワーク接続を確認してください。");
-        return;
-    }
-    if (!currentUser) {
-        console.error("currentUser is null");
-        alert("まずログインしてください。");
-        return;
-    }
-    
-    uploadBtn.disabled = true;
-    uploadBtn.textContent = "アップロード中...";
-
-    try {
-        const materials = (await getAll("materials")) || [];
-        const dailyPlans = (await getAll("dailyPlans")) || {};
-        const data = {
-            materials,
-            dailyPlans,
-            updatedAt: new Date().toISOString(),
-        };
-        // Firestoreに保存
-        await setDoc(doc(db, "backups", currentUser.uid), data, { merge: true });
-        alert("アップロード完了しました！");
-    } catch (err) {
-        console.error("アップロード失敗:", err);
-        alert("アップロードに失敗しました。");
-    } finally {
-        uploadBtn.disabled = false;
-        uploadBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> アップロード';
-    }
-});
-
-// --- ダウンロードボタン ---
-const downloadBtn = document.getElementById('download-btn');
-downloadBtn.addEventListener("click", async () => {
-    if (!window.confirm("データをダウンロードします。上書きされますがよろしいですか？")) return;
-    if (!navigator.onLine) {
-        alert("オフラインのためダウンロードできません。");
-        return;
-    }
-    if (!currentUser) {
-        console.error("currentUser is null");
-        alert("まずログインしてください。");
-        return;
-    }
-    
-    downloadBtn.disabled = true;
-    downloadBtn.textContent = "ダウンロード中...";
-
-    try {
-        const snapshot = await getDoc(doc(db, "backups", currentUser.uid));
-        if (!snapshot.exists()) {
-            alert("バックアップデータが存在しません。");
-            return;
-        }
-        const data = snapshot.data();
-        await saveAll("materials", data.materials || []);
-        await saveAll("dailyPlans", data.dailyPlans || {});
-        
-        // UIを最新に再描画
-        await loadData();
-        renderMaterialList();
-        renderTodayPlans();
-        alert("ダウンロード完了しました！");
-    } catch (err) {
-        console.error("ダウンロード失敗:", err);
-        alert("ダウンロードに失敗しました。");
-    } finally {
-        downloadBtn.disabled = false;
-        downloadBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> ダウンロード';
-    }
-});
-
 // --- 保存処理 ---
 async function saveData() {
     await saveAll("materials", materials);
@@ -197,6 +129,17 @@ function toggleSections() {
     const planVisible = !planContainer.classList.contains("hidden");
     planContainer.classList.toggle("hidden", planVisible);
     materialContainer.classList.toggle("hidden", !planVisible);
+}
+
+// タップトグル
+function addTapToggle(itemDiv) {
+    itemDiv.addEventListener("click", (e) => {
+        if (e.target.closest("button")) return;
+        document.querySelectorAll('.material-item.tapped, .plan-item.tapped').forEach(div => {
+            if (div !== itemDiv) div.classList.remove('tapped');
+        });
+        itemDiv.classList.toggle("tapped");
+    });
 }
 
 // モーダル開閉
@@ -231,14 +174,14 @@ function createIconButton(className, iconHtml, onClick) {
     return btn;
 }
 
-// タップトグル
-function addTapToggle(itemDiv) {
-    itemDiv.addEventListener("click", (e) => {
-        if (e.target.closest("button")) return;
-        document.querySelectorAll('.material-item.tapped, .plan-item.tapped').forEach(div => {
-            if (div !== itemDiv) div.classList.remove('tapped');
-        });
-        itemDiv.classList.toggle("tapped");
+// 並び替えボタンの表示更新
+function updateSortButtons() {
+    const items = Array.from(sortItems.children);
+    items.forEach((item, i) => {
+        const upBtn = item.querySelector('button:nth-child(1)');
+        const downBtn = item.querySelector('button:nth-child(2)');
+        upBtn.classList.toggle('invisible', i === 0);
+        downBtn.classList.toggle('invisible', i === items.length - 1);
     });
 }
 
@@ -356,43 +299,52 @@ function renderTodayPlans() {
 
 // --- 教材一覧表示 ---
 function renderMaterialList() {
+    const query = searchMaterialInput.value.toLowerCase();
+    const subjectFilter = filterSubjectSelect.value;
+
     materialItems.innerHTML = "";
+
     materials.forEach(mat => {
+        // --- フィルタリング ---
+        if (subjectFilter !== "all" && mat.subject !== subjectFilter) return;
+        if (!mat.name.toLowerCase().includes(query)) return;
+
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
         itemDiv.style.setProperty('--material-bg-color', `var(--bg-color-${mat.subject})`);
         itemDiv.style.setProperty('--material-bg-width', `${mat.progress}%`);
 
-        // カード（ボタン以外）
+        // --- カード情報 ---
         const nameDiv = document.createElement("div");
         nameDiv.className = "material-name-input";
 
         const nameTitleDiv = document.createElement("div");
         nameTitleDiv.className = "material-name-title";
         nameTitleDiv.textContent = mat.name;
-        
+
         const nameDateDiv = document.createElement("div");
         nameDateDiv.className = "material-name-date";
         if(mat.date) nameDateDiv.textContent = `期間：${mat.date}`;
-        
+
         const nameProgressDiv = document.createElement("div");
         nameProgressDiv.className = "material-name-progress";
         if(mat.progress) nameProgressDiv.textContent = `進度：${mat.progress}%`;
-        
+
         const nameCommentDiv = document.createElement("div");
         nameCommentDiv.className = "material-name-comment";
         if(mat.detail) nameCommentDiv.innerHTML = mat.detail.replace(/\n/g, "<br>");
-        
+
         if(mat.ongoing) {
             nameTitleDiv.style.fontWeight = "medium";
         } else {
             nameDiv.style.color = "#808080";
             itemDiv.style.setProperty('--material-bg-color', `#f0f0f0`);
         }
+
         nameDiv.append(nameTitleDiv, nameProgressDiv, nameDateDiv, nameCommentDiv);
         itemDiv.appendChild(nameDiv);
 
-        // ボタン群
+        // --- ボタン群 ---
         const btnDiv = document.createElement("div");
         btnDiv.className = "buttons";
 
@@ -418,7 +370,7 @@ function renderMaterialList() {
                 toggleModal(addMaterialModal, true);
             }
         );
-        
+
         const infoBtn = createIconButton(
             "info",
             '<i class="fa-solid fa-info"></i>',
@@ -447,9 +399,10 @@ function renderMaterialList() {
                 }
             }
         );
-        
+
         btnDiv.append(addPlanBtn, editBtn, infoBtn, delBtn);
         itemDiv.appendChild(btnDiv);
+
         addTapToggle(itemDiv);
         materialItems.appendChild(itemDiv);
     });
@@ -507,47 +460,82 @@ function renderSortMaterialModal() {
     updateSortButtons();
 }
 
-function updateSortButtons() {
-    const items = Array.from(sortItems.children);
-    items.forEach((item, i) => {
-        const upBtn = item.querySelector('button:nth-child(1)');
-        const downBtn = item.querySelector('button:nth-child(2)');
-        upBtn.classList.toggle('invisible', i === 0);
-        downBtn.classList.toggle('invisible', i === items.length - 1);
-    });
-}
-
-// --- 各種イベント ---
-document.getElementById("add-material-btn").addEventListener("click", () => {
-    materialNameInput.value = "";
-    materialSubjectSelect.value = "math";
-    materialProgressInput.value = 0;
-    editingMaterialId = null;
-    toggleModal(addMaterialModal, true);
-});
-
-cancelAddBtn.addEventListener("click", () => {
-    editingMaterialId = null;
-    toggleModal(addMaterialModal, false);
-});
-confirmAddBtn.addEventListener("click", () => {
-    const name = materialNameInput.value.trim();
-    const subject = materialSubjectSelect.value;
-    if (!name) return alert("教材名を入力してください");
-    if (editingMaterialId !== null) {
-        const mat = materials.find(m => m.id === editingMaterialId);
-        if (mat) { mat.name = name; mat.subject = subject; }
-    } else {
-        const newId = materials.length ? Math.max(...materials.map(m => m.id)) + 1 : 1;
-        materials.push({ id: newId, name, subject, progress: 0, checked: false });
+// --- アップロード / ダウンロード ---
+uploadBtn.addEventListener("click", async () => {
+    if (!window.confirm("データをアップロードします。よろしいですか？")) return;
+    if (!navigator.onLine) {
+        alert("オフラインのためアップロードできません。ネットワーク接続を確認してください。");
+        return;
     }
-    editingMaterialId = null;
-    toggleModal(addMaterialModal, false);
-    saveAndRender();
+    if (!currentUser) {
+        console.error("currentUser is null");
+        alert("まずログインしてください。");
+        return;
+    }
+    
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = "アップロード中...";
+
+    try {
+        const materials = (await getAll("materials")) || [];
+        const dailyPlans = (await getAll("dailyPlans")) || {};
+        const data = {
+            materials,
+            dailyPlans,
+            updatedAt: new Date().toISOString(),
+        };
+        // Firestoreに保存
+        await setDoc(doc(db, "backups", currentUser.uid), data, { merge: true });
+        alert("アップロード完了しました！");
+    } catch (err) {
+        console.error("アップロード失敗:", err);
+        alert("アップロードに失敗しました。");
+    } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> アップロード';
+    }
+});
+downloadBtn.addEventListener("click", async () => {
+    if (!window.confirm("データをダウンロードします。上書きされますがよろしいですか？")) return;
+    if (!navigator.onLine) {
+        alert("オフラインのためダウンロードできません。");
+        return;
+    }
+    if (!currentUser) {
+        console.error("currentUser is null");
+        alert("まずログインしてください。");
+        return;
+    }
+    
+    downloadBtn.disabled = true;
+    downloadBtn.textContent = "ダウンロード中...";
+
+    try {
+        const snapshot = await getDoc(doc(db, "backups", currentUser.uid));
+        if (!snapshot.exists()) {
+            alert("バックアップデータが存在しません。");
+            return;
+        }
+        const data = snapshot.data();
+        await saveAll("materials", data.materials || []);
+        await saveAll("dailyPlans", data.dailyPlans || {});
+        
+        // UIを最新に再描画
+        await loadData();
+        renderMaterialList();
+        renderTodayPlans();
+        alert("ダウンロード完了しました！");
+    } catch (err) {
+        console.error("ダウンロード失敗:", err);
+        alert("ダウンロードに失敗しました。");
+    } finally {
+        downloadBtn.disabled = false;
+        downloadBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> ダウンロード';
+    }
 });
 
 // 予定追加モーダル
-document.getElementById("add-plan-btn").addEventListener("click", () => {
+openPlanModalBtn.addEventListener("click", () => {
     populateMaterialSelect();
     planContentInput.value = "";
     planTimeInput.value = "";
@@ -579,25 +567,34 @@ confirmPlanBtn.addEventListener("click", () => {
     saveAndRender();
 });
 
-// 並び替えモーダル
-document.getElementById("sort-material-btn").addEventListener("click", () => {
-    backupMaterials = [...materials];
-    renderSortMaterialModal();
-    toggleModal(sortMaterialModal, true);
+// 教材追加モーダル
+openMaterialModalBtn.addEventListener("click", () => {
+    materialNameInput.value = "";
+    materialSubjectSelect.value = "math";
+    materialProgressInput.value = 0;
+    editingMaterialId = null;
+    toggleModal(addMaterialModal, true);
 });
-
-cancelSortBtn.addEventListener("click", () => {
-    materials.splice(0, materials.length, ...backupMaterials);
-    toggleModal(sortMaterialModal, false);
+cancelMaterialBtn.addEventListener("click", () => {
+    editingMaterialId = null;
+    toggleModal(addMaterialModal, false);
 });
-
-confirmSortBtn.addEventListener("click", () => {
-    toggleModal(sortMaterialModal, false);
+confirmMaterialBtn.addEventListener("click", () => {
+    const name = materialNameInput.value.trim();
+    const subject = materialSubjectSelect.value;
+    if (!name) return alert("教材名を入力してください");
+    if (editingMaterialId !== null) {
+        const mat = materials.find(m => m.id === editingMaterialId);
+        if (mat) { mat.name = name; mat.subject = subject; }
+    } else {
+        const newId = materials.length ? Math.max(...materials.map(m => m.id)) + 1 : 1;
+        materials.push({ id: newId, name, subject, progress: 0, checked: false });
+    }
+    editingMaterialId = null;
+    toggleModal(addMaterialModal, false);
     saveAndRender();
 });
-
 // 教材情報モーダル
-document.getElementById("toggle-section-btn").addEventListener("click", toggleSections);
 cancelInfoBtn.addEventListener("click", () => {
     editingMaterialId = null;
     toggleModal(infoMaterialModal, false);
@@ -618,33 +615,34 @@ confirmInfoBtn.addEventListener("click", () => {
     saveAndRender();
 });
 
-// ユーティリティ
-const searchMaterialInput = document.getElementById("search-material-input");
-const filterSubjectSelect = document.getElementById("filter-subject");
-searchMaterialInput.addEventListener("input", () => {
-    const query = searchMaterialInput.value.toLowerCase();
-    Array.from(materialItems.children).forEach(item => {
-        const name = item.querySelector(".material-name-title").textContent.toLowerCase();
-        item.style.display = name.includes(query) ? "" : "none";
-    });
+// 並び替えモーダル
+openSortModalBtn.addEventListener("click", () => {
+    backupMaterials = [...materials];
+    renderSortMaterialModal();
+    toggleModal(sortMaterialModal, true);
 });
-filterSubjectSelect.addEventListener("change", () => {
-    const subject = filterSubjectSelect.value;
-    Array.from(materialItems.children).forEach(item => {
-        if (subject === "all" || item.classList.contains(subject)) {
-            item.style.display = "";
-        } else {
-            item.style.display = "none";
-        }
-    });
+cancelSortBtn.addEventListener("click", () => {
+    materials.splice(0, materials.length, ...backupMaterials);
+    toggleModal(sortMaterialModal, false);
 });
+confirmSortBtn.addEventListener("click", () => {
+    toggleModal(sortMaterialModal, false);
+    saveAndRender();
+});
+
+// 表示切替ボタン
+toggleSectionBtn.addEventListener("click", toggleSections);
+
+// 検索・フィルタリング
+searchMaterialInput.addEventListener("input", () => renderMaterialList());
+filterSubjectSelect.addEventListener("input", () => renderMaterialList());
 
 // --- Enterキー送信 ---
 [addMaterialModal, addPlanModal].forEach(modal => {
     modal.addEventListener("keydown", e => {
         if (e.key === "Enter") {
             e.preventDefault();
-            if (modal === addMaterialModal) confirmAddBtn.click();
+            if (modal === addMaterialModal) confirmMaterialBtn.click();
             else confirmPlanBtn.click();
         }
     });
@@ -680,4 +678,3 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0); // 0msでも次のイベントループに回るので初期表示は速い
 });
-
