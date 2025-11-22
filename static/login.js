@@ -44,15 +44,16 @@ document.getElementById("logout-btn").addEventListener("click", async () => {
 });
 
 // --- ログイン状態監視 ---
-const status = document.getElementById("login-status");
+const status = document.getElementById("login-status-panel");
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
     if (user) {
         status.textContent = `ログイン中： ${user.displayName} さん`;
+        document.getElementById("login-btn").style.display = "none";
+        document.getElementById("logout-btn").style.display = "block";
     } else {
         status.textContent = "未ログイン";
+        document.getElementById("login-btn").style.display = "block";
+        document.getElementById("logout-btn").style.display = "none";
     }
 });
-
-
-
