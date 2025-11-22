@@ -1,6 +1,5 @@
-const CACHE_NAME = 'static-v1.9.2';
+const CACHE_NAME = 'static-v1.9.3';
 const BASE_PATH = '/Studyplanner/';
-const CACHE_TTL = 1 * 24 * 60 * 60 * 1000; // 1日間
 
 const FILES_TO_CACHE = [
   BASE_PATH,
@@ -10,6 +9,7 @@ const FILES_TO_CACHE = [
   `${BASE_PATH}static/login.js`,
 ];
 
+// 初回プリキャッシュ
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
@@ -17,6 +17,7 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
+// 古いキャッシュ削除
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -26,37 +27,41 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
+// Stale-While-Revalidate
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_NAME);
-    const cachedResponse = await cache.match(event.request);
 
-    // キャッシュが存在し、有効期限内ならそれを返す
-    if (cachedResponse) {
-      const dateHeader = cachedResponse.headers.get('sw-cache-time');
-      if (dateHeader && Date.now() - Number(dateHeader) < CACHE_TTL) {
-        return cachedResponse;
-      }
+    // 1. まずキャッシュを探す（存在すれば即使う）
+    const cached = await cache.match(event.request);
+
+    // 2. ネットワーク取得をバックグラウンドで実行
+    const networkPromise = fetch(event.request)
+      .then(async response => {
+        // 正常応答ならキャッシュ更新
+        if (response && response.ok) {
+          await cache.put(event.request, response.clone());
+        }
+        return response;
+      })
+      .catch(() => null);
+
+    // 3. キャッシュがあれば即返して高速化
+    if (cached) {
+      return cached;
     }
 
-    try {
-      const networkResponse = await fetch(event.request);
-      if (networkResponse.ok) {
-        // 保存時刻付きでキャッシュに保存
-        const headers = new Headers(networkResponse.headers);
-        headers.append('sw-cache-time', Date.now().toString());
-        const cloned = new Response(await networkResponse.clone().blob(), { headers });
-        await cache.put(event.request, cloned);
-      }
+    // 4. キャッシュが無い場合はネットワーク結果を返す
+    const networkResponse = await networkPromise;
+    if (networkResponse) {
       return networkResponse;
-    } catch {
-      // ネットワーク失敗時は古いキャッシュでも返す
-      if (cachedResponse) return cachedResponse;
-      if (event.request.mode === 'navigate') {
-        return cache.match(`${BASE_PATH}index.html`);
-      }
+    }
+
+    // 5. ネットワーク失敗時、ナビゲーションなら index.html に fallback
+    if (event.request.mode === 'navigate') {
+      return cache.match(`${BASE_PATH}index.html`);
     }
   })());
 });
