@@ -35,7 +35,7 @@ body {
 }
 
 /* --- メインコンテナ --- */
-.main-content-wrapper {
+.main-wrapper {
     width: 100%;
     max-width: 540px;
     height: calc(100dvh - (45px + env(safe-area-inset-bottom)));
@@ -43,17 +43,17 @@ body {
     margin: 0 auto;
     padding: 0;
 }
-.main-content-wrapper.full-height {
+.main-wrapper.full-height {
     height: 100dvh !important;
     overflow: hidden;
 }
-.list-section {
+.display-container {
     width: 100%;
     height: 100%;
     overflow-y: auto;
     padding: 0 16px 12px 16px;
 }
-.list-section.hidden {
+.display-container.hidden {
     display: none;
 }
 
@@ -182,30 +182,15 @@ body {
 .material-item.others { border-color: var(--main-color-others); }
 
 /* オプション */
-.option-content {
+.operate-wrapper {
     background-color: var(--bg-color-main);
     margin: 16px 0;
     padding: 16px;
     border-radius: 6px;
     width: 100%;
 }
-.option-section {
-    margin-bottom: 12px;
-}
-.bottom-button-group {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease, opacity 0.3s ease;
-    opacity: 0;
-    font-size: 12px;
-    color: #666;
-}
-.option-section:hover .bottom-button-group {
-    max-height: 90dvh;
-    opacity: 1;
-}
 /* --- セクション下部のボタン --- */
-.bottom-button {
+.bottom-btn {
     width: 100%;
     height: 40px;
     margin: 4px 0;
@@ -217,7 +202,7 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
 }
-.bottom-button:hover {
+.bottom-btn:hover {
     background-color: #f0f0f0;
     border-color: #00008b;
     color: #00008b;
@@ -242,7 +227,7 @@ body {
     padding-bottom: env(safe-area-inset-bottom);
 }
 /* ボタン */
-.footer-button {
+.footer-btn {
     flex: 2;
     margin: 0;
     border-radius: 0;
@@ -253,7 +238,7 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
 }
-.footer-button:hover {
+.footer-btn:hover {
     background-color: #f0f0f0;
     color: #00008b;
 }
@@ -273,7 +258,7 @@ body {
 }
 .modal.hidden { display: none; }
 
-.modal-content {
+.modal-container {
     background-color: white;
     padding: 16px;
     border-radius: 12px;
@@ -283,29 +268,29 @@ body {
     overflow-y: auto;
 }
 @media (min-width: 540px) {
-    .list-section, .modal-content {
+    .display-container, .modal-container {
         /* スクロールバー非表示 */
         scrollbar-width: none;  /* Firefox */
     }
-    .list-section::-webkit-scrollbar, .modal-content::-webkit-scrollbar { display: none; }  /* Chrome, Safari */
+    .display-container::-webkit-scrollbar, .modal-container::-webkit-scrollbar { display: none; }  /* Chrome, Safari */
 }
 
-.modal-content h2, p {
+.modal-container h2, p {
     margin-top: 4px;
     text-align: center;
 }
-.modal-content label,
-.option-content label {
+.modal-container label,
+.operate-wrapper label {
     display: block;
     margin-top: 4px;
     font-size: 14px;
 }
-.modal-content input[type="text"],
-.modal-content input[type="number"],
-.modal-content input[type="time"],
-.modal-content select,
-.option-content input[type="text"],
-.option-content select,
+.modal-container input[type="text"],
+.modal-container input[type="number"],
+.modal-container input[type="time"],
+.modal-container select,
+.operate-wrapper input[type="text"],
+.operate-wrapper select,
 textarea {
     /* デフォルトのCSSがかなり強いので強制的に解除 */
     appearance: none !important;
@@ -325,20 +310,20 @@ textarea {
     resize: none;
 }
 
-.modal-buttons {
+.modal-btns {
     display: flex;
     justify-content: space-between;
     gap: 2px;
     margin-top: 12px;
 }
-.modal-buttons .cancel {
+.modal-btns .cancel {
     background: #ccc;
     color: black;
     border: none;
     padding: 6px 12px;
     cursor: pointer;
 }
-.modal-buttons .ok {
+.modal-btns .ok {
     background: #006ce0;
     color: white;
     border: none;
@@ -351,17 +336,15 @@ textarea {
 .plan-item .buttons {
     display: none;
     position: absolute;
-    /* background-color: rgb(255,255,255,0.7); */
-    border-radius: 4px;
-    top: 6px;
-    right: 4px;
-    /* transform: translateY(-50%); */
+    /* border-radius: 4px; */
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
 }
 /* タップで表示／非表示切替 */
 .plan-item.tapped .buttons,
 .material-item.tapped .buttons {
     display: flex;
-    /* gap: 2px; */
 }
 
 .plan-item button,
