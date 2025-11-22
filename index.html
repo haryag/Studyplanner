@@ -23,23 +23,23 @@
 </head>
 
 <body>
-    <main id="wrapper" class="main-content-wrapper">
+    <main id="wrapper" class="main-wrapper">
         <!-- メインコンテナ -->
-        <div id="plan-list-section" class="list-section">
+        <div id="plan-container" class="display-container">
             <div class="header">
                 <h1>今日の学習リスト</h1>
-                <p id="today-date"></p>
+                <p id="todaydate-panel"></p>
             </div>
-            <div id="plan-list"></div>
+            <div id="plan-items"></div>
         </div>
-        <div id="material-list-section" class="list-section hidden">
+        <div id="material-container" class="display-container hidden">
             <div class="header">
                 <h1>教材一覧</h1>
             </div>
-            <div class="option-content">
+            <div class="operate-wrapper">
                 <label>
                     教材名で検索：
-                    <input type="text" id="search-material" placeholder="教材名で検索">
+                    <input type="text" id="search-material-input" placeholder="教材名で検索">
                 </label>
                 <label>
                     教科で絞り込み：
@@ -55,48 +55,45 @@
                     </select>
                 </label>
             </div>
+            
             <h3>教材一覧</h3>
-            <div id="material-list" class="material-list"></div>
-            <div class="option-section">
-                <h3>教材管理</h3>
-                <div class="bottom-button-group">
-                    <button id="add-material-btn" class="bottom-button">
-                        <i class="fa-solid fa-plus"></i> 教材追加
-                    </button>
-                    <button id="sort-btn" class="bottom-button">
-                        <i class="fa-solid fa-arrows-up-down"></i> 並び替え
-                    </button>
-                </div>
+            <div id="material-items"></div>
+            <h3>教材管理</h3>
+            <div>
+                <button id="add-material-btn" class="bottom-btn">
+                    <i class="fa-solid fa-plus"></i> 教材追加
+                </button>
+                <button id="sort-material-btn" class="bottom-btn">
+                    <i class="fa-solid fa-arrows-up-down"></i> 並び替え
+                </button>
             </div>
                 
-            <div class="option-section">
-                <h3>データを共有</h3>
-                <div class="bottom-button-group">
-                    <p id="login-status"></p>
-                    <button id="upload-btn" class="bottom-button">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> アップロード
-                    </button>
-                    <button id="download-btn" class="bottom-button">
-                        <i class="fa-solid fa-cloud-arrow-down"></i> ダウンロード
-                    </button>
-                    <button id="login-btn" class="bottom-button">
-                        <i class="fa-solid fa-arrow-right-to-bracket"></i> ログイン
-                    </button>
-                    <button id="logout-btn" class="bottom-button">
-                        <i class="fa-solid fa-arrow-right-from-bracket"></i> ログアウト
-                    </button>
-                </div>
+            <h3>データを共有</h3>
+            <div>
+                <p id="login-status-panel"></p>
+                <button id="upload-btn" class="bottom-btn">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> アップロード
+                </button>
+                <button id="download-btn" class="bottom-btn">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> ダウンロード
+                </button>
+                <button id="login-btn" class="bottom-btn">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> ログイン
+                </button>
+                <button id="logout-btn" class="bottom-btn">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> ログアウト
+                </button>
             </div>
         </div>
     </main>
 
     <div id="add-material-modal" class="modal hidden">
         <!-- 教材追加モーダル -->
-        <div class="modal-content">
+        <div class="modal-container">
             <h2>教材を追加 / 編集</h2>
             <label>
                 教科：
-                <select id="material-subject">
+                <select id="material-subject-select">
                     <option value="math">数学</option>
                     <option value="english">英語</option>
                     <option value="modernjp">現代文</option>
@@ -108,84 +105,84 @@
             </label>
             <label>
                 教材名：
-                <input type="text" id="material-name" placeholder="教材名を選択">
+                <input type="text" id="material-name-input" placeholder="教材名を選択">
             </label>
-            <div class="modal-buttons">
-                <button id="cancel-add" class="cancel">キャンセル</button>
-                <button id="confirm-add" class="ok">OK</button>
+            <div class="modal-btns">
+                <button id="cancel-add-btn" class="cancel">キャンセル</button>
+                <button id="confirm-add-btn" class="ok">OK</button>
             </div>
         </div>
     </div>
 
     <div id="add-plan-modal" class="modal hidden">
         <!-- 予定追加モーダル -->
-        <div class="modal-content">
+        <div class="modal-container">
             <h2>予定を追加 / 編集</h2>
             <label>
                 教材：
-                <select id="plan-material"></select>
+                <select id="plan-material-select"></select>
             </label>
             <label>
                 範囲・内容：
-                <input type="text" id="plan-content" placeholder="例：p.10〜20">
+                <input type="text" id="plan-content-input" placeholder="例：p.10〜20">
             </label>
             <label>
                 開始時間：
-                <input type="time" id="plan-time">
+                <input type="time" id="plan-time-input">
             </label>
-            <div class="modal-buttons">
-                <button id="cancel-plan" class="cancel">キャンセル</button>
-                <button id="confirm-plan" class="ok">OK</button>
+            <div class="modal-btns">
+                <button id="cancel-plan-btn" class="cancel">キャンセル</button>
+                <button id="confirm-plan-btn" class="ok">OK</button>
             </div>
         </div>
     </div>
     
     <div id="sort-material-modal" class="modal hidden">
         <!-- 教材並び替えモーダル -->
-        <div class="modal-content">
+        <div class="modal-container">
             <h2>教材の並び替え</h2>
-            <div id="sort-material-list"></div>
-            <div class="modal-buttons">
-                <button id="cancel-sort" class="cancel">キャンセル</button>
-                <button id="confirm-sort" class="ok">OK</button>
+            <div id="sort-items"></div>
+            <div class="modal-btns">
+                <button id="cancel-sort-btn" class="cancel">キャンセル</button>
+                <button id="confirm-sort-btn" class="ok">OK</button>
             </div>
         </div>
     </div>
 
     <div id="info-material-modal" class="modal hidden">
         <!-- 教材情報モーダル -->
-        <div class="modal-content">
+        <div class="modal-container">
             <h2>教材の詳細</h2>
-            <p id="material-name-div"></p>
+            <p id="material-name-panel"></p>
             <label>
                 期間：
-                <input type="text" id="material-date" placeholder="日付を入力">
+                <input type="text" id="material-date-input" placeholder="日付を入力">
             </label>
             <label>
                 進度（単位：%）：
-                <input type="number" id="material-progress" min="0" max="100" placeholder="0～100の値を入力">
+                <input type="number" id="material-progress-input" min="0" max="100" placeholder="0～100の値を入力">
             </label>
             <label>
                 コメント：
-                <textarea id="material-detail" placeholder="入力してください（改行できます）" rows="3"></textarea>
+                <textarea id="material-detail-input" placeholder="入力してください（改行できます）" rows="3"></textarea>
             </label>
             <p>
                 <label>
-                    <input type="checkbox" id="material-ongoing">学習中</p>
+                    <input type="checkbox" id="material-ongoing-checkbox">学習中</p>
                 </label>
-            <div class="modal-buttons">
-                <button id="cancel-info" class="cancel">キャンセル</button>
-                <button id="confirm-info" class="ok">OK</button>
+            <div class="modal-btns">
+                <button id="cancel-info-btn" class="cancel">キャンセル</button>
+                <button id="confirm-info-btn" class="ok">OK</button>
             </div>
         </div>
     </div>
 
-    <footer class="button-group">
+    <footer id="button-container" class="button-group">
         <!-- フッター要素 -->
-        <button id="add-plan-btn" class="footer-button">
+        <button id="add-plan-btn" class="footer-btn">
             <i class="fa-solid fa-plus"></i> 予定を追加
         </button>
-        <button id="view-section" class="footer-button">
+        <button id="toggle-section-btn" class="footer-btn">
             <i class="fa-solid fa-list"></i> 表示切替
         </button>
     </footer>
@@ -194,5 +191,3 @@
     <script type="module" src="static/script.js" defer></script>
 </body>
 </html>
-
-
