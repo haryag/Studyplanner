@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v2.4.1';
+const SW_VERSION = 'v2.4.2';
 const BASE_PATH = '/Studyplanner/';
 
 // --- データ初期化 ---
@@ -152,13 +152,11 @@ function addTapToggle(itemDiv, type = "material", associatedData = null) {
             if (type === "material") {
                 const mat = associatedData;  // 渡された教材オブジェクト
                 if (mat) {
-                    materialNamePanel.textContent = mat.name;
-                    materialOngoingCheckbox.checked = mat.ongoing || false;
-                    materialDateInput.value = mat.date || "";
-                    materialProgressInput.value = mat.progress;
-                    materialDetailInput.value = mat.detail || "";
-                    editingMaterialId = mat.id;
-                    toggleModal(infoMaterialModal, true);
+                    populateMaterialSelect(mat.id); // 教材を選択済みに
+                    planContentInput.value = "";
+                    planTimeInput.value = "";
+                    editingIndex = null;
+                    toggleModal(addPlanModal, true);
                 }
             } else if (type === "plan") {
                 const plan = associatedData;  // 渡された予定オブジェクト
