@@ -3,11 +3,12 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v2.4.0';
+const SW_VERSION = 'v2.4.1';
 const BASE_PATH = '/Studyplanner/';
 
 // --- データ初期化 ---
-const todayDate = new Date().toLocaleDateString('ja-JP');
+const todayKey = new Date().toISOString().slice(0, 10);  // 内部キー用（保存・検索に使う）: 正規化された YYYY-MM-DD
+const todayDisplay = new Date().toLocaleDateString('ja-JP');  // UI表示用（従来どおり端末地域の形式）
 const materials = [];
 const dailyPlans = {};
 let backupMaterials = [];
@@ -132,13 +133,44 @@ function toggleSections() {
 }
 
 // タップトグル
-function addTapToggle(itemDiv) {
+function addTapToggle(itemDiv, type = "material", associatedData = null) {
     itemDiv.addEventListener("click", (e) => {
         if (e.target.closest("button")) return;
+
+        const alreadyTapped = itemDiv.classList.contains("tapped");
+
+        // 他の tapped を消す
         document.querySelectorAll('.material-item.tapped, .plan-item.tapped').forEach(div => {
             if (div !== itemDiv) div.classList.remove('tapped');
         });
+
+        // 今回のクリックで tapped を切り替え
         itemDiv.classList.toggle("tapped");
+
+        // すでに tapped だった場合はモーダルを開く
+        if (alreadyTapped) {
+            if (type === "material") {
+                const mat = associatedData;  // 渡された教材オブジェクト
+                if (mat) {
+                    materialNamePanel.textContent = mat.name;
+                    materialOngoingCheckbox.checked = mat.ongoing || false;
+                    materialDateInput.value = mat.date || "";
+                    materialProgressInput.value = mat.progress;
+                    materialDetailInput.value = mat.detail || "";
+                    editingMaterialId = mat.id;
+                    toggleModal(infoMaterialModal, true);
+                }
+            } else if (type === "plan") {
+                const plan = associatedData;  // 渡された予定オブジェクト
+                if (plan) {
+                    populateMaterialSelect(plan.materialId);
+                    planContentInput.value = plan.range;
+                    planTimeInput.value = plan.time || "";
+                    editingIndex = dailyPlans[todayKey].indexOf(plan);
+                    toggleModal(addPlanModal, true);
+                }
+            }
+        }
     });
 }
 
@@ -194,9 +226,9 @@ function saveAndRender() {
 
 // --- 今日の予定表示 ---
 function renderTodayPlans() {
-    document.getElementById("todaydate-panel").textContent = todayDate;
+    document.getElementById("todaydate-panel").textContent = todayDisplay;
     planItems.innerHTML = "";
-    const todayPlans = dailyPlans[todayDate] || [];
+    const todayPlans = dailyPlans[todayKey] || [];
     const sortedPlans = [...todayPlans].sort((a, b) => {
         if (a.checked && !b.checked) return 1;
         if (!a.checked && b.checked) return -1;
@@ -292,7 +324,7 @@ function renderTodayPlans() {
         if (plan.time) infoDiv.appendChild(timeDiv);
 
         item.append(iconDiv, infoDiv, btnContainer);
-        addTapToggle(item);
+        addTapToggle(item, "plan", plan);
         planItems.appendChild(item);
     });
 }
@@ -403,7 +435,7 @@ function renderMaterialList() {
         btnDiv.append(addPlanBtn, editBtn, infoBtn, delBtn);
         itemDiv.appendChild(btnDiv);
 
-        addTapToggle(itemDiv);
+        addTapToggle(itemDiv, "material", mat);
         materialItems.appendChild(itemDiv);
     });
 
@@ -463,7 +495,7 @@ function renderSortMaterialModal() {
         btnDiv.append(upBtn, downBtn);
         itemDiv.appendChild(btnDiv);
 
-        addTapToggle(itemDiv);
+        addTapToggle(itemDiv, "material", mat);
         sortItems.appendChild(itemDiv);
     });
     updateSortButtons();
@@ -486,15 +518,15 @@ uploadBtn.addEventListener("click", async () => {
     uploadBtn.textContent = "アップロード中...";
 
     try {
-        const materials = (await getAll("materials")) || [];
-        const dailyPlans = (await getAll("dailyPlans")) || {};
+        const localMaterials = (await getAll("materials")) || [];
+        const localDailyPlans = (await getAll("dailyPlans")) || {};
         const data = {
-            materials,
-            dailyPlans,
+            materials: localMaterials,
+            dailyPlans: localDailyPlans,
             updatedAt: new Date().toISOString(),
         };
         // Firestoreに保存
-        await setDoc(doc(db, "backups", currentUser.uid), data, { merge: true });
+        await setDoc(doc(db, "backups", currentUser.uid), data);
         alert("アップロード完了しました！");
     } catch (err) {
         console.error("アップロード失敗:", err);
@@ -561,16 +593,16 @@ confirmPlanBtn.addEventListener("click", () => {
     const time = planTimeInput.value;
     if (!range) return alert("範囲を入力してください");
     if (editingIndex !== null) {
-        dailyPlans[todayDate][editingIndex] = {
-            ...dailyPlans[todayDate][editingIndex],
+        dailyPlans[todayKey][editingIndex] = {
+            ...dailyPlans[todayKey][editingIndex],
             materialId,
             range,
             time
         };
         editingIndex = null;
     } else {
-        if (!dailyPlans[todayDate]) dailyPlans[todayDate] = [];
-        dailyPlans[todayDate].push({ materialId, range, time });
+        if (!dailyPlans[todayKey]) dailyPlans[todayKey] = [];
+        dailyPlans[todayKey].push({ materialId, range, time });
     }
     toggleModal(addPlanModal, false);
     saveAndRender();
