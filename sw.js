@@ -1,29 +1,4 @@
-importScripts('https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js');
-importScripts('https://www.gstatic.com/firebasejs/11.0.1/firebase-messaging.js');
-
-const firebaseConfig = {
-    apiKey: "AIzaSyCgDtdyFtxtLEMZ6Gt0_haDlpLFg5UYkBQ",
-    authDomain: "studyplanner-12345.firebaseapp.com",
-    projectId: "studyplanner-12345",
-    storageBucket: "studyplanner-12345.appspot.com",
-    messagingSenderId: "11066629765",
-    appId: "1:11066629765:web:04cd920de2a077a16713ec"
-};
-firebase.initializeApp(firebaseConfig);
-const messaging = firebase.messaging();
-
-// バックグラウンド通知受信
-messaging.onBackgroundMessage((payload) => {
-    console.log('[sw.js] Received background message ', payload);
-    const notificationTitle = payload.notification.title;
-    const notificationOptions = {
-        body: payload.notification.body,
-        icon: '/Studyplanner/icon/icon-512.png'
-    };
-    self.registration.showNotification(notificationTitle, notificationOptions);
-});
-
-const CACHE_NAME = 'static-v1.9.4';
+const CACHE_NAME = 'static-v1.10.0';
 const BASE_PATH = '/Studyplanner/';
 
 const FILES_TO_CACHE = [
