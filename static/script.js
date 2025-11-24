@@ -1,9 +1,23 @@
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
 import { currentUser } from './login.js';
 import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
+import { getMessaging, getToken, onMessage } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-messaging.js';
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCgDtdyFtxtLEMZ6Gt0_haDlpLFg5UYkBQ",
+    authDomain: "studyplanner-12345.firebaseapp.com",
+    projectId: "studyplanner-12345",
+    storageBucket: "studyplanner-12345.appspot.com",
+    messagingSenderId: "11066629765",
+    appId: "1:11066629765:web:04cd920de2a077a16713ec"
+};
+
+const app = initializeApp(firebaseConfig);
 const db = getFirestore();
+const messaging = getMessaging(app);
 
 // --- Service Worker ---
-const SW_VERSION = 'v2.4.2';
+const SW_VERSION = 'v2.5.0';
 const BASE_PATH = '/Studyplanner/';
 
 // --- データ初期化 ---
@@ -704,6 +718,43 @@ if ('serviceWorker' in navigator) {
         .then(reg => console.log('SW登録完了:', reg))
         .catch(err => console.error('SW登録失敗:', err));
 }
+
+// 通知許可リクエスト（非同期でバックグラウンド）
+// 通知許可リクエスト
+async function requestNotificationPermission() {
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+        alert("通知が許可されていません");
+        return null;
+    }
+    return permission;
+}
+
+// FCM トークンを取得して保存
+async function initFCM() {
+    await requestNotificationPermission();
+    try {
+        const currentToken = await getToken(messaging, {
+            vapidKey: 'YOUR_VAPID_KEY' // Firebase コンソールの Cloud Messaging から取得
+        });
+        if (currentToken) {
+            console.log("FCM Token:", currentToken);
+            // Firestore にユーザー ID とトークンを保存
+            // setDoc(doc(db, "users", currentUser.uid), { fcmToken: currentToken }, { merge: true });
+        }
+    } catch (err) {
+        console.error("FCM token 取得失敗:", err);
+    }
+}
+
+// フォアグラウンド通知受信
+onMessage(messaging, (payload) => {
+    console.log('メッセージ受信:', payload);
+    new Notification(payload.notification.title, { body: payload.notification.body });
+});
+
+// 初期化時に呼ぶ
+initFCM();
 
 // --- 初期UI描画 ---
 renderAppShell();  // まず画面の骨格だけ表示
