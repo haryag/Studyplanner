@@ -3,11 +3,20 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v2.5.0';
+const SW_VERSION = 'v2.5.1';
 const BASE_PATH = '/Studyplanner/';
 
+// 現地の日付取得
+const getLocalDate = () => {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+};
+
 // --- データ初期化 ---
-const todayKey = new Date().toISOString().slice(0, 10);  // 内部キー用（保存・検索に使う）: 正規化された YYYY-MM-DD
+const todayKey = getLocalDate();  // 内部キー用（保存・検索に使う）: 正規化された YYYY-MM-DD
 const todayDisplay = new Date().toLocaleDateString('ja-JP');  // UI表示用（従来どおり端末地域の形式）
 const materials = [];
 const dailyPlans = {};
