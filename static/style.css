@@ -17,7 +17,7 @@
     --bg-color-main: #eaf6ff;
 }
 * {
-    font-family: "Noto Sans JP", sans-serif;
+    font-family: Arial, sans-serif;
     font-display: swap;
     box-sizing: border-box !important;
 }
@@ -397,3 +397,4 @@ textarea {
 .material-item button.info i { color: #333 !important; }
 .plan-item .buttons button i,
 .material-item .buttons button i { font-size: 15px !important; }
+
