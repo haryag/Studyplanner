@@ -1,4 +1,4 @@
-/* --- 変数定義 (元のカラーコードに戻しました) --- */
+/* --- 変数定義 --- */
 :root {
     /* メインカラー */
     --main-color-math: #00008b;
@@ -9,20 +9,11 @@
     --main-color-social: #e6c700;
     --main-color-others: #808080;
 
-    /* 背景色（変数自体は保持） */
-    --bg-color-math: #e6efff;
-    --bg-color-english: #ffe6f0;
-    --bg-color-modernjp: #fff4e6;
-    --bg-color-classicjp: #f5f0e6;
-    --bg-color-science: #e7f7ee;
-    --bg-color-social: #fffbde;
-    --bg-color-others: #f0f0f0;
-    
     /* デザイン設定 */
     --app-bg-color: #f8f9fa;
     --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
     --modal-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
-    --border-radius-size: 5px; /* 角丸を小さくしました */
+    --border-radius-size: 5px;
 }
 
 /* --- リセット & 全体設定 --- */
@@ -100,7 +91,7 @@ body {
     margin: 0;
 }
 
-/* --- 予定アイテム（カードスタイル） --- */
+/* --- 予定アイテム（リストスタイル） --- */
 .plan-item {
     background: #fff;
     border-radius: var(--border-radius-size);
@@ -110,10 +101,15 @@ body {
     display: flex;
     align-items: center;
     position: relative;
-    border-left: 5px solid transparent; /* ここに教科色が入る */
-    transition: transform 0.1s;
+    
+    /* 修正：左のボーダーライン以外の枠線をリセットし、干渉を防ぐ */
+    border: none;
+    border-left: 5px solid transparent; 
+    
+    transition: background-color 0.1s;
     cursor: pointer;
-    overflow: hidden;
+    overflow: visible; /* ボタンが飛び出しても良いように(今回は内側に収めるが念のため) */
+    min-height: 72px;  /* 内容が少なくてもカードの高さを確保 */
 }
 
 .plan-item:active {
@@ -125,8 +121,9 @@ body {
     opacity: 0.6;
     background-color: #f5f5f5;
     box-shadow: none;
+    /* 完了時は薄い枠線を付けて埋没を防ぐ */
     border: 1px solid #ddd;
-    border-left: 5px solid #aaa !important; /* 強制的にグレーに */
+    border-left: 5px solid #aaa !important; 
 }
 
 .plan-icon {
@@ -140,12 +137,14 @@ body {
 .plan-info {
     flex: 1;
     font-size: 15px;
+    z-index: 1; /* ボタンの下に入らないように */
 }
 .plan-info > div:first-child { /* 教材名 */
     font-weight: 700;
     font-size: 15px;
     margin-bottom: 2px;
     color: #333;
+    padding-right: 4px;
 }
 .plan-info > div {
     font-size: 13px;
@@ -157,18 +156,19 @@ body {
     margin-right: 2px;
 }
 
-/* --- 教材アイテム（進捗バー改善） --- */
+/* --- 教材アイテム --- */
 .material-item {
     position: relative;
     background: #fff;
     border-radius: var(--border-radius-size);
     box-shadow: var(--card-shadow);
     margin-bottom: 12px;
-    padding: 12px 14px 18px 14px; /* 下に進捗バー分の余白 */
+    padding: 12px 14px 22px 14px; /* 下に進捗バー分の余白 */
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
+    border: none;
     border-left: 5px solid transparent;
     overflow: hidden;
 }
@@ -176,22 +176,19 @@ body {
     background-color: #fafafa;
 }
 
-/* 新しい進捗表現：カード下部のバー */
+/* 進捗バー：カード下部 */
 .material-item::after {
     content: "";
     position: absolute;
     bottom: 0;
     left: 0;
     height: 6px;
-    width: var(--material-bg-width); /* JSから渡される進捗率 */
-    background-color: var(--material-bg-color); /* JSから渡される色 */
+    width: var(--material-bg-width);
+    background-color: var(--material-bg-color);
     transition: width 0.4s ease;
 }
 
-/* 旧デザインの背景塗りつぶしを無効化 */
-.material-item::before {
-    display: none;
-}
+.material-item::before { display: none; } /* 旧スタイル無効化 */
 
 .material-name-title {
     font-weight: 700;
@@ -200,7 +197,7 @@ body {
     color: #333;
 }
 
-/* アコーディオン部分 */
+/* アコーディオン */
 .material-name-date, 
 .material-name-progress, 
 .material-name-comment {
@@ -220,66 +217,86 @@ body {
     margin-top: 4px;
 }
 
-/* --- 教科ごとの色（左ボーダーとアイコンのみに適用しシンプル化） --- */
-/* Math */
-.plan-item.math, .material-item.math { border-color: var(--main-color-math); }
+/* --- 教科ごとの色定義 --- */
+/* ボーダー色の指定方法を明確化してスタイルの崩れを防止 */
+.plan-item.math, .material-item.math { border-left-color: var(--main-color-math); }
 .math .plan-icon, .math i { color: var(--main-color-math); }
-/* English */
-.plan-item.english, .material-item.english { border-color: var(--main-color-english); }
+
+.plan-item.english, .material-item.english { border-left-color: var(--main-color-english); }
 .english .plan-icon, .english i { color: var(--main-color-english); }
-/* ModernJP */
-.plan-item.modernjp, .material-item.modernjp { border-color: var(--main-color-modernjp); }
+
+.plan-item.modernjp, .material-item.modernjp { border-left-color: var(--main-color-modernjp); }
 .modernjp .plan-icon, .modernjp i { color: var(--main-color-modernjp); }
-/* ClassicJP */
-.plan-item.classicjp, .material-item.classicjp { border-color: var(--main-color-classicjp); }
+
+.plan-item.classicjp, .material-item.classicjp { border-left-color: var(--main-color-classicjp); }
 .classicjp .plan-icon, .classicjp i { color: var(--main-color-classicjp); }
-/* Science */
-.plan-item.science, .material-item.science { border-color: var(--main-color-science); }
+
+.plan-item.science, .material-item.science { border-left-color: var(--main-color-science); }
 .science .plan-icon, .science i { color: var(--main-color-science); }
-/* Social */
-.plan-item.social, .material-item.social { border-color: var(--main-color-social); }
+
+.plan-item.social, .material-item.social { border-left-color: var(--main-color-social); }
 .social .plan-icon, .social i { color: var(--main-color-social); }
-/* Others */
-.plan-item.others, .material-item.others { border-color: var(--main-color-others); }
+
+.plan-item.others, .material-item.others { border-left-color: var(--main-color-others); }
 .others .plan-icon, .others i { color: var(--main-color-others); }
 
 
-/* --- 編集・削除ボタン等 --- */
+/* --- 編集・削除ボタン群 (位置・サイズ改善) --- */
 .plan-item .buttons,
 .material-item .buttons {
-    display: none; /* デフォルト非表示 */
+    display: none;
     position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    background: linear-gradient(to right, rgba(255,255,255,0), #fff 25%);
-    padding-left: 20px;
-    padding-right: 8px;
+    /* 位置変更: 右下に配置してタイトル(左上)と被らないように */
+    bottom: 8px; 
+    right: 8px;
+    top: auto; 
+    
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2px 6px;
+    border-radius: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    
     align-items: center;
-    gap: 4px;
-    z-index: 5;
+    gap: 0; /* ボタン間の隙間をなくして詰める */
+    z-index: 10;
+    
+    animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-/* タップ時のみ表示 */
+
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
 .plan-item.tapped .buttons,
 .material-item.tapped .buttons {
     display: flex;
 }
 
+/* ボタン単体 */
 .buttons button {
     background: transparent;
     border: none;
-    width: 34px;
-    height: 34px;
+    width: 32px;  /* タップ領域 */
+    height: 32px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
+    margin: 0 1px;
 }
 .buttons button:active {
     background-color: #f0f0f0;
 }
-/* JSでアイコンの色を指定されている部分は維持 */
+
+/* アイコン拡大 */
+.buttons button i {
+    font-size: 1.25rem !important; /* アイコンを大きく */
+    vertical-align: middle;
+}
+/* JSで指定される色の維持 (削除:赤, 編集:青, etc) はscript.js依存でOK */
+
 
 /* --- 検索・オプション --- */
 .operate-wrapper {
@@ -295,7 +312,6 @@ body {
     color: #444;
 }
 
-/* フォーム部品 */
 input[type="text"],
 input[type="number"],
 input[type="time"],
@@ -327,7 +343,6 @@ select {
     border-top: 1px dashed #ddd;
 }
 
-/* チェックボックス・ボタン群 */
 input[name="option-toggle-checkbox"] + label {
     display: inline-block;
     font-weight: bold;
@@ -352,12 +367,12 @@ input[name="option-toggle-checkbox"] + label {
     margin-bottom: 8px;
     text-decoration: none;
 }
-.bottom-btn i {
-    margin-right: 8px;
-}
 .bottom-btn:hover {
     background-color: #f5f5f5;
     border-color: #006ce0;
+}
+.bottom-btn i {
+    margin-right: 8px;
 }
 
 /* --- フッター --- */
@@ -398,29 +413,25 @@ input[name="option-toggle-checkbox"] + label {
     background: rgba(0,0,0,0.02);
 }
 
-/* --- モーダル (前回不具合箇所の修正) --- */
+/* --- モーダル --- */
 .modal {
-    position: fixed;     /* 固定配置 */
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.5);
-    display: flex;       /* Flexで中央寄せ */
+    display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    opacity: 1;
-    transition: opacity 0.2s ease;
 }
-.modal.hidden {
-    display: none;       /* .hiddenがあるときは非表示 */
-}
+.modal.hidden { display: none; }
 
 .modal-container {
     background: #fff;
     padding: 24px;
-    border-radius: 8px; /* 角丸やや大きめ */
+    border-radius: 8px;
     width: 90%;
     max-width: 400px;
     max-height: 85vh;
@@ -462,7 +473,6 @@ input[name="option-toggle-checkbox"] + label {
     color: white;
 }
 
-/* --- その他ユーティリティ --- */
 #material-items p {
     text-align: center;
     margin-top: 30px;
