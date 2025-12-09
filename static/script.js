@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v2.6.0';
+const SW_VERSION = 'v2.6.1';
 const BASE_PATH = '/Studyplanner/';
 
 // --- 軽量SVGアイコン定義 ---
@@ -337,7 +337,7 @@ function renderTodayPlans() {
 
         const editBtn = createIconButton(
             "edit",
-            getIcon('pen')',
+            getIcon('pen'),
             () => {
                 populateMaterialSelect(plan.materialId);
                 planContentInput.value = plan.range;
@@ -425,7 +425,7 @@ function renderMaterialList() {
 
         const addPlanBtn = createIconButton(
             "add-plan",
-            getIcon('plus')',
+            getIcon('plus'),
             () => {
                 populateMaterialSelect(mat.id);
                 planContentInput.value = "";
@@ -762,4 +762,3 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0); // 0msでも次のイベントループに回るので初期表示は速い
 });
-
