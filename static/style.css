@@ -127,11 +127,10 @@ body {
     border-radius: var(--border-radius-size);
     box-shadow: var(--card-shadow);
     margin-bottom: 12px;
-    /* padding調整: 上18px, 下24px(バー含む) -> 実質上18px/下18pxで垂直中央に見せる */
-    padding: 16px 14px 16px 14px;
+    padding: 12px 14px 12px 14px;
     display: flex;
     justify-content: space-between;
-    align-items: center; /* 閉じてるときは中央揃え */
+    align-items: center; /* 閉じているときは中央揃え */
     cursor: pointer;
     border: none;
     border-left: 5px solid transparent;
@@ -349,4 +348,5 @@ input[name="option-toggle-checkbox"] + label { display: inline-block; font-weigh
 
 #material-items p { text-align: center; margin-top: 30px; color: #888; }
 .invisible { visibility: hidden; }
+
 
