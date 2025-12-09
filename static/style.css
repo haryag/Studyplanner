@@ -307,7 +307,8 @@ select {
 input[name="option-toggle-checkbox"] + label { display: inline-block; font-weight: bold; color: #333; margin-bottom: 8px; }
 .option-button-wrapper { margin-left: 20px; margin-bottom: 20px; }
 .bottom-btn {
-    display: flex; align-items: center; width: fit-content; background: #fff; border: 1px solid #ddd;
+    /* display: flex; */
+    align-items: center; width: fit-content; background: #fff; border: 1px solid #ddd;
     color: #006ce0; padding: 6px 16px; border-radius: 20px; font-size: 14px; cursor: pointer;
     margin-bottom: 8px; text-decoration: none;
 }
@@ -348,3 +349,4 @@ input[name="option-toggle-checkbox"] + label { display: inline-block; font-weigh
 
 #material-items p { text-align: center; margin-top: 30px; color: #888; }
 .invisible { visibility: hidden; }
+
