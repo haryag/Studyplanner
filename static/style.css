@@ -142,7 +142,7 @@ body {
 
 /* === タップ時の拡大スタイル（画面高さの90%へ） === */
 .material-item.tapped {
-    height: 90dvh;        /* 画面の90%の高さに */
+    height: 85dvh;        /* 画面の90%の高さに */
     overflow-y: auto;     /* 中身が多い場合はスクロール */
     align-items: flex-start; /* 上詰めに変更 */
     flex-direction: column;  /* レイアウト調整しやすいように縦並びの傾向を持たせる（中身はdivで分離されてるので影響小） */
@@ -179,7 +179,7 @@ body {
 /* タップ時タイトル拡大 */
 .material-item.tapped .material-name-title {
     font-size: 20px;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     border-bottom: 1px solid #eee;
     padding-bottom: 8px;
 }
@@ -192,7 +192,7 @@ body {
     opacity: 0;
     overflow: hidden;
     transition: all 0.3s ease;
-    font-size: 13px;
+    font-size: 12px;
     color: #666;
     margin: 0;
     line-height: 1.8;
@@ -204,7 +204,7 @@ body {
 .material-item.tapped .material-name-comment {
     max-height: 1000px; /* 十分大きな値にして制限実質解除 */
     opacity: 1;
-    margin-top: 8px;
+    margin-top: 4px;
     white-space: pre-wrap; /* 改行などの保持 */
 }
 
@@ -270,8 +270,8 @@ body {
 .buttons button {
     background: transparent;
     border: none;
-    width: 36px;
-    height: 36px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
@@ -280,7 +280,7 @@ body {
     margin: 0 2px;
 }
 .buttons button:active { background-color: #f0f0f0; }
-.buttons button i { font-size: 1.2rem !important; vertical-align: middle; }
+.buttons button i { font-size: 1.0rem !important; vertical-align: middle; }
 
 
 /* --- 検索・オプション --- */
