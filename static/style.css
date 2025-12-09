@@ -128,7 +128,7 @@ body {
     box-shadow: var(--card-shadow);
     margin-bottom: 12px;
     /* padding調整: 上18px, 下24px(バー含む) -> 実質上18px/下18pxで垂直中央に見せる */
-    padding: 18px 14px 24px 14px;
+    padding: 16px 14px 16px 14px;
     display: flex;
     justify-content: space-between;
     align-items: center; /* 閉じてるときは中央揃え */
@@ -349,3 +349,4 @@ input[name="option-toggle-checkbox"] + label { display: inline-block; font-weigh
 
 #material-items p { text-align: center; margin-top: 30px; color: #888; }
 .invisible { visibility: hidden; }
+
