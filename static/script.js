@@ -3,8 +3,44 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v2.5.1';
+const SW_VERSION = 'v2.6.0';
 const BASE_PATH = '/Studyplanner/';
+
+// --- 軽量SVGアイコン定義 ---
+// 必要なアイコンだけを文字列で定義（Font Awesomeのパスデータを流用して軽量化）
+const getIcon = (name) => {
+    const paths = {
+        'plus': '<path fill="currentColor" d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"/>',
+        'list': '<path fill="currentColor" d="M64 144a48 48 0 1 0 0-96 48 48 0 1 0 0 96zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM64 464a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm48-208a48 48 0 1 0 -96 0 48 48 0 1 0 96 0z"/>',
+        'check': '<path fill="currentColor" d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/>',
+        'pen': '<path fill="currentColor" d="M362.7 19.3L314.3 67.7 444.3 197.7l48.4-48.4c25-25 25-65.5 0-90.5L453.3 19.3c-25-25-65.5-25-90.5 0zm-71 71L58.6 323.5c-10.4 10.4-18 23.3-22.2 37.4L1 481.2C-1.5 489.7 .8 498.8 7 505s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L421.7 220.3 291.7 90.3z"/>',
+        'pen-square': '<path fill="currentColor" d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 323.5c-10.4 10.4-18 23.3-22.2 37.4L1 481.2C-1.5 489.7 .8 498.8 7 505s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L421.7 220.3l-22.7-22.6zM192 468v-33.9l0 0 0 0c.2-7 2-13.7 5.1-19.8L83.2 447.8 55.4 345l46.2 135.2L192 468zM315.6 150.8L124 342.3 98.7 317 290.2 125.5 315.6 150.8z"/>',
+        'trash': '<path fill="currentColor" d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0H284.2c12.1 0 23.2 6.8 28.6 17.7L320 32h96c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 96 0 81.7 0 64S14.3 32 32 32h96l7.2-14.3zM32 128H416V448c0 35.3-28.7 64-64 64H96c-35.3 0-64-28.7-64-64V128z"/>',
+        'arrow-up': '<path fill="currentColor" d="M182.6 137.4c-12.5-12.5-32.8-12.5-45.3 0l-128 128c-9.2 9.2-11.9 22.9-6.9 34.9s16.6 19.8 29.6 19.8H32c0 12.9 10.5 23.5 23.4 23.5H456.6c12.9 0 23.4-10.5 23.4-23.5H480c12.9 0 24.6-7.8 29.6-19.8s2.2-25.7-6.9-34.9l-128-128z"/>', // 三角上矢印（単純化）
+        'arrow-down': '<path fill="currentColor" d="M182.6 470.6c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-9.2-9.2-11.9-22.9-6.9-34.9s16.6-19.8 29.6-19.8H288c12.9 0 24.6 7.8 29.6 19.8s2.2 25.7-6.9 34.9l-128 128z"/>', // 三角下矢印（単純化）
+        'arrow-sort': '<path fill="currentColor" d="M137.4 41.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-80 80c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L128 50.7V336c0 17.7 14.3 32 32 32s32-14.3 32-32V50.7l69.4 69.4c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-80-80zM310.6 470.6c-12.5 12.5-12.5 32.8 0 45.3l80 80c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L384 461.3V176c0-17.7-14.3-32-32-32s-32 14.3-32 32V461.3l-69.4-69.4c-12.5-12.5-32.8-12.5-45.3 0z"/>',
+        'info': '<path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336h24V272c0-13.3-10.7-24-24-24s-24 10.7-24 24v64c0 13.3 10.7 24 24 24zm40-144c-13.3 0-24 10.7-24 24v80h-24c-13.3 0-24 10.7-24 24s10.7 24 24 24h64c13.3 0 24-10.7 24-24s-10.7-24-24-24h-16V216c0-13.3-10.7-24-24-24zM208 112c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h48c8.8 0 16-7.2 16-16V128c0-8.8-7.2-16-16-16H208z"/>',
+        'clock': '<path fill="currentColor" d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120V256c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2V120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"/>',
+        'bookmark': '<path fill="currentColor" d="M384 48V512l-128-80L128 512V48C128 21.5 149.5 0 176 0h160c26.5 0 48 21.5 48 48z"/>',
+        'up-s': '<path fill="currentColor" d="M182.6 137.4c-12.5-12.5-32.8-12.5-45.3 0l-128 128c-9.2 9.2-11.9 22.9-6.9 34.9s16.6 19.8 29.6 19.8H456.6c12.9 0 24.6-10.5 24.6-23.5s-4.6-22.3-12.9-31.2l-128-128z"/>',
+        'down-s': '<path fill="currentColor" d="M182.6 470.6c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-9.2-9.2-11.9-22.9-6.9-34.9s16.6-19.8 29.6-19.8H456.6c12.9 0 24.6 7.8 24.6 19.8s-4.6 22.3-12.9 31.2l-128 128z"/>',
+        'cloud-up': '<path fill="currentColor" d="M384 352v64c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32v-64c0-17.7-14.3-32-32-32s-32 14.3-32 32v64c0 53 43 96 96 96H352c53 0 96-43 96-96v-64c0-17.7-14.3-32-32-32s-32 14.3-32 32zm-128-212.7L315.3 200c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0l-128 128c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L224 139.3V320c0 17.7 14.3 32 32 32s32-14.3 32-32V139.3z"/>',
+        'cloud-down': '<path fill="currentColor" d="M224 372.7L164.7 313.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 372.7V192c0-17.7-14.3-32-32-32s-32 14.3-32 32V372.7zM448 96c0-53-43-96-96-96H96C43 0 0 43 0 96v64c0 17.7 14.3 32 32 32s32-14.3 32-32V96c0-17.7 14.3-32 32-32H352c17.7 0 32 14.3 32 32v64c0 17.7 14.3 32 32 32s32-14.3 32-32V96z"/>',
+        'login': '<path fill="currentColor" d="M128 64c0-35.3 28.7-64 64-64H352c35.3 0 64 28.7 64 64V448c0 35.3-28.7 64-64 64H192c-35.3 0-64-28.7-64-64V384c0-17.7 14.3-32 32-32s32 14.3 32 32v64c0 1.9 1.4 1.3 .1-.6l.6-.1H352c10 0 18.2-7 19.8-16.7c.1 .9 .2 2.7 .2-4.2V64c0-11-9-20-20-20H192c-5.8 0-11.1 2.5-14.8 6.4c1.1-1.3 2.6-3 4.4-4.8l-1.3 1.1c2 2 1.6 2 19.7 2h.2c1.9-2.9 2-3.1 3-3.1 0 .2-4.1-.2 1.9c-.8-.2-.3-.1-3 .1v-64zm-14 186.7l67.9-67.9c12.5-12.5 32.8-12.5 45.3 0s12.5 32.8 0 45.3L157.3 300H320c17.7 0 32 14.3 32 32s-14.3 32-32 32H157.3l70.6 70.6c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L66.7 334.6c-12.5-12.5-12.5-32.8 0-45.3L114 250.7z"/>',
+        'logout': '<path fill="currentColor" d="M224.5 121.4l91.4 91.4c9.4 9.4 9.4 24.6 0 33.9l-91.4 91.4c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l50.5-50.5H32c-13.3 0-24-10.7-24-24s10.7-24 24-24h219.1l-50.5-50.5c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0zM352 32c17.7 0 32 14.3 32 32v384c0 17.7-14.3 32-32 32H160c-17.7 0-32-14.3-32-32V400c0-17.7 14.3-32 32-32s32 14.3 32 32v16H352V64H160v16c0 17.7-14.3 32-32 32s-32-14.3-32-32V64c0-17.7 14.3-32 32-32H352z"/>'
+    };
+    const path = paths[name] || '';
+    // SVG viewBoxはFontAwesome標準の512x512を使用
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height:1em;vertical-align:-0.125em;">${path}</svg>`;
+};
+document.getElementById('add-plan-btn').innerHTML = `${getIcon('plus')} 予定を追加`;
+document.getElementById('toggle-section-btn').innerHTML = `${getIcon('list')} 表示切替`;
+document.getElementById('add-material-btn').innerHTML = `${getIcon('plus')} 教材追加`;
+document.getElementById('sort-material-btn').innerHTML = `${getIcon('arrow-sort')} 並び替え`;
+document.getElementById('upload-btn').innerHTML = `${getIcon('cloud-up')} アップロード`;
+document.getElementById('download-btn').innerHTML = `${getIcon('cloud-down')} ダウンロード`;
+document.getElementById('login-btn').innerHTML = `${getIcon('login')} ログイン`;
+document.getElementById('logout-btn').innerHTML = `${getIcon('logout')} ログアウト`;
 
 // 現地の日付取得
 const getLocalDate = () => {
@@ -255,7 +291,7 @@ function renderTodayPlans() {
         // --- アイコン ---
         const iconDiv = document.createElement("div");
         iconDiv.className = "plan-icon";
-        iconDiv.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
+        iconDiv.innerHTML = getIcon('bookmark');
 
         // --- 情報 ---
         const infoDiv = document.createElement("div");
@@ -265,10 +301,10 @@ function renderTodayPlans() {
         nameDiv.textContent = material.name;
 
         const rangeDiv = document.createElement("div");
-        rangeDiv.innerHTML = `<i class="fa-regular fa-pen-to-square"></i> ${plan.range}`;
+        rangeDiv.innerHTML = `${getIcon('pen-square')} ${plan.range}`;
 
         const timeDiv = document.createElement("div");
-        if (plan.time) timeDiv.innerHTML = `<i class="fa-regular fa-clock"></i> ${plan.time}`;
+        if (plan.time) timeDiv.innerHTML = `${getIcon('clock')} ${plan.time}`;
 
         // --- チェック済みなら色をまとめて変更 ---
         if (plan.checked) {
@@ -292,7 +328,7 @@ function renderTodayPlans() {
         // --- ボタン ---
         const checkBtn = createIconButton(
             "check",
-            '<i class="fa-solid fa-check"></i>',
+            getIcon('check'),
             () => {
                 plan.checked = !plan.checked;
                 saveAndRender();
@@ -301,7 +337,7 @@ function renderTodayPlans() {
 
         const editBtn = createIconButton(
             "edit",
-            '<i class="fa-solid fa-pen"></i>',
+            getIcon('pen')',
             () => {
                 populateMaterialSelect(plan.materialId);
                 planContentInput.value = plan.range;
@@ -313,7 +349,7 @@ function renderTodayPlans() {
 
         const delBtn = createIconButton(
             "delete",
-            '<i class="fa-solid fa-trash-can"></i>',
+            getIcon('trash'),
             () => {
                 if (confirm("この予定を削除しますか？")) {
                     const idx = todayPlans.indexOf(plan);
@@ -389,7 +425,7 @@ function renderMaterialList() {
 
         const addPlanBtn = createIconButton(
             "add-plan",
-            '<i class="fa-solid fa-plus"></i>',
+            getIcon('plus')',
             () => {
                 populateMaterialSelect(mat.id);
                 planContentInput.value = "";
@@ -401,7 +437,7 @@ function renderMaterialList() {
 
         const editBtn = createIconButton(
             "edit",
-            '<i class="fa-solid fa-pen"></i>',
+            getIcon('pen'),
             () => {
                 materialSubjectSelect.value = mat.subject;
                 materialNameInput.value = mat.name;
@@ -412,7 +448,7 @@ function renderMaterialList() {
 
         const infoBtn = createIconButton(
             "info",
-            '<i class="fa-solid fa-info"></i>',
+            getIcon('info'),
             () => {
                 materialNamePanel.textContent = mat.name;
                 materialOngoingCheckbox.checked = mat.ongoing || false;
@@ -426,7 +462,7 @@ function renderMaterialList() {
 
         const delBtn = createIconButton(
             "delete",
-            '<i class="fa-solid fa-trash-can"></i>',
+            getIcon('trash'),
             () => {
                 if (confirm(`教材「${mat.name}」を削除しますか？`)) {
                     const idx = materials.findIndex(m => m.id === mat.id);
@@ -473,7 +509,7 @@ function renderSortMaterialModal() {
 
         const upBtn = createIconButton(
             "sort-up",
-            '<i class="fa-solid fa-arrow-up"></i>',
+            getIcon('arrow-up'),
             () => {
                 const idx = materials.indexOf(mat);
                 if (idx <= 0) return;
@@ -486,7 +522,7 @@ function renderSortMaterialModal() {
         );
         const downBtn = createIconButton(
             "sort-down",
-            '<i class="fa-solid fa-arrow-down"></i>',
+            getIcon('arrow-down'),
             () => {
                 const idx = materials.indexOf(mat);
                 if (idx >= materials.length - 1) return;
@@ -726,3 +762,4 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0); // 0msでも次のイベントループに回るので初期表示は速い
 });
+
