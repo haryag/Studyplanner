@@ -305,7 +305,7 @@ select {
 
 .material-wrapper { margin: 20px 0; padding: 8px 0; border-top: 1px dashed #ddd; }
 input[name="option-toggle-checkbox"] + label { display: inline-block; font-weight: bold; color: #333; margin-bottom: 8px; }
-.option-button-wrapper { margin-left: 20px; margin-bottom: 20px; }
+.option-button-wrapper { margin-left: 8px; margin-bottom: 20px; }
 .bottom-btn {
     /* display: flex; */
     align-items: center; width: fit-content; background: #fff; border: 1px solid #ddd;
@@ -349,4 +349,3 @@ input[name="option-toggle-checkbox"] + label { display: inline-block; font-weigh
 
 #material-items p { text-align: center; margin-top: 30px; color: #888; }
 .invisible { visibility: hidden; }
-
