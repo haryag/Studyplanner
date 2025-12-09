@@ -1,6 +1,5 @@
 /* --- 変数定義 --- */
 :root {
-    /* メインカラー */
     --main-color-math: #00008b;
     --main-color-english: #ff69b4;
     --main-color-modernjp: #f49200;
@@ -9,7 +8,6 @@
     --main-color-social: #e6c700;
     --main-color-others: #808080;
 
-    /* デザイン設定 */
     --app-bg-color: #f8f9fa;
     --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
     --modal-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
@@ -19,8 +17,7 @@
 /* --- リセット & 全体設定 --- */
 * {
     box-sizing: border-box !important;
-    /* font-family の変更: システム標準フォントを優先使用 */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: "Noto Sans JP", sans-serif;
     -webkit-tap-highlight-color: transparent;
 }
 
@@ -49,7 +46,6 @@ body {
     position: relative;
     box-shadow: 0 0 15px rgba(0,0,0,0.05);
 }
-
 .main-wrapper.full-height {
     height: 100dvh !important;
     overflow: hidden;
@@ -64,17 +60,11 @@ body {
     padding-bottom: 80px;
     scrollbar-width: thin;
     scrollbar-color: #ccc transparent;
+    scroll-behavior: smooth; /* スムーズスクロール有効化 */
 }
-.display-container.hidden {
-    display: none;
-}
-.display-container::-webkit-scrollbar {
-    width: 6px;
-}
-.display-container::-webkit-scrollbar-thumb {
-    background-color: #ccc;
-    border-radius: 3px;
-}
+.display-container.hidden { display: none; }
+.display-container::-webkit-scrollbar { width: 6px; }
+.display-container::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; }
 
 /* --- ヘッダー --- */
 .header {
@@ -92,37 +82,28 @@ body {
     margin: 0;
 }
 
-/* --- 予定アイテム（リストスタイル） --- */
+/* --- 予定アイテム --- */
 .plan-item {
     background: #fff;
     border-radius: var(--border-radius-size);
     box-shadow: var(--card-shadow);
     margin-bottom: 12px;
-    padding: 12px 14px;
+    padding: 14px 14px;
     display: flex;
     align-items: center;
     position: relative;
-    
-    /* 修正：左のボーダーライン以外の枠線をリセットし、干渉を防ぐ */
     border: none;
     border-left: 5px solid transparent; 
-    
-    transition: background-color 0.1s;
+    transition: all 0.3s ease; /* アニメーション追加 */
     cursor: pointer;
-    overflow: visible; /* ボタンが飛び出しても良いように(今回は内側に収めるが念のため) */
-    min-height: 72px;  /* 内容が少なくてもカードの高さを確保 */
+    overflow: hidden;
+    min-height: 60px;
 }
-
-.plan-item:active {
-    background-color: #fafafa;
-}
-
-/* 完了済み */
+.plan-item:active { background-color: #fafafa; }
 .plan-item.checked {
     opacity: 0.6;
     background-color: #f5f5f5;
     box-shadow: none;
-    /* 完了時は薄い枠線を付けて埋没を防ぐ */
     border: 1px solid #ddd;
     border-left: 5px solid #aaa !important; 
 }
@@ -134,28 +115,10 @@ body {
     font-size: 1.1rem;
     flex-shrink: 0;
 }
-
-.plan-info {
-    flex: 1;
-    font-size: 15px;
-    z-index: 1; /* ボタンの下に入らないように */
-}
-.plan-info > div:first-child { /* 教材名 */
-    font-weight: 700;
-    font-size: 15px;
-    margin-bottom: 2px;
-    color: #333;
-    padding-right: 4px;
-}
-.plan-info > div {
-    font-size: 13px;
-    color: #666;
-    line-height: 1.4;
-}
-.plan-info i {
-    width: 14px;
-    margin-right: 2px;
-}
+.plan-info { flex: 1; font-size: 15px; z-index: 1; }
+.plan-info > div:first-child { font-weight: 700; font-size: 15px; margin-bottom: 2px; color: #333; padding-right: 4px; }
+.plan-info > div { font-size: 13px; color: #666; line-height: 1.4; }
+.plan-info i { width: 14px; margin-right: 2px; }
 
 /* --- 教材アイテム --- */
 .material-item {
@@ -164,20 +127,37 @@ body {
     border-radius: var(--border-radius-size);
     box-shadow: var(--card-shadow);
     margin-bottom: 12px;
-    padding: 12px 14px 22px 14px; /* 下に進捗バー分の余白 */
+    /* padding調整: 上18px, 下24px(バー含む) -> 実質上18px/下18pxで垂直中央に見せる */
+    padding: 18px 14px 24px 14px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: center; /* 閉じてるときは中央揃え */
     cursor: pointer;
     border: none;
     border-left: 5px solid transparent;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); /* 開閉をスムーズに */
     overflow: hidden;
-}
-.material-item:active {
-    background-color: #fafafa;
+    min-height: 64px;
 }
 
-/* 進捗バー：カード下部 */
+/* === タップ時の拡大スタイル（画面高さの90%へ） === */
+.material-item.tapped {
+    height: 90dvh;        /* 画面の90%の高さに */
+    overflow-y: auto;     /* 中身が多い場合はスクロール */
+    align-items: flex-start; /* 上詰めに変更 */
+    flex-direction: column;  /* レイアウト調整しやすいように縦並びの傾向を持たせる（中身はdivで分離されてるので影響小） */
+    padding-top: 32px;    /* 上に少し余裕を持たせる */
+    padding-bottom: 60px; /* 下のボタンが被らないように余白確保 */
+    z-index: 50;          /* 他のカードより前面へ */
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3); /* 浮き上がり強調 */
+    justify-content: flex-start;
+}
+/* タップ時の中身の配置調整 */
+.material-item.tapped > div:first-child {
+    width: 100%; /* 名前エリアを広げる */
+}
+
+/* 進捗バー */
 .material-item::after {
     content: "";
     position: absolute;
@@ -188,17 +168,23 @@ body {
     background-color: var(--material-bg-color);
     transition: width 0.4s ease;
 }
-
-.material-item::before { display: none; } /* 旧スタイル無効化 */
+.material-item::before { display: none; }
 
 .material-name-title {
     font-weight: 700;
-    font-size: 15px;
-    margin-bottom: 2px;
+    font-size: 16px;
+    margin-bottom: 4px;
     color: #333;
 }
+/* タップ時タイトル拡大 */
+.material-item.tapped .material-name-title {
+    font-size: 20px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
 
-/* アコーディオン */
+/* アコーディオン詳細 */
 .material-name-date, 
 .material-name-progress, 
 .material-name-comment {
@@ -206,20 +192,23 @@ body {
     opacity: 0;
     overflow: hidden;
     transition: all 0.3s ease;
-    font-size: 12px;
+    font-size: 13px;
     color: #666;
     margin: 0;
+    line-height: 1.8;
 }
+
+/* タップ時に詳細を表示（制限解除して全表示） */
 .material-item.tapped .material-name-date,
 .material-item.tapped .material-name-progress,
 .material-item.tapped .material-name-comment {
-    max-height: 200px;
+    max-height: 1000px; /* 十分大きな値にして制限実質解除 */
     opacity: 1;
-    margin-top: 4px;
+    margin-top: 8px;
+    white-space: pre-wrap; /* 改行などの保持 */
 }
 
 /* --- 教科ごとの色定義 --- */
-/* ボーダー色の指定方法を明確化してスタイルの崩れを防止 */
 .plan-item.math, .material-item.math { border-left-color: var(--main-color-math); }
 .math .plan-icon, .math i { color: var(--main-color-math); }
 
@@ -242,61 +231,56 @@ body {
 .others .plan-icon, .others i { color: var(--main-color-others); }
 
 
-/* --- 編集・削除ボタン群 (位置・サイズ改善) --- */
+/* --- 編集・削除ボタン群 --- */
 .plan-item .buttons,
 .material-item .buttons {
     display: none;
     position: absolute;
-    /* 位置変更: 右下に配置してタイトル(左上)と被らないように */
-    bottom: 8px; 
-    right: 8px;
-    top: auto; 
+    bottom: 10px; 
+    right: 10px;
+    top: auto;
     
     background: rgba(255, 255, 255, 0.95);
-    padding: 2px 6px;
-    border-radius: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    padding: 4px 8px;
+    border-radius: 30px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* 影を少し強くして浮き上がらせる */
     
     align-items: center;
-    gap: 0; /* ボタン間の隙間をなくして詰める */
-    z-index: 10;
-    
+    gap: 0;
+    z-index: 100; /* 重なり順最上位 */
     animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-
 @keyframes popIn {
     from { opacity: 0; transform: scale(0.8); }
     to { opacity: 1; transform: scale(1); }
 }
 
+/* タップ時はボタン群も追従して表示 */
 .plan-item.tapped .buttons,
 .material-item.tapped .buttons {
     display: flex;
 }
+/* タップ時、ボタン群の位置を調整 */
+.material-item.tapped .buttons {
+    position: absolute;
+    bottom: 20px; /* 画面下部から少し浮かせる */
+    right: 20px;
+}
 
-/* ボタン単体 */
 .buttons button {
     background: transparent;
     border: none;
-    width: 32px;  /* タップ領域 */
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 0 1px;
+    margin: 0 2px;
 }
-.buttons button:active {
-    background-color: #f0f0f0;
-}
-
-/* アイコン拡大 */
-.buttons button i {
-    font-size: 1.25rem !important; /* アイコンを大きく */
-    vertical-align: middle;
-}
-/* JSで指定される色の維持 (削除:赤, 編集:青, etc) はscript.js依存でOK */
+.buttons button:active { background-color: #f0f0f0; }
+.buttons button i { font-size: 1.2rem !important; vertical-align: middle; }
 
 
 /* --- 検索・オプション --- */
@@ -307,179 +291,60 @@ body {
     margin-bottom: 16px;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
-.operate-wrapper label {
-    font-size: 13px;
-    font-weight: bold;
-    color: #444;
-}
+.operate-wrapper label { font-size: 13px; font-weight: bold; color: #444; }
 
-input[type="text"],
-input[type="number"],
-input[type="time"],
-input[type="datetime-local"],
-select,
-textarea {
-    width: 100%;
-    padding: 8px 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-    background: #fff;
-    color: #333;
-    outline: none;
-    margin-bottom: 8px;
-    appearance: none;
-    -webkit-appearance: none;
+input[type="text"], input[type="number"], input[type="time"], input[type="datetime-local"], select, textarea {
+    width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px;
+    font-size: 16px; background: #fff; color: #333; outline: none; margin-bottom: 8px;
+    appearance: none; -webkit-appearance: none;
 }
 select {
     background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%226%22%3E%3Cpath%20d%3D%22M0%200l5%206%205-6z%22%20fill%3D%22%23666%22%2F%3E%3C%2Fsvg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    padding-right: 25px;
+    background-repeat: no-repeat; background-position: right 10px center; padding-right: 25px;
 }
 
-.material-wrapper {
-    margin: 20px 0;
-    padding: 8px 0;
-    border-top: 1px dashed #ddd;
-}
-
-input[name="option-toggle-checkbox"] + label {
-    display: inline-block;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 8px;
-}
-.option-button-wrapper {
-    margin-left: 20px;
-    margin-bottom: 20px;
-}
+.material-wrapper { margin: 20px 0; padding: 8px 0; border-top: 1px dashed #ddd; }
+input[name="option-toggle-checkbox"] + label { display: inline-block; font-weight: bold; color: #333; margin-bottom: 8px; }
+.option-button-wrapper { margin-left: 20px; margin-bottom: 20px; }
 .bottom-btn {
-    display: flex;
-    align-items: center;
-    width: fit-content;
-    background: #fff;
-    border: 1px solid #ddd;
-    color: #006ce0;
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 14px;
-    cursor: pointer;
-    margin-bottom: 8px;
-    text-decoration: none;
+    display: flex; align-items: center; width: fit-content; background: #fff; border: 1px solid #ddd;
+    color: #006ce0; padding: 6px 16px; border-radius: 20px; font-size: 14px; cursor: pointer;
+    margin-bottom: 8px; text-decoration: none;
 }
-.bottom-btn:hover {
-    background-color: #f5f5f5;
-    border-color: #006ce0;
-}
-.bottom-btn i {
-    margin-right: 8px;
-}
+.bottom-btn:hover { background-color: #f5f5f5; border-color: #006ce0; }
+.bottom-btn i { margin-right: 8px; }
 
 /* --- フッター --- */
 .button-group {
-    width: 100%;
-    max-width: 600px;
-    height: 60px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(5px);
-    border-top: 1px solid #eee;
-    position: fixed;
-    bottom: 0;
-    display: flex;
-    justify-content: space-around;
-    padding-bottom: env(safe-area-inset-bottom);
-    z-index: 100;
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.03);
+    width: 100%; max-width: 600px; height: 60px;
+    background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px);
+    border-top: 1px solid #eee; position: fixed; bottom: 0;
+    display: flex; justify-content: space-around; padding-bottom: env(safe-area-inset-bottom);
+    z-index: 200; box-shadow: 0 -2px 5px rgba(0,0,0,0.03);
 }
-
 .footer-btn {
-    flex: 1;
-    border: none;
-    background: none;
-    color: #666;
-    font-size: 11px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    gap: 4px;
+    flex: 1; border: none; background: none; color: #666; font-size: 11px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; gap: 4px;
 }
-.footer-btn i {
-    font-size: 18px;
-}
-.footer-btn:hover {
-    color: #00008b;
-    background: rgba(0,0,0,0.02);
-}
+.footer-btn i { font-size: 18px; }
+.footer-btn:hover { color: #00008b; background: rgba(0,0,0,0.02); }
 
 /* --- モーダル --- */
 .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;
 }
 .modal.hidden { display: none; }
-
 .modal-container {
-    background: #fff;
-    padding: 24px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 400px;
-    max-height: 85vh;
-    overflow-y: auto;
-    box-shadow: var(--modal-shadow);
+    background: #fff; padding: 24px; border-radius: 8px;
+    width: 90%; max-width: 400px; max-height: 85vh; overflow-y: auto; box-shadow: var(--modal-shadow);
 }
-.modal-container h2 {
-    text-align: center;
-    margin: 0 0 20px 0;
-    font-size: 18px;
-    color: #333;
-}
-.modal-container label {
-    display: block;
-    margin-top: 8px;
-    font-size: 14px;
-}
+.modal-container h2 { text-align: center; margin: 0 0 20px 0; font-size: 18px; color: #333; }
+.modal-container label { display: block; margin-top: 8px; font-size: 14px; }
+.modal-btns { display: flex; gap: 10px; margin-top: 24px; }
+.modal-btns button { flex: 1; padding: 10px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; font-size: 14px; }
+.modal-btns .cancel { background: #eee; color: #333; }
+.modal-btns .ok { background: #006ce0; color: white; }
 
-.modal-btns {
-    display: flex;
-    gap: 10px;
-    margin-top: 24px;
-}
-.modal-btns button {
-    flex: 1;
-    padding: 10px;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 14px;
-}
-.modal-btns .cancel {
-    background: #eee;
-    color: #333;
-}
-.modal-btns .ok {
-    background: #006ce0;
-    color: white;
-}
-
-#material-items p {
-    text-align: center;
-    margin-top: 30px;
-    color: #888;
-}
-.invisible {
-    visibility: hidden;
-}
-
+#material-items p { text-align: center; margin-top: 30px; color: #888; }
+.invisible { visibility: hidden; }
