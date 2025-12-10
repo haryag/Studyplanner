@@ -92,9 +92,10 @@ body {
     display: flex;
     align-items: center;
     position: relative;
-    border: none;
+    /* ボーダーを明示的に指定してガタつきを防ぐ */
+    border: 1px solid transparent;
     border-left: 5px solid transparent; 
-    transition: all 0.3s ease; /* アニメーション追加 */
+    transition: all 0.3s ease; 
     cursor: pointer;
     overflow: hidden;
     min-height: 60px;
@@ -134,26 +135,40 @@ body {
     cursor: pointer;
     border: none;
     border-left: 5px solid transparent;
-    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); /* 開閉をスムーズに */
+    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
     overflow: hidden;
     min-height: 64px;
 }
 
-/* === タップ時の拡大スタイル（画面高さの90%へ） === */
+/* === タップ時の拡大スタイル === */
 .material-item.tapped {
-    height: 85dvh;        /* 画面の90%の高さに */
-    overflow-y: auto;     /* 中身が多い場合はスクロール */
-    align-items: flex-start; /* 上詰めに変更 */
-    flex-direction: column;  /* レイアウト調整しやすいように縦並びの傾向を持たせる（中身はdivで分離されてるので影響小） */
-    padding-top: 32px;    /* 上に少し余裕を持たせる */
-    padding-bottom: 60px; /* 下のボタンが被らないように余白確保 */
-    z-index: 50;          /* 他のカードより前面へ */
-    box-shadow: 0 15px 40px rgba(0,0,0,0.3); /* 浮き上がり強調 */
-    justify-content: flex-start;
+    height: 85dvh;        /* 画面の高さの85% */
+    /* 重要な修正点: パディングを消し、ブロック表示、はみ出し非表示(中身のみスクロール) */
+    padding: 0;
+    overflow: hidden;
+    display: block; 
+    z-index: 50;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    cursor: default; /* 拡大後はスクロール操作のためカーソルリセット */
 }
-/* タップ時の中身の配置調整 */
-.material-item.tapped > div:first-child {
-    width: 100%; /* 名前エリアを広げる */
+
+/* ★中身の文字エリア（ここだけをスクロールさせる）★ */
+.material-item .material-name-input {
+    width: 100%;
+    height: auto;
+}
+
+.material-item.tapped .material-name-input {
+    height: 100%;
+    overflow-y: auto;   /* 縦スクロール有効 */
+    padding: 32px 20px 80px 20px; /* 余白: 上32px, 下80px(ボタン回避) */
+    
+    /* スクロールバー装飾（PC用） */
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+}
+.material-item.tapped .material-name-input::-webkit-scrollbar {
+    width: 4px;
 }
 
 /* 進捗バー */
@@ -166,6 +181,7 @@ body {
     width: var(--material-bg-width);
     background-color: var(--material-bg-color);
     transition: width 0.4s ease;
+    z-index: 5; /* 文字スクロールの下に隠れないように */
 }
 .material-item::before { display: none; }
 
@@ -181,6 +197,7 @@ body {
     margin-bottom: 12px;
     border-bottom: 1px solid #eee;
     padding-bottom: 8px;
+    margin-top: 4px;
 }
 
 /* アコーディオン詳細 */
@@ -197,7 +214,7 @@ body {
     line-height: 1.8;
 }
 
-/* タップ時に詳細を表示（制限解除して全表示） */
+/* タップ時に詳細を表示 */
 .material-item.tapped .material-name-date,
 .material-item.tapped .material-name-progress,
 .material-item.tapped .material-name-comment {
@@ -205,6 +222,7 @@ body {
     opacity: 1;
     margin-top: 4px;
     white-space: pre-wrap; /* 改行などの保持 */
+    overflow: visible;
 }
 
 /* --- 教科ごとの色定義 --- */
@@ -233,50 +251,53 @@ body {
 /* --- 編集・削除ボタン群 --- */
 .plan-item .buttons,
 .material-item .buttons {
-    display: none;
+    display: none; /* デフォルト非表示 */
+}
+
+.plan-item .buttons {
+    /* 予定アイテム用のボタン（右下にabsolute配置） */
     position: absolute;
     bottom: 10px; 
     right: 10px;
-    top: auto;
-    
     background: rgba(255, 255, 255, 0.95);
     padding: 4px 8px;
     border-radius: 30px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* 影を少し強くして浮き上がらせる */
-    
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     align-items: center;
     gap: 0;
-    z-index: 100; /* 重なり順最上位 */
+    z-index: 100;
     animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
 @keyframes popIn {
     from { opacity: 0; transform: scale(0.8); }
     to { opacity: 1; transform: scale(1); }
 }
 
-/* タップ時はボタン群も追従して表示 */
+/* タップ時はボタン群表示 */
 .plan-item.tapped .buttons {
     display: flex;
 }
-/* タップ時、ボタン群の位置を調整 */
+
+/* ★修正点：教材カード（拡大時）のボタン配置 */
 .material-item.tapped .buttons {
     display: flex;
-    position: fixed;        /* 画面に固定 */
-    bottom: 80px;           /* 下から80px（フッターより少し上） */
-    right: 24px;            /* 右から24px */
-    top: auto;              /* 位置リセット */
+    position: absolute;     /* カード枠(relative)に対する絶対配置＝一緒に動かない */
+    bottom: 30px;           /* カードの底から30pxで固定 */
+    right: 24px;            /* カードの右端から24px */
+    top: auto;
     
-    /* PC表示(幅が広い時)でも右端に行き過ぎないように調整 */
-    left: 50%;
-    margin-left: 200px;     /* カードの中央から少し右側に配置 */
-    width: fit-content;
-}
-@media (max-width: 640px) {
-    .material-item.tapped .buttons {
-        left: auto;
-        margin-left: 0;
-        right: 24px;
-    }
+    background: rgba(255, 255, 255, 0.95);
+    padding: 4px 8px;
+    border-radius: 30px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    z-index: 100;
+    align-items: center;
+    gap: 0;
+    width: auto;
+    margin: 0;
+    left: auto;
+    animation: popIn 0.3s ease;
 }
 
 .buttons button {
@@ -319,7 +340,6 @@ select {
 input[name="option-toggle-checkbox"] + label { display: inline-block; font-weight: bold; color: #333; margin-bottom: 8px; }
 .option-button-wrapper { margin-left: 8px; margin-bottom: 20px; }
 .bottom-btn {
-    /* display: flex; */
     align-items: center; width: fit-content; background: #fff; border: 1px solid #ddd;
     color: #006ce0; padding: 6px 16px; border-radius: 20px; font-size: 14px; cursor: pointer;
     margin-bottom: 8px; text-decoration: none;
@@ -332,7 +352,13 @@ input[name="option-toggle-checkbox"] + label { display: inline-block; font-weigh
     width: 100%; max-width: 600px; height: 60px;
     background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px);
     border-top: 1px solid #eee;
-    position: fixed; bottom: 0; left:0; right: 0; margin: 0 auto;
+    
+    position: fixed; 
+    bottom: 0; 
+    left:0; 
+    right: 0; 
+    margin: 0 auto; /* 中央揃えを確実にする */
+    
     display: flex; justify-content: space-around; padding-bottom: env(safe-area-inset-bottom);
     z-index: 200; box-shadow: 0 -2px 5px rgba(0,0,0,0.03);
 }
@@ -362,7 +388,3 @@ input[name="option-toggle-checkbox"] + label { display: inline-block; font-weigh
 
 #material-items p { text-align: center; margin-top: 30px; color: #888; }
 .invisible { visibility: hidden; }
-
-
-
-
