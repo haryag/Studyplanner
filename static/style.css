@@ -161,7 +161,7 @@ body {
 .material-item.tapped .material-name-input {
     height: 100%;
     overflow-y: auto;   /* 縦スクロール有効 */
-    padding: 32px 20px 80px 20px; /* 余白: 上32px, 下80px(ボタン回避) */
+    padding: 32px 20px 70px 20px; /* 余白: 上32px, 下80px(ボタン回避) */
     
     /* スクロールバー装飾（PC用） */
     scrollbar-width: thin;
@@ -283,8 +283,8 @@ body {
 .material-item.tapped .buttons {
     display: flex;
     position: absolute;     /* カード枠(relative)に対する絶対配置＝一緒に動かない */
-    bottom: 30px;           /* カードの底から30pxで固定 */
-    right: 24px;            /* カードの右端から24px */
+    bottom: 20px;           /* カードの底から30pxで固定 */
+    right: 16px;            /* カードの右端から24px */
     top: auto;
     
     background: rgba(255, 255, 255, 0.95);
@@ -388,3 +388,4 @@ input[name="option-toggle-checkbox"] + label { display: inline-block; font-weigh
 
 #material-items p { text-align: center; margin-top: 30px; color: #888; }
 .invisible { visibility: hidden; }
+
