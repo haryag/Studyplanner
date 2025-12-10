@@ -255,15 +255,28 @@ body {
 }
 
 /* タップ時はボタン群も追従して表示 */
-.plan-item.tapped .buttons,
-.material-item.tapped .buttons {
+.plan-item.tapped .buttons {
     display: flex;
 }
 /* タップ時、ボタン群の位置を調整 */
 .material-item.tapped .buttons {
-    position: absolute;
-    bottom: 20px; /* 画面下部から少し浮かせる */
-    right: 20px;
+    display: flex;
+    position: fixed;        /* 画面に固定 */
+    bottom: 80px;           /* 下から80px（フッターより少し上） */
+    right: 24px;            /* 右から24px */
+    top: auto;              /* 位置リセット */
+    
+    /* PC表示(幅が広い時)でも右端に行き過ぎないように調整 */
+    left: 50%;
+    margin-left: 200px;     /* カードの中央から少し右側に配置 */
+    width: fit-content;
+}
+@media (max-width: 640px) {
+    .material-item.tapped .buttons {
+        left: auto;
+        margin-left: 0;
+        right: 24px;
+    }
 }
 
 .buttons button {
@@ -349,6 +362,7 @@ input[name="option-toggle-checkbox"] + label { display: inline-block; font-weigh
 
 #material-items p { text-align: center; margin-top: 30px; color: #888; }
 .invisible { visibility: hidden; }
+
 
 
 
