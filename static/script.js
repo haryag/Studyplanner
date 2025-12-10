@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v2.7.1';
+const SW_VERSION = 'v2.7.2';
 const BASE_PATH = '/Studyplanner/';
 
 // 現地の日付取得
@@ -141,84 +141,31 @@ function toggleSections() {
     materialContainer.classList.toggle("hidden", !planVisible);
 }
 
-// タップトグル
-// function addTapToggle(itemDiv, type = "material", associatedData = null) {
-//     itemDiv.addEventListener("click", (e) => {
-//         if (e.target.closest("button")) return;
+// タップトグルとスクロール
+// --- script.js の addTapToggle 関数 ---
 
-//         const alreadyTapped = itemDiv.classList.contains("tapped");
-
-//         // 他の tapped を消す
-//         document.querySelectorAll('.material-item.tapped, .plan-item.tapped').forEach(div => {
-//             if (div !== itemDiv) div.classList.remove('tapped');
-//         });
-
-//         // 今回のクリックで tapped を切り替え
-//         itemDiv.classList.toggle("tapped");
-
-//         // すでに tapped だった場合はモーダルを開く
-//         if (alreadyTapped) {
-//             if (type === "material") {
-//                 const mat = associatedData;  // 渡された教材オブジェクト
-//                 if (mat) {
-//                     populateMaterialSelect(mat.id); // 教材を選択済みに
-//                     planContentInput.value = "";
-//                     planTimeInput.value = "";
-//                     editingIndex = null;
-//                     toggleModal(addPlanModal, true);
-//                 }
-//             } else if (type === "plan") {
-//                 const plan = associatedData;  // 渡された予定オブジェクト
-//                 if (plan) {
-//                     populateMaterialSelect(plan.materialId);
-//                     planContentInput.value = plan.range;
-//                     planTimeInput.value = plan.time || "";
-//                     editingIndex = dailyPlans[todayKey].indexOf(plan);
-//                     toggleModal(addPlanModal, true);
-//                 }
-//             }
-//         }
-//     });
-// }
-// ★修正した関数：タップトグルとスクロール★
 function addTapToggle(itemDiv, type = "material", associatedData = null) {
     itemDiv.addEventListener("click", (e) => {
+        // ボタン操作時は反応させない
         if (e.target.closest("button")) return;
 
-        const alreadyTapped = itemDiv.classList.contains("tapped");
-
-        // 既存の他のカードを閉じる
+        // 他の開いているカードを閉じる
         document.querySelectorAll('.material-item.tapped, .plan-item.tapped').forEach(div => {
             if (div !== itemDiv) div.classList.remove('tapped');
         });
 
-        // 自分を切り替え
+        // 自分自身のクラスを切り替え
         itemDiv.classList.toggle("tapped");
         const isOpened = itemDiv.classList.contains("tapped");
 
-        // カードが開いた時、そのカードが画面の中央に来るようにスクロール
-        if (isOpened) {
-            // 少し遅延させてからスクロールするとCSSアニメーション(90vhへの拡大)と干渉しにくい
+        if (isOpened && type === "material") {
+            // アニメーション(0.5s)に合わせて、計算を少し遅らせる(0.35s)
             setTimeout(() => {
+                // block: 'center' だと画面からはみ出す計算ミスが起きやすいため
+                // 'nearest' または 'start' にすると安定します。
                 itemDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 100);
+            }, 350); 
         }
-
-        // 既にタップ済み状態（今回で2回目タップ=詳細アクション）の場合は、必要に応じて編集モーダルを開く等の動作
-        // （以前のロジックだと2回タップで編集モーダルだったが、今回は拡大UIを採用したため、
-        //   操作はボタンで行うほうがUI的に自然かもしれない。もし旧仕様「2回タップで編集」を維持したい場合は以下のif文を残す）
-        
-        /* 
-           要望に合わせて、ここはボタン操作を優先し、カードタップ自体は拡大/縮小に専念させます。
-           もし以前のようにタップでモーダルを出したい場合はコメントアウトを外してください。
-        */
-        /*
-        if (alreadyTapped) {
-            if (type === "material") {
-                 // 以前はここで予定追加モーダルを開いていた
-            } 
-        } 
-        */
     });
 }
 
@@ -767,5 +714,6 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0); // 0msでも次のイベントループに回るので初期表示は速い
 });
+
 
 
