@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v2.7.0';
+const SW_VERSION = 'v2.7.1';
 const BASE_PATH = '/Studyplanner/';
 
 // 現地の日付取得
@@ -650,7 +650,7 @@ confirmPlanBtn.addEventListener("click", () => {
         editingIndex = null;
     } else {
         if (!dailyPlans[todayKey]) dailyPlans[todayKey] = [];
-        dailyPlans[todayKey].push({ materialId, range, time });
+        dailyPlans[todayKey].push({ materialId, range, time, checked: false });
     }
     toggleModal(addPlanModal, false);
     saveAndRender();
@@ -767,4 +767,5 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0); // 0msでも次のイベントループに回るので初期表示は速い
 });
+
 
