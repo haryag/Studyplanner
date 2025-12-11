@@ -527,7 +527,7 @@ select {
     align-items: center; 
     z-index: 1000;
 }
-.modal.hidden { display: none; }
+.hidden { display: none; }
 .modal-container {
     background: #fff;
     padding: 24px 16px;
