@@ -144,8 +144,6 @@ function toggleSections() {
 }
 
 // タップトグルとスクロール
-// --- script.js の addTapToggle 関数 ---
-
 function addTapToggle(itemDiv, type = "material", associatedData = null) {
     itemDiv.addEventListener("click", (e) => {
         // ボタン操作時は反応させない
@@ -176,7 +174,7 @@ function toggleModal(modal, show = true) {
     modal.classList.toggle("hidden", !show);
     document.body.style.overflow = show ? "hidden" : "";
     wrapper.classList.toggle("full-height", show);
-    buttonContainer.style.display = show ? "none" : "flex";
+    buttonContainer.style.opacity = show ? "0" : "1";
 }
 
 // 教材選択肢生成
@@ -774,3 +772,4 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0);
 });
+
