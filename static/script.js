@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v2.7.2';
+const SW_VERSION = 'v2.7.3';
 const BASE_PATH = '/Studyplanner/';
 
 // 現地の日付取得
@@ -164,7 +164,7 @@ function addTapToggle(itemDiv, type = "material", associatedData = null) {
                 // block: 'center' だと画面からはみ出す計算ミスが起きやすいため
                 // 'nearest' または 'start' にすると安定します。
                 itemDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 350); 
+            }, 10); 
         }
     });
 }
@@ -714,6 +714,7 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0); // 0msでも次のイベントループに回るので初期表示は速い
 });
+
 
 
 
