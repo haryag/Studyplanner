@@ -74,11 +74,10 @@
                         <i class="fa-solid fa-tag"></i>
                         <select id="filter-category-select">
                             <option value="all">全タグ</option>
-                            <option value="none" disabled>未設定</option>
+                            <option value="none" disabled>タグなし</option>
                             <!-- 将来ここにカテゴリを追加 -->
                         </select>
                     </div>
-            
                 </div>
             </div>
             
@@ -139,6 +138,14 @@
                 教材名：
                 <input type="text" id="material-name-input" placeholder="教材名を選択">
             </label>
+            <label>
+                カテゴリ：
+                <select id="material-category-select">
+                    <option value="">（なし）</option>
+                    <option value="new">＋ 新規作成...</option>
+                </select>
+            </label>
+            <input type="text" id="new-category-input" class="hidden" placeholder="新しいカテゴリ名を入力">
             <div class="modal-btns">
                 <button id="cancel-material-btn" class="cancel">キャンセル</button>
                 <button id="confirm-material-btn" class="ok">OK</button>
@@ -223,5 +230,3 @@
     <script type="module" src="static/script.js" defer></script>
 </body>
 </html>
-
-
