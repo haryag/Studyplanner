@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v3.0.6';
+const SW_VERSION = 'v3.1.0';
 const BASE_PATH = '/Studyplanner/';
 
 // 現地の日付取得
@@ -696,11 +696,21 @@ confirmSortBtn.addEventListener("click", () => {
 });
 
 // 表示切替ボタン
-toggleSectionBtn.addEventListener("click", toggleSections);
+toggleSectionBtn.addEventListener("click", () => {
+    toggleSections();
+    const mode = planContainer.classList.contains("hidden") ? "material" : "plan";
+    localStorage.setItem("sp_activeSection", mode);
+});
 
 // 検索・フィルタリング
-searchMaterialInput.addEventListener("input", () => renderMaterialList());
-filterSubjectSelect.addEventListener("input", () => renderMaterialList());
+searchMaterialInput.addEventListener("input", () => {
+    localStorage.setItem("sp_searchQuery", searchMaterialInput.value);
+    renderMaterialList();
+});
+filterSubjectSelect.addEventListener("input", () => {
+    localStorage.setItem("sp_filterSubject", filterSubjectSelect.value);
+    renderMaterialList();
+});
 
 // --- Enterキー送信 ---
 [addMaterialModal, addPlanModal].forEach(modal => {
@@ -736,16 +746,31 @@ renderAppShell();  // まず画面の骨格だけ表示
 
 // --- データ読み込み + 初期レンダリング（非同期で遅延） ---
 window.addEventListener('DOMContentLoaded', () => {
-    // ユーザーが操作可能な状態を優先
+    // 1. 検索ワードの復元
+    const savedQuery = localStorage.getItem("sp_searchQuery");
+    if (savedQuery !== null) {
+        searchMaterialInput.value = savedQuery;
+    }
+
+    // 2. 教科フィルタの復元
+    const savedFilter = localStorage.getItem("sp_filterSubject");
+    if (savedFilter !== null) {
+        filterSubjectSelect.value = savedFilter;
+    }
+
+    // 3. 開いていた画面の復元
+    const savedSection = localStorage.getItem("sp_activeSection");
+    if (savedSection === "material") {
+        planContainer.classList.add("hidden");
+        materialContainer.classList.remove("hidden");
+    } else {
+        planContainer.classList.remove("hidden");
+        materialContainer.classList.add("hidden");
+    }
+    
     setTimeout(async () => {
         await loadData();
         renderMaterialList();
         renderTodayPlans();
-    }, 0); // 0msでも次のイベントループに回るので初期表示は速い
+    }, 0);
 });
-
-
-
-
-
-
