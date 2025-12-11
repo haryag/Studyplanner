@@ -442,7 +442,7 @@ select {
 .modal.hidden { display: none; }
 .modal-container {
     background: #fff;
-    padding: 24px;
+    padding: 24px 16px;
     border-radius: 8px;
     width: 90%;
     max-width: 400px;
@@ -498,4 +498,5 @@ select {
 .invisible {
     visibility: hidden;
 }
+
 
