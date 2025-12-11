@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v3.1.1';
+const SW_VERSION = 'v3.2.0';
 const BASE_PATH = '/Studyplanner/';
 
 // 現地の日付取得
@@ -38,6 +38,8 @@ const openSortModalBtn = document.getElementById("sort-material-btn");
 const toggleSectionBtn = document.getElementById("toggle-section-btn");
 const searchMaterialInput = document.getElementById("search-material-input");
 const filterSubjectSelect = document.getElementById("filter-subject-select");
+const filterStatusSelect = document.getElementById("filter-status-select");
+const filterCategorySelect = document.getElementById("filter-category-select");
 const uploadBtn = document.getElementById('upload-btn');
 const downloadBtn = document.getElementById('download-btn');
 
@@ -328,13 +330,30 @@ function renderTodayPlans() {
 function renderMaterialList() {
     const query = searchMaterialInput.value.toLowerCase();
     const subjectFilter = filterSubjectSelect.value;
+    const statusFilter = filterStatusSelect.value; // ★追加
+    const categoryFilter = filterCategorySelect.value; // ★カテゴリ用（今は未使用）
 
     materialItems.innerHTML = "";
 
     materials.forEach(mat => {
         // --- フィルタリング ---
+        // 1. 教科フィルタ
         if (subjectFilter !== "all" && mat.subject !== subjectFilter) return;
+        
+        // 2. 検索ワード
         if (!mat.name.toLowerCase().includes(query)) return;
+
+        // 3. ★状態フィルタ（追加）
+        if (statusFilter === "ongoing") {
+            // 学習中のみ（ongoingがfalse以外）
+            if (mat.ongoing === false) return; 
+        } else if (statusFilter === "completed") {
+            // 完了のみ（ongoingがfalse）
+            if (mat.ongoing !== false) return;
+        }
+
+        // 4. カテゴリフィルタ（データにcategoryがある場合の実装例）
+        if (categoryFilter !== "all" && mat.category !== categoryFilter) return;
 
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
@@ -709,6 +728,14 @@ filterSubjectSelect.addEventListener("input", () => {
     localStorage.setItem("sp_filterSubject", filterSubjectSelect.value);
     renderMaterialList();
 });
+filterStatusSelect.addEventListener("change", () => {
+    localStorage.setItem("sp_filterStatus", filterStatusSelect.value);
+    renderMaterialList();
+});
+filterCategorySelect.addEventListener("change", () => {
+    localStorage.setItem("sp_filterCategory", filterCategorySelect.value);
+    renderMaterialList();
+});
 
 // --- Enterキー送信 ---
 [addMaterialModal, addPlanModal].forEach(modal => {
@@ -744,17 +771,17 @@ renderAppShell();  // まず画面の骨格だけ表示
 
 // --- データ読み込み + 初期レンダリング（非同期で遅延） ---
 window.addEventListener('DOMContentLoaded', () => {
-    // 1. 検索ワードの復元
     const savedQuery = localStorage.getItem("sp_searchQuery");
-    if (savedQuery !== null) {
-        searchMaterialInput.value = savedQuery;
-    }
+    if (savedQuery !== null) searchMaterialInput.value = savedQuery;
 
-    // 2. 教科フィルタの復元
     const savedFilter = localStorage.getItem("sp_filterSubject");
-    if (savedFilter !== null) {
-        filterSubjectSelect.value = savedFilter;
-    }
+    if (savedFilter !== null) filterSubjectSelect.value = savedFilter;
+
+    const savedStatus = localStorage.getItem("sp_filterStatus"); // ★追加
+    if (savedStatus !== null) filterStatusSelect.value = savedStatus;
+
+    const savedCategory = localStorage.getItem("sp_filterCategory"); // ★追加
+    if (savedCategory !== null) filterCategorySelect.value = savedCategory;
 
     // 3. 開いていた画面の復元
     const savedSection = localStorage.getItem("sp_activeSection");
