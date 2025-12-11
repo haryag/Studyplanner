@@ -185,7 +185,7 @@ body {
     scrollbar-color: #ccc transparent;
 }
 .material-item.tapped .material-name-input::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
 }
 
 /* 進捗バー */
@@ -449,7 +449,13 @@ select {
     max-height: 85vh;
     overflow-y: auto;
     box-shadow: var(--modal-shadow);
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+    scroll-behavior: smooth;
 }
+.modal-container::-webkit-scrollbar { width: 6px; }
+.modal-container::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; }
+
 .modal-container h2 {
     text-align: center;
     margin: 0 0 20px 0;
@@ -492,3 +498,4 @@ select {
 .invisible {
     visibility: hidden;
 }
+
