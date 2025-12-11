@@ -150,6 +150,7 @@ body {
     z-index: 50;
     box-shadow: 0 15px 40px rgba(0,0,0,0.3);
     cursor: default; /* 拡大後はスクロール操作のためカーソルリセット */
+    transition: none;
 }
 
 /* ★中身の文字エリア（ここだけをスクロールさせる）★ */
@@ -388,4 +389,5 @@ input[name="option-toggle-checkbox"] + label { display: inline-block; font-weigh
 
 #material-items p { text-align: center; margin-top: 30px; color: #888; }
 .invisible { visibility: hidden; }
+
 
