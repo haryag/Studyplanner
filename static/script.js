@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v3.0.2';
+const SW_VERSION = 'v3.0.3';
 const BASE_PATH = '/Studyplanner/';
 
 // 現地の日付取得
@@ -338,7 +338,7 @@ function renderMaterialList() {
 
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
-        itemDiv.style.setProperty('--material-bg-color', '#d0d0d0');
+        itemDiv.style.setProperty('--material-bg-color', '#e0e0e0');
         itemDiv.style.setProperty('--material-bg-width', `${mat.progress || 0}%`);
 
         // --- カード情報 ---
@@ -731,5 +731,6 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0); // 0msでも次のイベントループに回るので初期表示は速い
 });
+
 
 
