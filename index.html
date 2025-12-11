@@ -36,23 +36,51 @@
                 <h1>教材一覧</h1>
             </div>
             <div class="operate-wrapper">
-                <label>
-                    教材名：
-                    <input type="text" id="search-material-input" placeholder="教材名で検索">
-                </label>
-                <label>
-                    教科：
-                    <select id="filter-subject-select">
-                        <option value="all">すべて</option>
-                        <option value="math">数学</option>
-                        <option value="english">英語</option>
-                        <option value="modernjp">現代文</option>
-                        <option value="classicjp">古典</option>
-                        <option value="science">理科</option>
-                        <option value="social">社会</option>
-                        <option value="others">その他</option>
-                    </select>
-                </label>
+                <!-- 検索バー -->
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="search-material-input" placeholder="教材名を検索...">
+                </div>
+            
+                <!-- フィルタボタン群（横並び） -->
+                <div class="filter-group">
+                    
+                    <!-- 教科フィルタ -->
+                    <div class="filter-btn-wrapper">
+                        <i class="fa-solid fa-book"></i>
+                        <select id="filter-subject-select">
+                            <option value="all">全教科</option>
+                            <option value="math">数学</option>
+                            <option value="english">英語</option>
+                            <option value="modernjp">現代文</option>
+                            <option value="classicjp">古典</option>
+                            <option value="science">理科</option>
+                            <option value="social">社会</option>
+                            <option value="others">その他</option>
+                        </select>
+                    </div>
+            
+                    <!-- 状態フィルタ（新規） -->
+                    <div class="filter-btn-wrapper">
+                        <i class="fa-solid fa-bars-progress"></i>
+                        <select id="filter-status-select">
+                            <option value="all">全状態</option>
+                            <option value="ongoing">学習中</option>
+                            <option value="completed">完了</option>
+                        </select>
+                    </div>
+            
+                    <!-- カテゴリフィルタ（将来用） -->
+                    <div class="filter-btn-wrapper">
+                        <i class="fa-solid fa-tag"></i>
+                        <select id="filter-category-select">
+                            <option value="all">全タグ</option>
+                            <option value="none" disabled>未設定</option>
+                            <!-- 将来ここにカテゴリを追加 -->
+                        </select>
+                    </div>
+            
+                </div>
             </div>
             
             <div class="material-wrapper">
@@ -196,3 +224,4 @@
     <script type="module" src="static/script.js" defer></script>
 </body>
 </html>
+
