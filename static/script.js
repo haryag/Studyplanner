@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v3.0.3';
+const SW_VERSION = 'v3.0.4';
 const BASE_PATH = '/Studyplanner/';
 
 // 現地の日付取得
@@ -72,8 +72,10 @@ const sortItems = document.getElementById("sort-items");
 const cancelSortBtn = document.getElementById("cancel-sort-btn");
 const confirmSortBtn = document.getElementById("confirm-sort-btn");
 
+// 編集用のキー
 let editingMaterialId = null;
 let editingIndex = null;
+let editingSortId = null; 
 
 // --- 共通関数 ---
 // ロード前に表示する関数
@@ -338,7 +340,7 @@ function renderMaterialList() {
 
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
-        itemDiv.style.setProperty('--material-bg-color', '#e0e0e0');
+        itemDiv.style.setProperty('--material-bg-color', '#f0f0f0');
         itemDiv.style.setProperty('--material-bg-width', `${mat.progress || 0}%`);
 
         // --- カード情報 ---
@@ -442,7 +444,6 @@ function renderMaterialList() {
 }
 
 // --- 教材並び替えモーダル ---
-/* --- renderSortMaterialModal (script.js) --- */
 function renderSortMaterialModal() {
     sortItems.innerHTML = "";
     materials.forEach(mat => {
@@ -450,58 +451,84 @@ function renderSortMaterialModal() {
         itemDiv.className = `material-item ${mat.subject}`;
         itemDiv.dataset.id = mat.id;
 
+        // ★修正1: カードが大きくならないようにスタイル固定
         itemDiv.style.flexDirection = "row";
         itemDiv.style.alignItems = "center";
         itemDiv.style.padding = "8px 12px";
-        itemDiv.style.minHeight = "48px";
-        itemDiv.style.cursor = "default";
-        
+        itemDiv.style.minHeight = "56px"; // 少し高さを確保
+        itemDiv.style.cursor = "pointer"; // タップできる感を出す
+        // 進捗バーを隠す（並び替えの邪魔になるため）
         itemDiv.style.setProperty('--material-bg-width', '0%');
+        
+        // ★修正2: タップ時の処理（クラス.tappedは使わず、IDで管理）
+        itemDiv.addEventListener("click", (e) => {
+            if (e.target.closest("button")) return; // ボタン押下時は無視
+            
+            // すでに選ばれているものをタップしたら閉じる、そうでなければこれを選ぶ
+            if (editingSortId === mat.id) {
+                editingSortId = null;
+            } else {
+                editingSortId = mat.id;
+            }
+            renderSortMaterialModal(); // 再描画してボタン表示を更新
+        });
 
         const nameDiv = document.createElement("div");
         nameDiv.textContent = mat.name;
         nameDiv.style.flex = "1";
-        nameDiv.style.marginRight = "10px";
-        
+        nameDiv.style.fontWeight = "bold";
         itemDiv.appendChild(nameDiv);
 
+        // --- ボタンエリア ---
         const btnDiv = document.createElement("div");
         btnDiv.className = "buttons";
 
-        btnDiv.style.display = "flex";
-        btnDiv.style.position = "static";
-        btnDiv.style.boxShadow = "none";
-        btnDiv.style.background = "transparent";
-        btnDiv.style.padding = "0";
-        btnDiv.style.margin = "0";
-        btnDiv.style.opacity = "1"; 
-        btnDiv.style.width = "auto";
-        btnDiv.style.pointerEvents = "auto";
+        // ★修正3: 選択中(editingSortIdと一致)の場合のみ表示する
+        if (mat.id === editingSortId) {
+            btnDiv.style.display = "flex";
+            
+            // ボタンをカードの右側に綺麗に収めるスタイル
+            btnDiv.style.position = "absolute";
+            btnDiv.style.right = "8px";
+            btnDiv.style.top = "50%";
+            btnDiv.style.transform = "translateY(-50%)"; // 上下中央揃え
+            
+            // 本家と同じデザインリセット
+            btnDiv.style.background = "rgba(255,255,255,0.95)";
+            btnDiv.style.borderRadius = "30px";
+            btnDiv.style.padding = "0 8px";
+            btnDiv.style.boxShadow = "0 2px 5px rgba(0,0,0,0.2)";
+            btnDiv.style.zIndex = "10";
+            btnDiv.style.margin = "0";
+            btnDiv.style.width = "auto";
+            btnDiv.style.left = "auto";
+        } else {
+            btnDiv.style.display = "none";
+        }
 
+        // --- 上へボタン ---
         const upBtn = createIconButton(
             "sort-up",
             '<i class="fa-solid fa-arrow-up"></i>',
             () => {
                 const idx = materials.indexOf(mat);
                 if (idx <= 0) return;
+                // 入れ替え処理（ご要望通り変更なし）
                 [materials[idx - 1], materials[idx]] = [materials[idx], materials[idx - 1]];
-                const prevDiv = itemDiv.previousElementSibling;
-                if (prevDiv) sortItems.insertBefore(itemDiv, prevDiv);
-                
-                updateSortButtons();
+                renderSortMaterialModal();
             }
         );
+
+        // --- 下へボタン ---
         const downBtn = createIconButton(
             "sort-down",
             '<i class="fa-solid fa-arrow-down"></i>',
             () => {
                 const idx = materials.indexOf(mat);
                 if (idx >= materials.length - 1) return;
+                // 入れ替え処理（ご要望通り変更なし）
                 [materials[idx], materials[idx + 1]] = [materials[idx + 1], materials[idx]];
-                const nextDiv = itemDiv.nextElementSibling;
-                if (nextDiv) sortItems.insertBefore(itemDiv, nextDiv.nextElementSibling);
-
-                updateSortButtons();
+                renderSortMaterialModal();
             }
         );
 
@@ -510,6 +537,8 @@ function renderSortMaterialModal() {
 
         sortItems.appendChild(itemDiv);
     });
+    
+    // 一番上と一番下のボタンを消す処理はそのまま維持
     updateSortButtons();
 }
 
@@ -671,6 +700,7 @@ confirmInfoBtn.addEventListener("click", () => {
 // 並び替えモーダル
 openSortModalBtn.addEventListener("click", () => {
     backupMaterials = [...materials];
+    editingSortId = null;
     renderSortMaterialModal();
     toggleModal(sortMaterialModal, true);
 });
@@ -731,6 +761,7 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0); // 0msでも次のイベントループに回るので初期表示は速い
 });
+
 
 
 
