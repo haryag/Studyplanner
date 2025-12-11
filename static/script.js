@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v3.0.4';
+const SW_VERSION = 'v3.0.6';
 const BASE_PATH = '/Studyplanner/';
 
 // 現地の日付取得
@@ -444,7 +444,7 @@ function renderMaterialList() {
 }
 
 // --- 教材並び替えモーダル ---
-/* --- script.js: renderSortMaterialModal --- */
+/* --- script.js renderSortMaterialModal (位置ズレ修正版) --- */
 
 function renderSortMaterialModal() {
     sortItems.innerHTML = "";
@@ -454,20 +454,16 @@ function renderSortMaterialModal() {
         itemDiv.className = `material-item ${mat.subject}`;
         itemDiv.dataset.id = mat.id;
 
-        // ▼ カード本体のデザイン
         itemDiv.style.flexDirection = "row";
         itemDiv.style.alignItems = "center";
         itemDiv.style.padding = "8px 12px";
         itemDiv.style.minHeight = "60px";
         itemDiv.style.cursor = "pointer";
-        itemDiv.style.position = "relative"; // ボタンを絶対配置するために必須
+        itemDiv.style.position = "relative";
         itemDiv.style.setProperty('--material-bg-width', '0%');
 
-        // ▼ タップ処理
         itemDiv.addEventListener("click", (e) => {
             if (e.target.closest("button")) return; 
-            
-            // 選択切り替え
             editingSortId = (editingSortId === mat.id) ? null : mat.id;
             renderSortMaterialModal();
         });
@@ -479,32 +475,33 @@ function renderSortMaterialModal() {
         nameDiv.style.marginRight = "8px"; 
         itemDiv.appendChild(nameDiv);
 
-        // ▼ ボタンエリア
         if (mat.id === editingSortId) {
-            // 選択中のカードのスタイル（少し強調）
             itemDiv.style.backgroundColor = "#fff";
             itemDiv.style.zIndex = "10";
 
             const btnDiv = document.createElement("div");
             btnDiv.className = "buttons";
             
-            // ★予定カードのボタン(.plan-item .buttons)のデザインをJSで再現
             btnDiv.style.display = "flex";
-            btnDiv.style.position = "absolute"; // 絶対配置（カードの上に浮く）
-            btnDiv.style.right = "10px";        // 右から10px
-            btnDiv.style.top = "50%";           // 上下中央
-            btnDiv.style.transform = "translateY(-50%)"; // 中央補正
+            btnDiv.style.position = "absolute";
+            btnDiv.style.right = "10px";
             
-            btnDiv.style.background = "rgba(255, 255, 255, 0.95)"; // 白いカプセル背景
+            /* ★修正箇所：アニメーションと干渉しない方法で上下中央にする */
+            btnDiv.style.top = "0";
+            btnDiv.style.bottom = "0";
+            btnDiv.style.margin = "auto 0";      // これで縦中央になります
+            btnDiv.style.height = "fit-content"; // 中身の高さに合わせる
+            btnDiv.style.transform = "none";     // transformはアニメーション用に空けておく
+            
+            btnDiv.style.background = "rgba(255, 255, 255, 0.95)";
             btnDiv.style.padding = "4px 8px";
             btnDiv.style.borderRadius = "30px";
-            btnDiv.style.boxShadow = "0 4px 10px rgba(0,0,0,0.2)"; // 影
-            btnDiv.style.gap = "0"; // ボタン同士の間隔
+            btnDiv.style.boxShadow = "0 4px 10px rgba(0,0,0,0.2)";
+            btnDiv.style.gap = "0";
 
-            // ★ここで「にゅん」と出します（予定カードと同じアニメーション）
+            // アニメーション設定
             btnDiv.style.animation = "popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
             
-            // 上へ
             const upBtn = createIconButton("sort-up", '<i class="fa-solid fa-arrow-up"></i>', () => {
                 const idx = materials.indexOf(mat);
                 if (idx <= 0) return;
@@ -512,7 +509,6 @@ function renderSortMaterialModal() {
                 renderSortMaterialModal();
             });
 
-            // 下へ
             const downBtn = createIconButton("sort-down", '<i class="fa-solid fa-arrow-down"></i>', () => {
                 const idx = materials.indexOf(mat);
                 if (idx >= materials.length - 1) return;
@@ -527,6 +523,7 @@ function renderSortMaterialModal() {
         sortItems.appendChild(itemDiv);
     });
 }
+
 // --- アップロード / ダウンロード ---
 uploadBtn.addEventListener("click", async () => {
     if (!window.confirm("データをアップロードします。よろしいですか？")) return;
@@ -746,6 +743,7 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0); // 0msでも次のイベントループに回るので初期表示は速い
 });
+
 
 
 
