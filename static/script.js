@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v3.0.0';
+const SW_VERSION = 'v3.0.1';
 const BASE_PATH = '/Studyplanner/';
 
 // 現地の日付取得
@@ -338,8 +338,8 @@ function renderMaterialList() {
 
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
-        itemDiv.style.setProperty('--material-bg-color', `var(--bg-color-${mat.subject})`);
-        itemDiv.style.setProperty('--material-bg-width', `${mat.progress}%`);
+        itemDiv.style.setProperty('--material-bg-color', '#d0d0d0');
+        itemDiv.style.setProperty('--material-bg-width', `${mat.progress || 0}%`);
 
         // --- カード情報 ---
         const nameDiv = document.createElement("div");
@@ -361,11 +361,8 @@ function renderMaterialList() {
         nameCommentDiv.className = "material-name-comment";
         if(mat.detail) nameCommentDiv.innerHTML = mat.detail.replace(/\n/g, "<br>");
 
-        if(mat.ongoing) {
-            nameTitleDiv.style.fontWeight = "medium";
-        } else {
-            nameDiv.style.color = "#808080";
-            itemDiv.style.setProperty('--material-bg-color', `#f0f0f0`);
+        if (!mat.ongoing) {
+            nameDiv.style.color = "#a0a0a0"; 
         }
 
         nameDiv.append(nameTitleDiv, nameProgressDiv, nameDateDiv, nameCommentDiv);
@@ -714,3 +711,4 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0); // 0msでも次のイベントループに回るので初期表示は速い
 });
+
