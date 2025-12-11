@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v3.0.1';
+const SW_VERSION = 'v3.0.2';
 const BASE_PATH = '/Studyplanner/';
 
 // 現地の日付取得
@@ -442,6 +442,7 @@ function renderMaterialList() {
 }
 
 // --- 教材並び替えモーダル ---
+/* --- renderSortMaterialModal (script.js) --- */
 function renderSortMaterialModal() {
     sortItems.innerHTML = "";
     materials.forEach(mat => {
@@ -449,12 +450,33 @@ function renderSortMaterialModal() {
         itemDiv.className = `material-item ${mat.subject}`;
         itemDiv.dataset.id = mat.id;
 
+        itemDiv.style.flexDirection = "row";
+        itemDiv.style.alignItems = "center";
+        itemDiv.style.padding = "8px 12px";
+        itemDiv.style.minHeight = "48px";
+        itemDiv.style.cursor = "default";
+        
+        itemDiv.style.setProperty('--material-bg-width', '0%');
+
         const nameDiv = document.createElement("div");
         nameDiv.textContent = mat.name;
+        nameDiv.style.flex = "1";
+        nameDiv.style.marginRight = "10px";
+        
         itemDiv.appendChild(nameDiv);
 
         const btnDiv = document.createElement("div");
         btnDiv.className = "buttons";
+
+        btnDiv.style.display = "flex";
+        btnDiv.style.position = "static";
+        btnDiv.style.boxShadow = "none";
+        btnDiv.style.background = "transparent";
+        btnDiv.style.padding = "0";
+        btnDiv.style.margin = "0";
+        btnDiv.style.opacity = "1"; 
+        btnDiv.style.width = "auto";
+        btnDiv.style.pointerEvents = "auto";
 
         const upBtn = createIconButton(
             "sort-up",
@@ -465,7 +487,7 @@ function renderSortMaterialModal() {
                 [materials[idx - 1], materials[idx]] = [materials[idx], materials[idx - 1]];
                 const prevDiv = itemDiv.previousElementSibling;
                 if (prevDiv) sortItems.insertBefore(itemDiv, prevDiv);
-                itemDiv.classList.add('tapped');
+                
                 updateSortButtons();
             }
         );
@@ -478,8 +500,7 @@ function renderSortMaterialModal() {
                 [materials[idx], materials[idx + 1]] = [materials[idx + 1], materials[idx]];
                 const nextDiv = itemDiv.nextElementSibling;
                 if (nextDiv) sortItems.insertBefore(itemDiv, nextDiv.nextElementSibling);
-                // else sortItems.appendChild(itemDiv);
-                itemDiv.classList.add('tapped');
+
                 updateSortButtons();
             }
         );
@@ -487,7 +508,6 @@ function renderSortMaterialModal() {
         btnDiv.append(upBtn, downBtn);
         itemDiv.appendChild(btnDiv);
 
-        addTapToggle(itemDiv, "material", mat);
         sortItems.appendChild(itemDiv);
     });
     updateSortButtons();
@@ -711,4 +731,5 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0); // 0msでも次のイベントループに回るので初期表示は速い
 });
+
 
