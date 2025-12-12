@@ -139,34 +139,43 @@ body {
 
 
 /* --- 教材アイテム --- */
+/* style.css の .material-item 部分をこれに書き換え */
 .material-item {
     position: relative;
     background: #fff;
     border-radius: var(--border-radius-size);
     box-shadow: var(--card-shadow);
     margin-bottom: 12px;
-    padding: 12px 14px 12px 14px;
+    padding: 12px 14px;
+    
+    /* ★修正ポイント: 最初からFlexの方向を固定し、ガタつきを防ぐ */
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;      /* 縦並びにしておく */
+    justify-content: center;     /* 文字は上下中央 */
+    align-items: stretch;        /* 横幅いっぱい */
+    
     cursor: pointer;
     border: none;
     border-left: 5px solid transparent;
-    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     overflow: hidden;
     min-height: 64px;
 }
 
 /* === タップ時の拡大スタイル === */
+/* style.css の .material-item.tapped 部分をこれに書き換え */
 .material-item.tapped {
     height: 85dvh;
     padding: 0;
     overflow: hidden;
-    display: block; 
+    /* display: block; ← これは消す(flex維持) */
+    
+    justify-content: flex-start; /* ★上詰めに変更（これならアニメーションでスッと動く）*/
+    
     z-index: 50;
     box-shadow: 0 15px 40px rgba(0,0,0,0.3);
     cursor: default;
-    transition: none;
+    transition: none; /* 開くときは一瞬 */
 }
 
 /* 中身の文字エリア */
@@ -589,3 +598,4 @@ select {
 }
 .invisible { visibility: hidden; }
 .hidden { display: none !important; }
+
