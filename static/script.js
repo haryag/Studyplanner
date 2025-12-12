@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v3.4.0';
+const SW_VERSION = 'v3.4.1';
 const BASE_PATH = '/Studyplanner/';
 
 // 現地の日付取得
@@ -27,14 +27,13 @@ let categories = new Set(); // カテゴリ管理用セット
 const notification = document.createElement('div');
 notification.id = 'update-notification';
 notification.innerHTML = `
-    <span>新しいバージョンが利用可能です</span>
+    <span>アップデートできます！/span>
     <button id="reload-btn">更新</button>
 `;
 document.body.appendChild(notification);
 
 // 更新ボタンクリック時の動作
 document.getElementById('reload-btn').addEventListener('click', () => {
-    // 新しいSWに「スキップ・ウェイティング（待機せずすぐ有効化）」の命令を送る
     if (newWorker) {
         newWorker.postMessage({ type: 'SKIP_WAITING' });
     }
@@ -77,8 +76,8 @@ const confirmPlanBtn = document.getElementById("confirm-plan-btn");
 const addMaterialModal = document.getElementById("add-material-modal");
 const materialNameInput = document.getElementById("material-name-input");
 const materialSubjectSelect = document.getElementById("material-subject-select");
-const materialCategorySelect = document.getElementById("material-category-select"); // 新規追加
-const newCategoryInput = document.getElementById("new-category-input");           // 新規追加
+const materialCategorySelect = document.getElementById("material-category-select");
+const newCategoryInput = document.getElementById("new-category-input");
 const cancelMaterialBtn = document.getElementById("cancel-material-btn");
 const confirmMaterialBtn = document.getElementById("confirm-material-btn");
 
@@ -170,7 +169,7 @@ function updateCategoryOptions() {
     // モーダルのセレクトボックス更新
     const currentVal = materialCategorySelect.value; // 編集中なら値を保持したい
     materialCategorySelect.innerHTML = `
-        <option value="">（なし）</option>
+        <option value="">カテゴリなし</option>
         ${Array.from(categories).sort().map(c => `<option value="${c}">${c}</option>`).join('')}
         <option value="new">＋ 新規作成...</option>
     `;
@@ -830,4 +829,5 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0);
 });
+
 
