@@ -527,7 +527,6 @@ select {
     align-items: center; 
     z-index: 1000;
 }
-.modal.hidden { display: none; }
 .modal-container {
     background: #fff;
     padding: 24px 16px;
@@ -584,8 +583,9 @@ select {
     color: #888;
 }
 #new-category-input {
+    margin-top: 4px;
+    border-color: #006ce0;
     transition: all 0.3s ease;
 }
-.invisible {
-    visibility: hidden;
-}
+.invisible { visibility: hidden; }
+.hidden { display: none !important; }
