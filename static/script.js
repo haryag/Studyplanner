@@ -3,10 +3,10 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v3.4.2';
+const SW_VERSION = 'v3.4.0';
 const BASE_PATH = '/Studyplanner/';
 
-// 現地の日付取得
+// --- 現地の日付取得 ---
 const getLocalDate = () => {
     const d = new Date();
     const y = d.getFullYear();
@@ -21,7 +21,7 @@ const todayDisplay = new Date().toLocaleDateString('ja-JP');
 const materials = [];
 const dailyPlans = {};
 let backupMaterials = [];
-let categories = new Set(); // カテゴリ管理用セット
+let categories = new Set();
 
 // --- 更新通知バー ---
 const notification = document.createElement('div');
@@ -44,7 +44,6 @@ let newWorker = null;
 // --- DOM要素 ---
 const wrapper = document.getElementById("wrapper");
 const todayDatePanel = document.getElementById("todaydate-panel");
-// buttonContainerは初期化時取得せずtoggleModal内で都度取得する運用とする（安全のため）
 const planContainer = document.getElementById("plan-container");
 const planItems = document.getElementById("plan-items");
 const materialContainer = document.getElementById("material-container");
@@ -153,42 +152,36 @@ async function loadData() {
 
     if (savedMaterials) materials.splice(0, materials.length, ...savedMaterials);
     if (savedPlans) Object.assign(dailyPlans, savedPlans);
-    
-    // データロード後にカテゴリリストを再構築
+
     updateCategoryOptions();
 }
 
 // --- カテゴリ管理関数 ---
 function updateCategoryOptions() {
-    // 既存データからカテゴリ収集
     categories.clear();
     materials.forEach(m => {
         if (m.category) categories.add(m.category);
     });
 
-    // モーダルのセレクトボックス更新
-    const currentVal = materialCategorySelect.value; // 編集中なら値を保持したい
+    const currentVal = materialCategorySelect.value;
     materialCategorySelect.innerHTML = `
         <option value="">カテゴリなし</option>
         ${Array.from(categories).sort().map(c => `<option value="${c}">${c}</option>`).join('')}
         <option value="new">＋ 新規作成...</option>
     `;
     
-    // 値の復元（ただし"new"の時は入力欄を表示したいので別処理）
     if (currentVal && currentVal !== "new" && categories.has(currentVal)) {
         materialCategorySelect.value = currentVal;
     } else if (!currentVal) {
         materialCategorySelect.value = "";
     }
 
-    // フィルタのセレクトボックス更新
     const currentFilter = filterCategorySelect.value;
     filterCategorySelect.innerHTML = `
         <option value="all">全カテゴリ</option>
         <option value="none">タグなし</option>
         ${Array.from(categories).sort().map(c => `<option value="${c}">${c}</option>`).join('')}
     `;
-    // フィルタ状態復元
     if (currentFilter && (categories.has(currentFilter) || currentFilter === 'all' || currentFilter === 'none')) {
         filterCategorySelect.value = currentFilter;
     } else {
@@ -196,7 +189,7 @@ function updateCategoryOptions() {
     }
 }
 
-// カテゴリセレクトボックス変更イベント（新規入力欄の出し分け）
+// --- カテゴリセレクトボックス変更イベント ---
 materialCategorySelect.addEventListener("change", () => {
     if (materialCategorySelect.value === "new") {
         newCategoryInput.classList.remove("hidden");
@@ -222,10 +215,9 @@ function addTapToggle(itemDiv, type = "material", associatedData = null) {
         document.querySelectorAll('.material-item.tapped, .plan-item.tapped').forEach(div => {
             if (div !== itemDiv) div.classList.remove('tapped');
         });
-
         itemDiv.classList.toggle("tapped");
-        const isOpened = itemDiv.classList.contains("tapped");
 
+        const isOpened = itemDiv.classList.contains("tapped");
         if (isOpened && type === "material") {
             setTimeout(() => {
                 itemDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -235,12 +227,11 @@ function addTapToggle(itemDiv, type = "material", associatedData = null) {
 }
 
 function toggleModal(modal, show = true) {
-    modal.classList.toggle("hidden", !show);
-    document.body.style.overflow = show ? "hidden" : "";
-    if (wrapper) wrapper.classList.toggle("full-height", show);
-    
     const footer = document.getElementById("button-container");
     if (footer) footer.style.display = show ? "none" : "flex";
+    if (wrapper) wrapper.classList.toggle("full-height", show);
+    modal.classList.toggle("hidden", !show);
+    document.body.style.overflow = show ? "hidden" : "";
 }
 
 function populateMaterialSelect(selectedId = null) {
@@ -263,10 +254,6 @@ function createIconButton(className, iconHtml, onClick) {
         onClick(e);
     });
     return btn;
-}
-
-function updateSortButtons() {
-    // ボタンの見た目調整（必要であれば実装、現在は特に何もしていない）
 }
 
 function saveAndRender() {
@@ -369,7 +356,7 @@ function renderMaterialList() {
         // カテゴリフィルタ
         if (categoryFilter !== "all") {
             if (categoryFilter === "none") {
-                if (mat.category) return; // カテゴリがあるものは除外
+                if (mat.category) return;
             } else {
                 if (mat.category !== categoryFilter) return;
             }
@@ -377,7 +364,7 @@ function renderMaterialList() {
 
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
-        itemDiv.style.setProperty('--material-bg-color', '#f0f0f0'); // 灰色統一
+        itemDiv.style.setProperty('--material-bg-color', '#f0f0f0');
         itemDiv.style.setProperty('--material-bg-width', `${mat.progress || 0}%`);
 
         const nameDiv = document.createElement("div");
@@ -387,23 +374,13 @@ function renderMaterialList() {
         nameTitleDiv.className = "material-name-title";
         nameTitleDiv.textContent = mat.name;
 
-        // カテゴリバッジ表示（タイトル横や下に表示するとわかりやすいですが今回はシンプルに）
-        /*
-        if (mat.category) {
-            const badge = document.createElement("span");
-            badge.textContent = mat.category;
-            badge.style.cssText = "font-size:11px; background:#eee; padding:2px 6px; border-radius:10px; margin-left:8px; color:#555; vertical-align:middle;";
-            nameTitleDiv.appendChild(badge);
-        }
-        */
-
         const nameDateDiv = document.createElement("div");
         nameDateDiv.className = "material-name-date";
         if(mat.date) nameDateDiv.textContent = `期間：${mat.date}`;
 
         const nameProgressDiv = document.createElement("div");
         nameProgressDiv.className = "material-name-progress";
-        // 0%でも表示するなら下記、undefinedなら非表示
+        
         if (mat.progress !== undefined && mat.progress !== null) {
             nameProgressDiv.textContent = `進度：${mat.progress}%`;
         }
@@ -432,14 +409,12 @@ function renderMaterialList() {
 
         // 編集ボタン（カテゴリ設定のために修正）
         const editBtn = createIconButton("edit", '<i class="fa-solid fa-pen"></i>', () => {
-            updateCategoryOptions(); // カテゴリ選択肢を最新化
+            updateCategoryOptions();
             
             materialSubjectSelect.value = mat.subject;
             materialNameInput.value = mat.name;
             
-            // カテゴリのセット
             if (mat.category) {
-                // 万が一リストにない場合も安全に追加
                 if (!categories.has(mat.category)) {
                     categories.add(mat.category);
                     updateCategoryOptions();
@@ -448,7 +423,7 @@ function renderMaterialList() {
             } else {
                 materialCategorySelect.value = "";
             }
-            newCategoryInput.classList.add("hidden"); // 入力欄は隠す
+            newCategoryInput.classList.add("hidden");
             
             editingMaterialId = mat.id;
             toggleModal(addMaterialModal, true);
@@ -472,7 +447,7 @@ function renderMaterialList() {
                     dailyPlans[date] = dailyPlans[date].filter(p => p.materialId !== mat.id);
                 });
                 saveAndRender();
-                updateCategoryOptions(); // 削除したらカテゴリリストも更新
+                updateCategoryOptions();
             }
         });
 
@@ -677,7 +652,6 @@ confirmMaterialBtn.addEventListener("click", () => {
     }
 
     if (!name) return alert("教材名を入力してください");
-    
     if (editingMaterialId !== null) {
         const mat = materials.find(m => m.id === editingMaterialId);
         // categoryも保存
@@ -775,18 +749,15 @@ renderAppShell();
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`)
         .then(reg => {
-            // 更新が見つかった時の処理
             reg.addEventListener('updatefound', () => {
                 newWorker = reg.installing;
                 newWorker.addEventListener('statechange', () => {
-                    // インストールが完了し、待機状態になったら通知を出す
                     if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                         notification.classList.add('show');
                     }
                 });
             });
         });
-    // リロード命令を受け取った後の処理（更新ボタン→SW有効化→ここ）
     let refreshing;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (refreshing) return;
@@ -806,8 +777,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const savedStatus = localStorage.getItem("sp_filterStatus");
     if (savedStatus !== null) filterStatusSelect.value = savedStatus;
 
-    // ※カテゴリはデータロード後に復元する必要があるため後述
-
     const savedSection = localStorage.getItem("sp_activeSection");
     if (savedSection === "material") {
         planContainer.classList.add("hidden");
@@ -819,7 +788,7 @@ window.addEventListener('DOMContentLoaded', () => {
     
     // データ読込
     setTimeout(async () => {
-        await loadData(); // カテゴリ生成も内部で行われる
+        await loadData();
         
         // データロード後にカテゴリフィルタを復元（選択肢生成後でないとvalueセットが無効になるため）
         const savedCategory = localStorage.getItem("sp_filterCategory");
