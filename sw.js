@@ -1,4 +1,4 @@
-const CACHE_NAME = 'static-v1.11.1';
+const CACHE_NAME = 'static-v2.0.0';
 const BASE_PATH = '/Studyplanner/';
 
 const FILES_TO_CACHE = [
@@ -64,4 +64,10 @@ self.addEventListener('fetch', event => {
       return cache.match(`${BASE_PATH}index.html`);
     }
   })());
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
