@@ -36,7 +36,10 @@ body {
     -webkit-text-size-adjust: 100%;
 }
 
-/* --- レイアウト --- */
+.invisible { visibility: hidden; }
+.hidden { display: none !important; }
+
+/* --- メインレイアウト --- */
 .main-wrapper {
     width: 100%;
     max-width: 600px;
@@ -82,21 +85,113 @@ body {
     margin: 0;
 }
 
-/* --- 予定アイテム --- */
-.plan-item {
+/* --- 検索・オプションエリア --- */
+.operate-wrapper {
+    background: #fff;
+    padding: 16px;
+    border-radius: var(--border-radius-size);
+    margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.search-box {
+    position: relative;
+    width: 100%;
+    margin-bottom: 12px;
+}
+.search-box i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+.search-box input {
+    width: 100%;
+    padding: 10px 10px 10px 36px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f8f9fa;
+    font-size: 15px;
+    outline: none;
+    margin: 0;
+}
+.search-box input:focus {
+    background: #fff;
+    border-color: #006ce0;
+}
+
+/* フィルタボタン群 */
+.filter-group {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+.filter-group::-webkit-scrollbar { display: none; }
+
+.filter-btn-wrapper {
+    position: relative;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    color: #006ce0;
+    min-width: fit-content;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+.filter-btn-wrapper:hover {
+    background-color: #f5f5f5;
+    border-color: #006ce0;
+}
+.filter-btn-wrapper i {
+    position: absolute;
+    left: 12px;
+    pointer-events: none;
+    font-size: 14px;
+}
+.filter-btn-wrapper select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    background-image: none !important;
+    border: none;
+    padding: 0 16px 0 34px;
+    height: 100%;
+    width: 100%;
+    font-size: 13px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    margin: 0;
+    outline: none;
+}
+
+/* --- カード内アイテム（予定・教材共通） --- */
+.plan-item, .material-item {
     background: #fff;
     border-radius: var(--border-radius-size);
     box-shadow: var(--card-shadow);
     margin-bottom: 12px;
+    position: relative;
+    border: none;
+    border-left: 5px solid transparent; 
+    overflow: hidden;
+    cursor: pointer;
+}
+
+/* --- 予定アイテム --- */
+.plan-item {
     padding: 14px 14px;
     display: flex;
     align-items: center;
-    position: relative;
     border: 1px solid transparent;
     border-left: 5px solid transparent; 
-    transition: all 0.3s ease; 
-    cursor: pointer;
-    overflow: hidden;
+    transition: all 0.3s ease;
     min-height: 60px;
 }
 .plan-item:active { background-color: #fafafa; }
@@ -115,82 +210,43 @@ body {
     font-size: 1.1rem;
     flex-shrink: 0;
 }
-.plan-info {
-    flex: 1;
-    font-size: 15px;
-    z-index: 1;
-}
-.plan-info > div:first-child {
-    font-weight: 700;
-    font-size: 15px;
-    margin-bottom: 2px;
-    color: #333;
-    padding-right: 4px;
-}
-.plan-info > div {
-    font-size: 13px;
-    color: #666;
-    line-height: 1.4;
-}
-.plan-info i {
-    width: 14px;
-    margin-right: 2px;
-}
-
+.plan-info { flex: 1; font-size: 15px; z-index: 1; }
+.plan-info > div:first-child { font-weight: 700; font-size: 15px; margin-bottom: 2px; color: #333; padding-right: 4px; }
+.plan-info > div { font-size: 13px; color: #666; line-height: 1.4; }
+.plan-info i { width: 14px; margin-right: 2px; }
 
 /* --- 教材アイテム --- */
 .material-item {
-    position: relative;
-    background: #fff;
-    border-radius: var(--border-radius-size);
-    box-shadow: var(--card-shadow);
-    margin-bottom: 12px;
     padding: 12px 14px;
-    
     display: flex;
-    flex-direction: column;      /* 縦並びにしておく */
-    justify-content: center;     /* 文字は上下中央 */
-    align-items: stretch;        /* 横幅いっぱい */
-    
-    cursor: pointer;
-    border: none;
-    border-left: 5px solid transparent;
-    /* transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); */
-    overflow: hidden;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
     min-height: 64px;
 }
 
-/* タップ時の拡大スタイル */
+/* 教材カード（拡大時） */
 .material-item.tapped {
     height: 85dvh;
     padding: 0;
     overflow: hidden;
-    
-    justify-content: flex-start;
+    display: block; 
     z-index: 50;
     box-shadow: 0 15px 40px rgba(0,0,0,0.3);
     cursor: default;
     transition: none;
 }
 
-/* 中身の文字エリア */
-.material-item .material-name-input {
-    width: 100%;
-    height: auto;
-}
-
+.material-item .material-name-input { width: 100%; height: auto; }
 .material-item.tapped .material-name-input {
     height: 100%;
     overflow-y: auto;
     padding: 32px 20px 70px 20px;
-    
-    /* スクロールバー装飾（PC用） */
     scrollbar-width: thin;
     scrollbar-color: #ccc transparent;
 }
-.material-item.tapped .material-name-input::-webkit-scrollbar {
-    width: 6px;
-}
+.material-item.tapped .material-name-input::-webkit-scrollbar { width: 6px; }
 
 /* 進捗バー */
 .material-item::after {
@@ -212,7 +268,6 @@ body {
     margin-bottom: 4px;
     color: #333;
 }
-/* タップ時タイトル拡大 */
 .material-item.tapped .material-name-title {
     font-size: 20px;
     margin-bottom: 12px;
@@ -221,28 +276,32 @@ body {
     margin-top: 4px;
 }
 
-/* アコーディオン詳細 */
 .material-name-date, 
 .material-name-progress, 
 .material-name-comment {
     max-height: 0;
     opacity: 0;
     overflow: hidden;
+    transition: all 0.3s ease;
     font-size: 12px;
     color: #666;
     margin: 0;
     line-height: 1.8;
 }
-
-/* タップ時に詳細を表示 */
 .material-item.tapped .material-name-date,
 .material-item.tapped .material-name-progress,
 .material-item.tapped .material-name-comment {
     max-height: 1000px;
     opacity: 1;
     margin-top: 4px;
-    white-space: pre-wrap; /* 改行などの保持 */
+    white-space: pre-wrap;
     overflow: visible;
+}
+
+#material-items p {
+    text-align: center;
+    margin-top: 30px;
+    color: #888;
 }
 
 /* --- 教科ごとの色定義 --- */
@@ -268,11 +327,13 @@ body {
 .others .plan-icon, .others i { color: var(--main-color-others); }
 
 
-/* --- 編集・削除ボタン群 --- */
-.plan-item .buttons,
-.material-item .buttons {
-    display: none;
+/* --- 編集・削除ボタン群 (アニメーション) --- */
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
 }
+
+.plan-item .buttons, .material-item .buttons { display: none; }
 
 .plan-item .buttons {
     position: absolute;
@@ -287,18 +348,8 @@ body {
     z-index: 100;
     animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+.plan-item.tapped .buttons { display: flex; }
 
-@keyframes popIn {
-    from { opacity: 0; transform: scale(0.8); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-/* タップ時はボタン群表示 */
-.plan-item.tapped .buttons {
-    display: flex;
-}
-
-/* 教材カード（拡大時）のボタン配置 */
 .material-item.tapped .buttons {
     display: flex;
     position: absolute;
@@ -335,127 +386,11 @@ body {
 .buttons button i { font-size: 1.0rem !important; vertical-align: middle; }
 
 
-/* --- 検索・オプション --- */
-.operate-wrapper {
-    background: #fff;
-    padding: 12px 16px;
-    border-radius: var(--border-radius-size);
-    margin-bottom: 16px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-/* --- 検索・オプションエリア --- */
-.operate-wrapper {
-    background: #fff;
-    padding: 16px;
-    border-radius: var(--border-radius-size);
-    margin-bottom: 16px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-/* 検索ボックス（アイコン付き） */
-.search-box {
-    position: relative;
-    width: 100%;
-    margin-bottom: 12px;
-}
-.search-box i {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #888;
-}
-.search-box input {
-    width: 100%;
-    padding: 10px 10px 10px 36px; /* 左にアイコン分の余白 */
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background: #f8f9fa;
-    font-size: 15px;
-    outline: none;
-    margin: 0; /* マージンリセット */
-}
-.search-box input:focus {
-    background: #fff;
-    border-color: #006ce0;
-}
-
-/* フィルタボタンの横並びコンテナ */
-.filter-group {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto; /* 画面が狭いときに横スクロールさせる */
-    padding-bottom: 4px; /* スクロールバーとの干渉避け */
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; /* スクロールバー非表示 */
-}
-.filter-group::-webkit-scrollbar { display: none; }
-
-/* ボタン風セレクトボックスのラッパー */
-.filter-btn-wrapper {
-    position: relative;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    color: #006ce0; /* テーマカラー */
-    min-width: fit-content;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    transition: background-color 0.2s;
-}
-.filter-btn-wrapper:hover {
-    background-color: #f5f5f5;
-    border-color: #006ce0;
-}
-/* アイコン */
-.filter-btn-wrapper i {
-    position: absolute;
-    left: 12px;
-    pointer-events: none; /* アイコンをスルーしてタップさせる */
-    font-size: 14px;
-}
-
-/* セレクトボックス本体（透明にして上に被せる） */
-.filter-btn-wrapper select {
-    appearance: none;        /* デフォルトの矢印などを消す */
-    -webkit-appearance: none;
-    background: transparent;
-    border: none;
-    padding: 0 16px 0 34px;  /* アイコンと文字の隙間調整 */
-    height: 100%;
-    width: 100%;
-    font-size: 13px;
-    font-weight: bold;
-    color: #333;
-    cursor: pointer;
-    margin: 0;
-    outline: none;
-}
-
-input[type="text"], input[type="number"], input[type="time"], input[type="datetime-local"], select, textarea {
-    width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px;
-    font-size: 16px; background: #fff; color: #333; outline: none; margin-bottom: 8px;
-    appearance: none; -webkit-appearance: none;
-}
-select {
-    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%226%22%3E%3Cpath%20d%3D%22M0%200l5%206%205-6z%22%20fill%3D%22%23666%22%2F%3E%3C%2Fsvg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    padding-right: 25px;
-}
-
-.material-wrapper {
-    margin: 20px 0;
-    padding: 8px 0;
-    border-top: 1px dashed #ddd;
-}
-/* ダウンロードボタンなどがあるところ */
+/* --- 汎用ボタン (upload等) --- */
 .option-button-wrapper {
     margin-left: 8px;
     margin-bottom: 20px;
 }
-/* ダウンロードボタンなどのこと */
 .bottom-btn {
     align-items: center;
     width: fit-content;
@@ -473,14 +408,19 @@ select {
     background-color: #f5f5f5;
     border-color: #006ce0;
 }
-.bottom-btn i {
-    margin-right: 8px;
+.bottom-btn i { margin-right: 8px; }
+
+.material-wrapper {
+    margin: 20px 0;
+    padding: 8px 0;
+    border-top: 1px dashed #ddd;
 }
 
 /* --- フッター --- */
 .button-group {
     width: 100%;
-    max-width: 600px; height: 60px;
+    max-width: 600px;
+    height: 60px;
     padding-bottom: env(safe-area-inset-bottom);
     border-top: 1px solid #eee;
     background: rgba(255, 255, 255, 0.95);
@@ -491,7 +431,7 @@ select {
     justify-content: space-around;
     position: fixed; 
     bottom: 0; 
-    left:0; 
+    left: 0; 
     right: 0; 
     margin: 0 auto;
     z-index: 200;
@@ -509,12 +449,28 @@ select {
     cursor: pointer;
     gap: 4px;
 }
-.footer-btn i {
-    font-size: 18px;
+.footer-btn i { font-size: 18px; }
+.footer-btn:hover { color: #00008b; background: rgba(0,0,0,0.02); }
+
+/* --- フォーム共通設定 (select・input) --- */
+input[type="text"], input[type="number"], input[type="time"], input[type="datetime-local"], select, textarea {
+    width: 100%; 
+    padding: 8px 10px; 
+    border: 1px solid #ccc; 
+    border-radius: 4px;
+    font-size: 16px; 
+    background: #fff; 
+    color: #333; 
+    outline: none; 
+    margin-bottom: 8px;
+    appearance: none; 
+    -webkit-appearance: none;
 }
-.footer-btn:hover {
-    color: #00008b;
-    background: rgba(0,0,0,0.02);
+select {
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%226%22%3E%3Cpath%20d%3D%22M0%200l5%206%205-6z%22%20fill%3D%22%23666%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 25px;
 }
 
 /* --- モーダル --- */
@@ -558,6 +514,12 @@ select {
     font-size: 14px;
 }
 
+#new-category-input {
+    margin-top: 4px;
+    border-color: #006ce0;
+    transition: all 0.3s ease;
+}
+
 .modal-btns {
     display: flex;
     gap: 10px;
@@ -572,24 +534,5 @@ select {
     font-weight: bold;
     font-size: 14px;
 }
-.modal-btns .cancel {
-    background: #eee;
-    color: #333;
-}
-.modal-btns .ok {
-    background: #006ce0;
-    color: white;
-}
-#material-items p {
-    text-align: center;
-    margin-top: 30px;
-    color: #888;
-}
-#new-category-input {
-    margin-top: 4px;
-    border-color: #006ce0;
-    transition: all 0.3s ease;
-}
-.invisible { visibility: hidden; }
-.hidden { display: none !important; }
-
+.modal-btns .cancel { background: #eee; color: #333; }
+.modal-btns .ok { background: #006ce0; color: white; }
