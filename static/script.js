@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v3.3.1';
+const SW_VERSION = 'v3.3.2';
 const BASE_PATH = '/Studyplanner/';
 
 // 現地の日付取得
@@ -359,7 +359,7 @@ function renderMaterialList() {
 
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
-        itemDiv.style.setProperty('--material-bg-color', '#d0d0d0'); // 灰色統一
+        itemDiv.style.setProperty('--material-bg-color', '#f0f0f0'); // 灰色統一
         itemDiv.style.setProperty('--material-bg-width', `${mat.progress || 0}%`);
 
         const nameDiv = document.createElement("div");
@@ -548,7 +548,6 @@ function renderSortMaterialModal() {
 }
 
 // --- イベントリスナー ---
-
 uploadBtn.addEventListener("click", async () => {
     if (!window.confirm("データをアップロードします。よろしいですか？")) return;
     if (!navigator.onLine) { return alert("オフラインのため操作できません。"); }
@@ -793,4 +792,3 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0);
 });
-
