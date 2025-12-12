@@ -1,4 +1,4 @@
-const CACHE_NAME = 'static-v2.0.0';
+const CACHE_NAME = 'static-v2.0.1';
 const BASE_PATH = '/Studyplanner/';
 
 const FILES_TO_CACHE = [
@@ -14,7 +14,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
   );
-  self.skipWaiting();
+  // self.skipWaiting();
 });
 
 // 古いキャッシュ削除
