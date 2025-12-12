@@ -23,6 +23,25 @@ const dailyPlans = {};
 let backupMaterials = [];
 let categories = new Set(); // カテゴリ管理用セット
 
+// --- 更新通知バー ---
+const notification = document.createElement('div');
+notification.id = 'update-notification';
+notification.innerHTML = `
+    <span>新しいバージョンが利用可能です</span>
+    <button id="reload-btn">更新</button>
+`;
+document.body.appendChild(notification);
+
+// 更新ボタンクリック時の動作
+document.getElementById('reload-btn').addEventListener('click', () => {
+    // 新しいSWに「スキップ・ウェイティング（待機せずすぐ有効化）」の命令を送る
+    if (newWorker) {
+        newWorker.postMessage({ type: 'SKIP_WAITING' });
+    }
+});
+
+let newWorker = null;
+
 // --- DOM要素 ---
 const wrapper = document.getElementById("wrapper");
 const todayDatePanel = document.getElementById("todaydate-panel");
@@ -755,7 +774,26 @@ filterCategorySelect.addEventListener("change", () => {
 // 初期化フロー
 renderAppShell();
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`);
+    navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`)
+        .then(reg => {
+            // 更新が見つかった時の処理
+            reg.addEventListener('updatefound', () => {
+                newWorker = reg.installing;
+                newWorker.addEventListener('statechange', () => {
+                    // インストールが完了し、待機状態になったら通知を出す
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        notification.classList.add('show');
+                    }
+                });
+            });
+        });
+    // リロード命令を受け取った後の処理（更新ボタン→SW有効化→ここ）
+    let refreshing;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        window.location.reload();
+        refreshing = true;
+    });
 }
 
 window.addEventListener('DOMContentLoaded', () => {
