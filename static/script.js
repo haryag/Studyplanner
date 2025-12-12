@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v3.4.1';
+const SW_VERSION = 'v3.4.2';
 const BASE_PATH = '/Studyplanner/';
 
 // 現地の日付取得
@@ -27,7 +27,7 @@ let categories = new Set(); // カテゴリ管理用セット
 const notification = document.createElement('div');
 notification.id = 'update-notification';
 notification.innerHTML = `
-    <span>アップデートできます！/span>
+    <span>アップデートできます！</span>
     <button id="reload-btn">更新</button>
 `;
 document.body.appendChild(notification);
@@ -829,5 +829,3 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0);
 });
-
-
