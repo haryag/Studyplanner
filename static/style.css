@@ -536,3 +536,36 @@ select {
 }
 .modal-btns .cancel { background: #eee; color: #333; }
 .modal-btns .ok { background: #006ce0; color: white; }
+
+/* --- 更新通知バー --- */
+#update-notification {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px); /* 最初は画面外 */
+    background-color: #333;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 50px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    width: max-content;
+    max-width: 90%;
+}
+#update-notification.show {
+    transform: translateX(-50%) translateY(-60px); /* フッターの上に出す */
+}
+#reload-btn {
+    background-color: #006ce0;
+    color: #fff;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 13px;
+}
