@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v3.4.1';
+const SW_VERSION = 'v3.4.2';
 const BASE_PATH = '/Studyplanner/';
 
 // --- 現地の日付取得 ---
@@ -629,6 +629,7 @@ openMaterialModalBtn.addEventListener("click", () => {
     
     // カテゴリ初期化
     materialCategorySelect.value = ""; 
+    newCategoryInput.value = "";
     newCategoryInput.classList.add("hidden");
     
     editingMaterialId = null;
@@ -798,4 +799,3 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0);
 });
-
