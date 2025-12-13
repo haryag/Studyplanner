@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 const db = getFirestore();
 
 // --- Service Worker ---
-const SW_VERSION = 'v3.5.0';
+const SW_VERSION = 'v3.5.1';
 const BASE_PATH = '/Studyplanner/';
 
 // --- 現地の日付取得 ---
@@ -164,24 +164,62 @@ function updateCategoryOptions() {
     });
 
     const currentVal = materialCategorySelect.value;
-    materialCategorySelect.innerHTML = `
-        <option value="">カテゴリなし</option>
-        ${Array.from(categories).sort().map(c => `<option value="${c}">${c}</option>`).join('')}
-        <option value="new">＋ 新規作成...</option>
-    `;
+    // 既存 option をクリア
+    materialCategorySelect.textContent = '';
     
-    if (currentVal && currentVal !== "new" && categories.has(currentVal)) {
+    // 固定 option
+    const optNoneMaterial = document.createElement('option');
+    optNoneMaterial.value = '';
+    optNoneMaterial.textContent = 'カテゴリなし';
+    materialCategorySelect.appendChild(optNoneMaterial);
+    
+    // カテゴリ option
+    Array.from(categories).sort().forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        materialCategorySelect.appendChild(opt);
+    });
+    
+    // 新規作成 option
+    const optNew = document.createElement('option');
+    optNew.value = 'new';
+    optNew.textContent = '＋ 新規作成...';
+    materialCategorySelect.appendChild(optNew);
+    
+    // 選択復元
+    if (currentVal && currentVal !== 'new' && categories.has(currentVal)) {
         materialCategorySelect.value = currentVal;
     } else if (!currentVal) {
-        materialCategorySelect.value = "";
+        materialCategorySelect.value = '';
     }
 
     const currentFilter = filterCategorySelect.value;
-    filterCategorySelect.innerHTML = `
-        <option value="all">全カテゴリ</option>
-        <option value="none">タグなし</option>
-        ${Array.from(categories).sort().map(c => `<option value="${c}">${c}</option>`).join('')}
-    `;
+    // 既存 option をクリア
+    filterCategorySelect.textContent = '';
+    
+    // 固定 option
+    const optAll = document.createElement('option');
+    optAll.value = 'all';
+    optAll.textContent = '全カテゴリ';
+    filterCategorySelect.appendChild(optAll);
+    
+    const optNoneFilter = document.createElement('option');
+    optNoneFilter.value = 'none';
+    optNoneFilter.textContent = 'タグなし';
+    filterCategorySelect.appendChild(optNoneFilter);
+    
+    // カテゴリ option
+    Array.from(categories).sort().forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c; // ← ここが重要（HTML として解釈されない）
+      filterCategorySelect.appendChild(opt);
+    });
+    
+    // 元の選択を復元
+    filterCategorySelect.value = currentFilter;
+
     if (currentFilter && (categories.has(currentFilter) || currentFilter === 'all' || currentFilter === 'none')) {
         filterCategorySelect.value = currentFilter;
     } else {
@@ -799,4 +837,5 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0);
 });
+
 
