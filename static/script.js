@@ -1,12 +1,11 @@
 import { currentUser } from './login.js';
 import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
-const db = getFirestore();
 
-// --- Service Worker ---
-const SW_VERSION = 'v3.5.1';
+// --- 定数 ---
+const SW_VERSION = 'v3.6.0';
 const BASE_PATH = '/Studyplanner/';
 
-// --- 現地の日付取得 ---
+// --- 日付取得 ---
 const getLocalDate = () => {
     const d = new Date();
     const y = d.getFullYear();
@@ -15,6 +14,9 @@ const getLocalDate = () => {
     return `${y}-${m}-${day}`;
 };
 
+// --- Firebase / Firestore ---
+const db = getFirestore();
+
 // --- データ初期化 ---
 const todayKey = getLocalDate();
 const todayDisplay = new Date().toLocaleDateString('ja-JP');
@@ -22,23 +24,6 @@ const materials = [];
 const dailyPlans = {};
 let backupMaterials = [];
 let categories = new Set();
-
-// --- 更新通知バー ---
-const notification = document.createElement('div');
-notification.id = 'update-notification';
-notification.innerHTML = `
-    <span>アップデートできます！</span>
-    <button id="reload-btn">更新</button>
-`;
-document.body.appendChild(notification);
-
-// 更新ボタンクリック時の動作
-document.getElementById('reload-btn').addEventListener('click', () => {
-    if (newWorker) {
-        newWorker.postMessage({ type: 'SKIP_WAITING' });
-    }
-});
-
 let newWorker = null;
 
 // --- DOM要素 ---
@@ -106,7 +91,7 @@ function renderAppShell() {
     todayDatePanel.textContent = "Loading...";
 }
 
-// --- IndexedDB ---
+// --- IndexedDB 関連 ---
 const dbPromise = new Promise((resolve, reject) => {
     const request = indexedDB.open("Studyplanner", 1);
     request.onupgradeneeded = (event) => {
@@ -130,6 +115,7 @@ async function saveAll(key, value) {
         tx.onabort = () => reject(tx.error);
     });
 }
+
 async function getAll(key) {
     const db = await dbPromise;
     const tx = db.transaction("data", "readonly");
@@ -156,7 +142,7 @@ async function loadData() {
     updateCategoryOptions();
 }
 
-// --- カテゴリ管理関数 ---
+// --- カテゴリ関連 ---
 function updateCategoryOptions() {
     categories.clear();
     materials.forEach(m => {
@@ -164,16 +150,13 @@ function updateCategoryOptions() {
     });
 
     const currentVal = materialCategorySelect.value;
-    // 既存 option をクリア
     materialCategorySelect.textContent = '';
     
-    // 固定 option
     const optNoneMaterial = document.createElement('option');
     optNoneMaterial.value = '';
     optNoneMaterial.textContent = 'カテゴリなし';
     materialCategorySelect.appendChild(optNoneMaterial);
     
-    // カテゴリ option
     Array.from(categories).sort().forEach(c => {
         const opt = document.createElement('option');
         opt.value = c;
@@ -181,13 +164,11 @@ function updateCategoryOptions() {
         materialCategorySelect.appendChild(opt);
     });
     
-    // 新規作成 option
     const optNew = document.createElement('option');
     optNew.value = 'new';
     optNew.textContent = '＋ 新規作成...';
     materialCategorySelect.appendChild(optNew);
     
-    // 選択復元
     if (currentVal && currentVal !== 'new' && categories.has(currentVal)) {
         materialCategorySelect.value = currentVal;
     } else if (!currentVal) {
@@ -195,10 +176,8 @@ function updateCategoryOptions() {
     }
 
     const currentFilter = filterCategorySelect.value;
-    // 既存 option をクリア
     filterCategorySelect.textContent = '';
     
-    // 固定 option
     const optAll = document.createElement('option');
     optAll.value = 'all';
     optAll.textContent = '全カテゴリ';
@@ -209,15 +188,13 @@ function updateCategoryOptions() {
     optNoneFilter.textContent = 'タグなし';
     filterCategorySelect.appendChild(optNoneFilter);
     
-    // カテゴリ option
     Array.from(categories).sort().forEach(c => {
       const opt = document.createElement('option');
       opt.value = c;
-      opt.textContent = c; // ← ここが重要（HTML として解釈されない）
+      opt.textContent = c;
       filterCategorySelect.appendChild(opt);
     });
     
-    // 元の選択を復元
     filterCategorySelect.value = currentFilter;
 
     if (currentFilter && (categories.has(currentFilter) || currentFilter === 'all' || currentFilter === 'none')) {
@@ -227,7 +204,7 @@ function updateCategoryOptions() {
     }
 }
 
-// --- カテゴリセレクトボックス変更イベント ---
+// カテゴリセレクト変更
 materialCategorySelect.addEventListener("change", () => {
     if (materialCategorySelect.value === "new") {
         newCategoryInput.classList.remove("hidden");
@@ -237,7 +214,6 @@ materialCategorySelect.addEventListener("change", () => {
         newCategoryInput.value = "";
     }
 });
-
 
 // --- 画面操作 ---
 function toggleSections() {
@@ -292,6 +268,12 @@ function createIconButton(className, iconHtml, onClick) {
         onClick(e);
     });
     return btn;
+}
+
+function closeAllModals() {
+    [addPlanModal, addMaterialModal, infoMaterialModal, sortMaterialModal].forEach(modal => {
+        if (!modal.classList.contains("hidden")) toggleModal(modal, false);
+    });
 }
 
 function saveAndRender() {
@@ -391,7 +373,7 @@ function renderMaterialList() {
         if (statusFilter === "ongoing" && mat.ongoing === false) return;
         if (statusFilter === "completed" && mat.ongoing !== false) return;
         
-        // カテゴリフィルタ
+        // // 編集対象の教材が持つカテゴリが未登録の場合も考慮
         if (categoryFilter !== "all") {
             if (categoryFilter === "none") {
                 if (mat.category) return;
@@ -578,7 +560,7 @@ function renderSortMaterialModal() {
     });
 }
 
-// --- イベントリスナー ---
+// --- Firestore バックアップ ---
 uploadBtn.addEventListener("click", async () => {
     if (!window.confirm("データをアップロードします。よろしいですか？")) return;
     if (!navigator.onLine) { return alert("オフラインのため操作できません。"); }
@@ -593,6 +575,7 @@ uploadBtn.addEventListener("click", async () => {
             dailyPlans: localDailyPlans,
             updatedAt: new Date().toISOString(),
         };
+        // ユーザー UID をドキュメントIDにして上書き保存
         await setDoc(doc(db, "backups", currentUser.uid), data);
         alert("アップロード完了！");
     } catch (err) {
@@ -602,7 +585,6 @@ uploadBtn.addEventListener("click", async () => {
         uploadBtn.disabled = false;
     }
 });
-
 downloadBtn.addEventListener("click", async () => {
     if (!window.confirm("データを上書きします。よろしいですか？")) return;
     if (!navigator.onLine) { return alert("オフラインのため操作できません。"); }
@@ -610,6 +592,7 @@ downloadBtn.addEventListener("click", async () => {
     
     downloadBtn.disabled = true;
     try {
+        // Firestore からユーザー専用バックアップを取得
         const snapshot = await getDoc(doc(db, "backups", currentUser.uid));
         if (!snapshot.exists()) {
             alert("バックアップデータが存在しません。");
@@ -630,6 +613,7 @@ downloadBtn.addEventListener("click", async () => {
     }
 });
 
+// --- モーダル操作イベント ---
 openPlanModalBtn.addEventListener("click", () => {
     populateMaterialSelect();
     planContentInput.value = "";
@@ -657,7 +641,6 @@ confirmPlanBtn.addEventListener("click", () => {
     saveAndRender();
 });
 
-// 教材追加モーダル
 openMaterialModalBtn.addEventListener("click", () => {
     updateCategoryOptions(); // カテゴリリスト最新化
     
@@ -679,8 +662,7 @@ cancelMaterialBtn.addEventListener("click", () => {
 confirmMaterialBtn.addEventListener("click", () => {
     const name = materialNameInput.value.trim();
     const subject = materialSubjectSelect.value;
-    
-    // ★カテゴリ処理
+
     let category = "";
     if (materialCategorySelect.value === "new") {
         category = newCategoryInput.value.trim();
@@ -693,11 +675,9 @@ confirmMaterialBtn.addEventListener("click", () => {
     if (!name) return alert("教材名を入力してください");
     if (editingMaterialId !== null) {
         const mat = materials.find(m => m.id === editingMaterialId);
-        // categoryも保存
         if (mat) { mat.name = name; mat.subject = subject; mat.category = category; }
     } else {
         const newId = materials.length ? Math.max(...materials.map(m => m.id)) + 1 : 1;
-        // categoryも保存
         materials.push({ id: newId, name, subject, category, progress: 0, checked: false });
     }
     
@@ -707,7 +687,6 @@ confirmMaterialBtn.addEventListener("click", () => {
     updateCategoryOptions(); // 更新反映
 });
 
-// 詳細/進度モーダル
 cancelInfoBtn.addEventListener("click", () => {
     toggleModal(infoMaterialModal, false);
 });
@@ -716,7 +695,7 @@ confirmInfoBtn.addEventListener("click", () => {
     const date = materialDateInput.value;
     const progress = parseInt(materialProgressInput.value);
     const detail = materialDetailInput.value.replace(/^\s+|\s+$/g, '');
-    if (isNaN(progress)) return alert("数値を入力してください");
+    if (isNaN(progress) || progress < 0 || progress > 100) return alert("進度は0～100の整数値で入力してください");
     if (editingMaterialId !== null) {
         const mat = materials.find(m => m.id === editingMaterialId);
         if (mat) { mat.ongoing = ongoing; mat.date = date; mat.progress = progress; mat.detail = detail; }
@@ -725,9 +704,8 @@ confirmInfoBtn.addEventListener("click", () => {
     saveAndRender();
 });
 
-// 並び替えモーダル
 openSortModalBtn.addEventListener("click", () => {
-    backupMaterials = [...materials];
+    backupMaterials = JSON.parse(JSON.stringify(materials));
     editingSortId = null;
     renderSortMaterialModal();
     toggleModal(sortMaterialModal, true);
@@ -741,7 +719,7 @@ confirmSortBtn.addEventListener("click", () => {
     saveAndRender();
 });
 
-// 状態保存＆復元 (変更検知)
+// --- フィルタ・検索・状態保存 ---
 toggleSectionBtn.addEventListener("click", () => {
     toggleSections();
     const mode = planContainer.classList.contains("hidden") ? "material" : "plan";
@@ -764,7 +742,7 @@ filterCategorySelect.addEventListener("change", () => {
     renderMaterialList();
 });
 
-// Enterキー
+// Enterキー・Escキー操作
 [addMaterialModal, addPlanModal].forEach(modal => {
     modal.addEventListener("keydown", e => {
         if (e.key === "Enter") {
@@ -782,10 +760,48 @@ filterCategorySelect.addEventListener("change", () => {
         }
     });
 });
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+        closeAllModals();
+    }
+});
 
-// 初期化フロー
+// --- 初期化フロー ---
 renderAppShell();
+
+window.addEventListener('DOMContentLoaded', () => {
+    const savedQuery = localStorage.getItem("sp_searchQuery");
+    if (savedQuery !== null) searchMaterialInput.value = savedQuery;
+
+    const savedFilter = localStorage.getItem("sp_filterSubject");
+    if (savedFilter !== null) filterSubjectSelect.value = savedFilter;
+
+    const savedStatus = localStorage.getItem("sp_filterStatus");
+    if (savedStatus !== null) filterStatusSelect.value = savedStatus;
+
+    const savedSection = localStorage.getItem("sp_activeSection");
+    if (savedSection === "material") {
+        planContainer.classList.add("hidden");
+        materialContainer.classList.remove("hidden");
+    } else {
+        planContainer.classList.remove("hidden");
+        materialContainer.classList.add("hidden");
+    }
+    
+    setTimeout(async () => {
+        await loadData();
+        updateCategoryOptions();
+        const savedCategory = localStorage.getItem("sp_filterCategory");
+        if (savedCategory !== null) filterCategorySelect.value = savedCategory;
+
+        renderMaterialList();
+        renderTodayPlans();
+    }, 0);
+});
+
+// --- Service Worker 設定（更新検知用） ---
 if ('serviceWorker' in navigator) {
+    // version クエリで Service Worker の更新を確実に検知させる
     navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`)
         .then(reg => {
             reg.addEventListener('updatefound', () => {
@@ -805,37 +821,18 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    // ローカルストレージ設定の復元
-    const savedQuery = localStorage.getItem("sp_searchQuery");
-    if (savedQuery !== null) searchMaterialInput.value = savedQuery;
+// --- 更新通知バー ---
+const notification = document.createElement('div');
+notification.id = 'update-notification';
+notification.innerHTML = `
+    <span>アップデートできます！</span>
+    <button id="reload-btn">更新</button>
+`;
+document.body.appendChild(notification);
 
-    const savedFilter = localStorage.getItem("sp_filterSubject");
-    if (savedFilter !== null) filterSubjectSelect.value = savedFilter;
-
-    const savedStatus = localStorage.getItem("sp_filterStatus");
-    if (savedStatus !== null) filterStatusSelect.value = savedStatus;
-
-    const savedSection = localStorage.getItem("sp_activeSection");
-    if (savedSection === "material") {
-        planContainer.classList.add("hidden");
-        materialContainer.classList.remove("hidden");
-    } else {
-        planContainer.classList.remove("hidden");
-        materialContainer.classList.add("hidden");
+// 更新ボタンクリック時の動作
+document.getElementById('reload-btn').addEventListener('click', () => {
+    if (newWorker) {
+        newWorker.postMessage({ type: 'SKIP_WAITING' });
     }
-    
-    // データ読込
-    setTimeout(async () => {
-        await loadData();
-        
-        // データロード後にカテゴリフィルタを復元（選択肢生成後でないとvalueセットが無効になるため）
-        const savedCategory = localStorage.getItem("sp_filterCategory");
-        if (savedCategory !== null) filterCategorySelect.value = savedCategory;
-
-        renderMaterialList();
-        renderTodayPlans();
-    }, 0);
 });
-
-
