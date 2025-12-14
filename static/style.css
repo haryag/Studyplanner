@@ -569,3 +569,24 @@ select {
     cursor: pointer;
     font-size: 13px;
 }
+
+.about-wrapper {
+  text-align: center;
+  margin: 24px 0;
+}
+.about-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  color: #777;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.about-btn i {
+  margin-right: 4px;
+  font-size: 13px;
+}
+.about-btn:hover {
+  color: #555;
+}
