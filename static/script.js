@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 
 // --- 定数 ---
 const APP_NAME = 'Studyplanner';
-const SW_VERSION = 'v3.6.1';
+const SW_VERSION = 'v3.6.2';
 const LAST_UPDATED = '2025/12/14';
 const BASE_PATH = '/Studyplanner/';
 
@@ -801,26 +801,9 @@ window.addEventListener('DOMContentLoaded', () => {
     }, 0);
 });
 
-// --- Service Worker 設定（更新検知用） ---
+// --- Service Worker 設定 ---
 if ('serviceWorker' in navigator) {
-    // version クエリで Service Worker の更新を確実に検知させる
-    navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`)
-        .then(reg => {
-            reg.addEventListener('updatefound', () => {
-                newWorker = reg.installing;
-                newWorker.addEventListener('statechange', () => {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        notification.classList.add('show');
-                    }
-                });
-            });
-        });
-    let refreshing;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (refreshing) return;
-        window.location.reload();
-        refreshing = true;
-    });
+    navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`);
 }
 
 // --- バージョン表示 ---
@@ -832,3 +815,5 @@ function showVersion() {
         "\n最終更新日：" + LAST_UPDATED
     );
 }
+// HTML の onclick から呼べるように、関数をグローバルに公開する
+window.showVersion = showVersion;
