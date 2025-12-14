@@ -556,3 +556,12 @@ select {
 }
 .about-btn:hover { color: #555; }
 .underlined { text-decoration: underline; }
+
+/* --- ボタンの無効化 --- */
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #ccc !important;
+    border-color: #bbb !important;
+    color: #666 !important;
+}
