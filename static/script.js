@@ -3,8 +3,8 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 
 // --- 定数 ---
 const APP_NAME = 'Studyplanner';
-const SW_VERSION = 'v3.7.2';
-const LAST_UPDATED = '2025/12/14';
+const SW_VERSION = 'v3.8.0';
+const LAST_UPDATED = '2025/12/15';
 const BASE_PATH = '/Studyplanner/';
 
 // --- 日付取得 ---
@@ -70,10 +70,10 @@ const confirmMaterialBtn = document.getElementById("confirm-material-btn");
 // 教材情報モーダル要素
 const infoMaterialModal = document.getElementById("info-material-modal");
 const materialNamePanel = document.getElementById("material-name-panel");
-const materialOngoingCheckbox = document.getElementById("material-ongoing-checkbox");
 const materialDateInput = document.getElementById("material-date-input");
 const materialProgressInput = document.getElementById("material-progress-input");
 const materialDetailInput = document.getElementById("material-detail-input");
+const materialStatusSelect = document.getElementById("material-status-select");
 const cancelInfoBtn = document.getElementById("cancel-info-btn");
 const confirmInfoBtn = document.getElementById("confirm-info-btn");
 
@@ -134,11 +134,34 @@ async function saveData() {
     await saveAll("materials", materials);
     await saveAll("dailyPlans", dailyPlans);
 }
+
 async function loadData() {
     let savedMaterials = await getAll("materials");
     let savedPlans = await getAll("dailyPlans");
 
-    if (savedMaterials) materials.splice(0, materials.length, ...savedMaterials);
+    if (savedMaterials) {
+        // データ移行（旧データ互換）
+        savedMaterials = savedMaterials.map(m => {
+            // すでに status プロパティがあるなら何もしない
+            if (m.status) return m;
+
+            // status がない場合、旧プロパティから変換
+            if (m.learning === true || m.ongoing === true) { 
+                // 以前 learning または ongoing が true だった場合 → 学習中
+                m.status = "learning";
+            } else if (m.completed === true) {
+                // completed が true だった場合 → 完了
+                m.status = "completed";
+            } else {
+                // それ以外 → 未着手
+                m.status = "waiting";
+            }
+            
+            return m;
+        });
+
+        materials.splice(0, materials.length, ...savedMaterials);
+    }
     if (savedPlans) Object.assign(dailyPlans, savedPlans);
 
     updateCategoryOptions();
@@ -206,7 +229,6 @@ function updateCategoryOptions() {
     }
 }
 
-// カテゴリセレクト変更
 materialCategorySelect.addEventListener("change", () => {
     if (materialCategorySelect.value === "new") {
         newCategoryInput.classList.remove("hidden");
@@ -237,7 +259,7 @@ function addTapToggle(itemDiv, type = "material", associatedData = null) {
         if (isOpened && type === "material") {
             setTimeout(() => {
                 itemDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 10); 
+            }, 10);
         }
     });
 }
@@ -253,6 +275,8 @@ function toggleModal(modal, show = true) {
 function populateMaterialSelect(selectedId = null) {
     planMaterialInput.innerHTML = "";
     materials.forEach(m => {
+        // 完了した教材は予定追加のリストに出さない場合はここでフィルタできますが、
+        // 復習の可能性もあるので一旦全表示にします。
         const option = document.createElement("option");
         option.value = m.id;
         option.textContent = m.name;
@@ -360,13 +384,14 @@ function renderMaterialList() {
     materialItems.innerHTML = "";
 
     materials.forEach(mat => {
-        // フィルタ処理
+        // 基本プロパティチェック (statusがない場合はwaitingとみなす)
+        const status = mat.status || "waiting";
+
+        // --- フィルタ処理 ---
         if (subjectFilter !== "all" && mat.subject !== subjectFilter) return;
         if (!mat.name.toLowerCase().includes(query)) return;
-        if (statusFilter === "ongoing" && mat.ongoing === false) return;
-        if (statusFilter === "completed" && mat.ongoing !== false) return;
         
-        // // 編集対象の教材が持つカテゴリが未登録の場合も考慮
+        // カテゴリフィルタ
         if (categoryFilter !== "all") {
             if (categoryFilter === "none") {
                 if (mat.category) return;
@@ -375,9 +400,29 @@ function renderMaterialList() {
             }
         }
 
+        // ★★★ ステータスフィルタ ★★★
+        if (statusFilter !== "all") {
+            if (statusFilter === "planning") {
+                // 進行中 = 「完了」以外（つまり未着手 or 学習中）
+                if (status === "completed") return;
+            } else {
+                // それ以外は完全一致で判定 (waiting, learning, completed)
+                if (status !== statusFilter) return;
+            }
+        }
+
+        // --- DOM生成 ---
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
         itemDiv.style.setProperty('--material-bg-width', `${mat.progress || 0}%`);
+
+        const badge = document.createElement("div");
+        badge.className = `status-badge ${status}`;
+        // ツールチップ設定（ホバー時に出てくるヒントのこと）
+        if (status === "learning") badge.title = "学習中";
+        else if (status === "waiting") badge.title = "未着手";
+        else if (status === "completed") badge.title = "完了";
+        itemDiv.appendChild(badge);
 
         const nameDiv = document.createElement("div");
         nameDiv.className = "material-name-input";
@@ -401,8 +446,11 @@ function renderMaterialList() {
         nameCommentDiv.className = "material-name-comment";
         if(mat.detail) nameCommentDiv.innerHTML = mat.detail.replace(/\n/g, "<br>");
 
-        if (!mat.ongoing) {
+        // 完了状態なら文字色を薄くする
+        if (status === "completed") {
             nameDiv.style.color = "#a0a0a0"; 
+        } else {
+            nameDiv.style.color = "#333"; 
         }
 
         nameDiv.append(nameTitleDiv, nameProgressDiv, nameDateDiv, nameCommentDiv);
@@ -419,7 +467,6 @@ function renderMaterialList() {
             toggleModal(addPlanModal, true);
         });
 
-        // 編集ボタン（カテゴリ設定のために修正）
         const editBtn = createIconButton("edit", '<i class="fa-solid fa-pen"></i>', () => {
             updateCategoryOptions();
             
@@ -443,7 +490,10 @@ function renderMaterialList() {
 
         const infoBtn = createIconButton("info", '<i class="fa-solid fa-info"></i>', () => {
             materialNamePanel.textContent = mat.name;
-            materialOngoingCheckbox.checked = mat.ongoing !== false;
+            
+            // ★★★ プルダウンに値をセット ★★★
+            materialStatusSelect.value = mat.status || "waiting";
+
             materialDateInput.value = mat.date || "";
             materialProgressInput.value = mat.progress || 0;
             materialDetailInput.value = mat.detail || "";
@@ -496,7 +546,7 @@ function renderSortMaterialModal() {
         itemDiv.style.setProperty('--material-bg-width', '0%');
 
         itemDiv.addEventListener("click", (e) => {
-            if (e.target.closest("button")) return; 
+            if (e.target.closest("button")) return;
             editingSortId = (editingSortId === mat.id) ? null : mat.id;
             renderSortMaterialModal();
         });
@@ -505,7 +555,7 @@ function renderSortMaterialModal() {
         nameDiv.textContent = mat.name;
         nameDiv.style.flex = "1";
         nameDiv.style.fontWeight = "bold";
-        nameDiv.style.marginRight = "8px"; 
+        nameDiv.style.marginRight = "8px";
         itemDiv.appendChild(nameDiv);
 
         if (mat.id === editingSortId) {
@@ -567,7 +617,6 @@ uploadBtn.addEventListener("click", async () => {
             dailyPlans: localDailyPlans,
             updatedAt: new Date().toISOString(),
         };
-        // ユーザー UID をドキュメントIDにして上書き保存
         await setDoc(doc(db, "backups", currentUser.uid), data);
         alert("アップロード完了！");
     } catch (err) {
@@ -584,7 +633,6 @@ downloadBtn.addEventListener("click", async () => {
     
     downloadBtn.disabled = true;
     try {
-        // Firestore からユーザー専用バックアップを取得
         const snapshot = await getDoc(doc(db, "backups", currentUser.uid));
         if (!snapshot.exists()) {
             alert("バックアップデータが存在しません。");
@@ -634,14 +682,13 @@ confirmPlanBtn.addEventListener("click", () => {
 });
 
 openMaterialModalBtn.addEventListener("click", () => {
-    updateCategoryOptions(); // カテゴリリスト最新化
+    updateCategoryOptions();
     
     materialNameInput.value = "";
     materialSubjectSelect.value = "math";
     materialProgressInput.value = 0;
     
-    // カテゴリ初期化
-    materialCategorySelect.value = ""; 
+    materialCategorySelect.value = "";
     newCategoryInput.value = "";
     newCategoryInput.classList.add("hidden");
     
@@ -659,38 +706,57 @@ confirmMaterialBtn.addEventListener("click", () => {
     if (materialCategorySelect.value === "new") {
         category = newCategoryInput.value.trim();
         if (!category) return alert("新しいカテゴリ名を入力してください");
-        categories.add(category); // 新規追加
+        categories.add(category);
     } else {
         category = materialCategorySelect.value;
     }
 
     if (!name) return alert("教材名を入力してください");
+    
+    // 新規作成時はデフォルトで waiting (未着手) にする
     if (editingMaterialId !== null) {
         const mat = materials.find(m => m.id === editingMaterialId);
         if (mat) { mat.name = name; mat.subject = subject; mat.category = category; }
     } else {
         const newId = materials.length ? Math.max(...materials.map(m => m.id)) + 1 : 1;
-        materials.push({ id: newId, name, subject, category, progress: 0, checked: false });
+        materials.push({ 
+            id: newId, 
+            name, 
+            subject, 
+            category, 
+            progress: 0, 
+            status: "waiting", // 新規デフォルト
+            checked: false 
+        });
     }
     
     editingMaterialId = null;
     toggleModal(addMaterialModal, false);
     saveAndRender();
-    updateCategoryOptions(); // 更新反映
+    updateCategoryOptions();
 });
 
 cancelInfoBtn.addEventListener("click", () => {
     toggleModal(infoMaterialModal, false);
 });
 confirmInfoBtn.addEventListener("click", () => {
-    const ongoing = materialOngoingCheckbox.checked;
+    // ★★★ ステータス取得 ★★★
+    const status = materialStatusSelect.value;
+    
     const date = materialDateInput.value;
     const progress = parseInt(materialProgressInput.value);
     const detail = materialDetailInput.value.replace(/^\s+|\s+$/g, '');
+    
     if (isNaN(progress) || progress < 0 || progress > 100) return alert("進度は0～100の整数値で入力してください");
+    
     if (editingMaterialId !== null) {
         const mat = materials.find(m => m.id === editingMaterialId);
-        if (mat) { mat.ongoing = ongoing; mat.date = date; mat.progress = progress; mat.detail = detail; }
+        if (mat) { 
+            mat.status = status; 
+            mat.date = date; 
+            mat.progress = progress; 
+            mat.detail = detail; 
+        }
     }
     toggleModal(infoMaterialModal, false);
     saveAndRender();
@@ -764,7 +830,6 @@ function updateSyncButtons() {
     const isLoggedIn = (currentUser !== null);
     const isDisabled = !(isOnline && isLoggedIn);
 
-    // ボタンの状態を変更
     if (uploadBtn) uploadBtn.disabled = isDisabled;
     if (downloadBtn) downloadBtn.disabled = isDisabled;
 }
@@ -772,7 +837,7 @@ function updateSyncButtons() {
 // --- ネットワーク・認証状態変化を監視 ---
 window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
-window.addEventListener('auth-changed', updateSyncButtons);  // login.js からのカスタムイベントを監視
+window.addEventListener('auth-changed', updateSyncButtons);
 
 // --- 初期化フロー ---
 renderAppShell();
@@ -806,7 +871,7 @@ window.addEventListener('DOMContentLoaded', () => {
         renderTodayPlans();
     }, 0);
 
-    setTimeout(updateSyncButtons, 500);  // ログイン状態反映のため少し遅延
+    setTimeout(updateSyncButtons, 500);
 });
 
 // --- Service Worker 設定 ---
@@ -823,6 +888,16 @@ function showVersion() {
         "\n最終更新日：" + LAST_UPDATED
     );
 }
-// HTML の onclick から呼べるように、関数をグローバルに公開する
 window.showVersion = showVersion;
 
+// --- 説明表示 ---
+function Instructions() {
+    window.alert(
+        "教材右上のバッチの色について：" +
+        "\n\n" +
+        "⚪ 灰色：未着手の教材です。\n" +
+        "🔵 青：現在学習中の教材です。\n" +
+        "🟢 緑：完了済みの教材です。"
+    );
+}
+window.Instructions = Instructions;
