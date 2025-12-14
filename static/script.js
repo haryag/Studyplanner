@@ -893,16 +893,3 @@ function showVersion() {
     );
 }
 window.showVersion = showVersion;
-
-// --- 説明表示 ---
-function Instructions() {
-    window.alert(
-        "教材右上のバッチの色について：" +
-        "\n\n" +
-        "⚪ 灰色：未着手の教材です。\n" +
-        "🔵 青：現在学習中の教材です。\n" +
-        "🟢 緑：完了済みの教材です。"
-    );
-}
-window.Instructions = Instructions;
-
