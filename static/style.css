@@ -179,7 +179,7 @@ body {
     margin-bottom: 12px;
     position: relative;
     border: none;
-    border-left: 5px solid transparent; 
+    border-left: 5px solid transparent;
     overflow: hidden;
     cursor: pointer;
 }
@@ -189,18 +189,19 @@ body {
     padding: 14px 14px;
     display: flex;
     align-items: center;
-    border: 1px solid transparent;
-    border-left: 5px solid transparent; 
+    /* border: 1px solid transparent; */
+    border-left: 5px solid transparent;
     transition: all 0.3s ease;
     min-height: 60px;
 }
 .plan-item:active { background-color: #fafafa; }
 .plan-item.checked {
     opacity: 0.6;
-    background-color: #f5f5f5;
+    background-color: #f0f0f0;
+    color: #808080;
     box-shadow: none;
-    border: 1px solid #ddd;
-    border-left: 5px solid #aaa !important; 
+    border-left: 5px solid #ccc !important;
+    border: 1px solid #ccc;
 }
 
 .plan-icon {
@@ -214,6 +215,10 @@ body {
 .plan-info > div:first-child { font-weight: 700; font-size: 15px; margin-bottom: 2px; color: #333; padding-right: 4px; }
 .plan-info > div { font-size: 13px; color: #666; line-height: 1.4; }
 .plan-info i { width: 14px; margin-right: 2px; }
+.plan-item.checked .plan-icon i,
+.plan-item.checked .plan-info i {
+    color: #808080;
+}
 
 /* --- 教材アイテム --- */
 .material-item {
@@ -231,7 +236,7 @@ body {
     height: 85dvh;
     padding: 0;
     overflow: hidden;
-    display: block; 
+    display: block;
     z-index: 50;
     box-shadow: 0 15px 40px rgba(0,0,0,0.3);
     cursor: default;
@@ -256,7 +261,7 @@ body {
     left: 0;
     height: 6px;
     width: var(--material-bg-width);
-    background-color: var(--material-bg-color);
+    background-color: #f0f0f0;
     transition: width 0.4s ease;
     z-index: 5;
 }
@@ -337,7 +342,7 @@ body {
 
 .plan-item .buttons {
     position: absolute;
-    bottom: 10px; 
+    bottom: 10px;
     right: 10px;
     background: rgba(255, 255, 255, 0.95);
     padding: 4px 8px;
@@ -429,10 +434,10 @@ body {
     
     display: flex;
     justify-content: space-around;
-    position: fixed; 
-    bottom: 0; 
-    left: 0; 
-    right: 0; 
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     margin: 0 auto;
     z-index: 200;
 }
@@ -454,16 +459,16 @@ body {
 
 /* --- フォーム共通設定 (select・input) --- */
 input[type="text"], input[type="number"], input[type="time"], input[type="datetime-local"], select, textarea {
-    width: 100%; 
-    padding: 8px 10px; 
-    border: 1px solid #ccc; 
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 16px; 
-    background: #fff; 
-    color: #333; 
-    outline: none; 
+    font-size: 16px;
+    background: #fff;
+    color: #333;
+    outline: none;
     margin-bottom: 8px;
-    appearance: none; 
+    appearance: none;
     -webkit-appearance: none;
 }
 select {
@@ -483,7 +488,7 @@ select {
     background-color: rgba(0,0,0,0.5);
     display: flex;
     justify-content: center;
-    align-items: center; 
+    align-items: center;
     z-index: 1000;
 }
 .modal-container {
