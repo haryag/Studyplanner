@@ -2,7 +2,7 @@ import { currentUser } from './login.js';
 import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
 // --- 定数 ---
-const SW_VERSION = 'v3.6.0';
+const SW_VERSION = 'v3.6.1';
 const BASE_PATH = '/Studyplanner/';
 
 // --- 日付取得 ---
@@ -820,3 +820,4 @@ if ('serviceWorker' in navigator) {
         refreshing = true;
     });
 }
+
