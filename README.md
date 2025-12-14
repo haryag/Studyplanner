@@ -56,14 +56,16 @@ https://haryag.github.io/Studyplanner/ にアクセスします。
 
 ```text
 Studyplanner/
-├── index.html        # アプリのエントリーポイント
-├── manifest.json     # PWA 設定ファイル
-├── sw.js             # オフライン動作・更新管理
-├── static/
-│   ├── style.css     # UI デザイン
-│   ├── script.js     # アプリの主要ロジック
-│   └── login.js      # Firebase 認証
-└── icon/             # アイコンリソース
+├─ index.html
+├─ sw.js                   # オフライン動作・更新管理
+├─ pwa/
+│  ├─ manifest.json        # PWA 設定ファイル
+│  └─ icons/               # アイコン用画像フォルダ
+└─ static/
+   ├─ style.css
+   ├─ script.js            # アプリの主要ロジック
+   ├─ login.js             # Firebase 認証処理
+   └─ firebase-config.js   # Firebase 設定（APIキー等）
 ```
 
 ---
