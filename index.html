@@ -64,7 +64,9 @@
                         <i class="fa-solid fa-bars-progress"></i>
                         <select id="filter-status-select">
                             <option value="all">全状態</option>
-                            <option value="ongoing">学習中</option>
+                            <option value="waiting">未着手</option>
+                            <option value="planning">進行中</option>
+                            <option value="learning">学習中</option>
                             <option value="completed">完了</option>
                         </select>
                     </div>
@@ -101,7 +103,7 @@
                 <h3>データを共有</h3>
                 <div class="option-button-wrapper">
                     <p id="login-status-panel"></p>
-                    <button id="upload-btn" class="bottom-btn">
+                    <button id="upload-btn" class="bottom-btn" disabled>
                         <i class="fa-solid fa-cloud-arrow-up"></i> アップロード
                     </button>
                     <button id="download-btn" class="bottom-btn">
@@ -121,6 +123,10 @@
                     <button class="about-btn" onclick="showVersion()">
                         <i class="fa-solid fa-circle-question"></i>
                         <span class="underlined">このアプリについて</span>
+                    </button>
+                    ｜
+                    <button class="about-btn" onclick="Instructions()">
+                        <span class="underlined">アプリの使い方</span>
                     </button>
                 </div>
             </div>
@@ -213,10 +219,14 @@
                 コメント：
                 <textarea id="material-detail-input" placeholder="入力してください（改行できます）" rows="3"></textarea>
             </label>
-            <p>
-                <label>
-                    <input type="checkbox" id="material-ongoing-checkbox">学習中</p>
-                </label>
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:14px; color:#333; font-weight:bold;">状態</label>
+                <select id="material-status-select" style="width:100%; margin-top:4px;">
+                    <option value="waiting">未着手</option>
+                    <option value="learning">学習中</option>
+                    <option value="completed">完了</option>
+                </select>
+            </div>
             <div class="modal-btns">
                 <button id="cancel-info-btn" class="cancel">キャンセル</button>
                 <button id="confirm-info-btn" class="ok">OK</button>
@@ -242,6 +252,3 @@
     <script type="module" src="static/script.js" defer></script>
 </body>
 </html>
-
-
-
