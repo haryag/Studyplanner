@@ -7,6 +7,7 @@ const FILES_TO_CACHE = [
   `${BASE_PATH}static/style.css`,
   `${BASE_PATH}static/script.js`,
   `${BASE_PATH}static/login.js`,
+  `${BASE_PATH}static/firebase-config.js`,
 ];
 
 // 初回プリキャッシュ
