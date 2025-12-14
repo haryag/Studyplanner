@@ -1,4 +1,4 @@
-const CACHE_NAME = 'static-v2.1.1';
+const CACHE_NAME = 'static-v2.2.0';
 const BASE_PATH = '/Studyplanner/';
 
 const FILES_TO_CACHE = [
@@ -8,6 +8,10 @@ const FILES_TO_CACHE = [
     `${BASE_PATH}static/script.js`,
     `${BASE_PATH}static/login.js`,
     `${BASE_PATH}static/firebase-config.js`,
+    // Firebaseのライブラリ
+    'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js',
+    'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js',
+    'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js'
 ];
 
 // 初回プリキャッシュ
@@ -36,7 +40,8 @@ self.addEventListener('fetch', event => {
         self.location.origin, 
         'https://fonts.googleapis.com', 
         'https://fonts.gstatic.com',
-        'https://cdnjs.cloudflare.com'
+        'https://cdnjs.cloudflare.com',
+        'https://www.gstatic.com' // Firebase用
     ];
     if (!allowedOrigins.some(origin => url.href.startsWith(origin))) {
         return;
