@@ -820,19 +820,3 @@ if ('serviceWorker' in navigator) {
         refreshing = true;
     });
 }
-
-// --- 更新通知バー ---
-const notification = document.createElement('div');
-notification.id = 'update-notification';
-notification.innerHTML = `
-    <span>アップデートできます！</span>
-    <button id="reload-btn">更新</button>
-`;
-document.body.appendChild(notification);
-
-// 更新ボタンクリック時の動作
-document.getElementById('reload-btn').addEventListener('click', () => {
-    if (newWorker) {
-        newWorker.postMessage({ type: 'SKIP_WAITING' });
-    }
-});
