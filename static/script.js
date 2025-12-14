@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 
 // --- 定数 ---
 const APP_NAME = 'Studyplanner';
-const SW_VERSION = 'v3.6.3';
+const SW_VERSION = 'v3.7';
 const LAST_UPDATED = '2025/12/14';
 const BASE_PATH = '/Studyplanner/';
 
@@ -319,15 +319,6 @@ function renderTodayPlans() {
         const timeDiv = document.createElement("div");
         if (plan.time) timeDiv.innerHTML = `<i class="fa-regular fa-clock"></i> ${plan.time}`;
 
-        if (plan.checked) {
-            item.style.backgroundColor = "#f0f0f0";
-            item.style.color = "#808080";
-            const mainIcon = iconDiv.querySelector("i");
-            if (mainIcon) mainIcon.style.color = "#808080";
-            const iconsInInfo = infoDiv.querySelectorAll("i");
-            iconsInInfo.forEach(i => i.style.color = "#808080");
-        }
-
         const checkBtn = createIconButton("check", '<i class="fa-solid fa-check"></i>', () => {
             plan.checked = !plan.checked;
             saveAndRender();
@@ -386,7 +377,6 @@ function renderMaterialList() {
 
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${mat.subject}`;
-        itemDiv.style.setProperty('--material-bg-color', '#f0f0f0');
         itemDiv.style.setProperty('--material-bg-width', `${mat.progress || 0}%`);
 
         const nameDiv = document.createElement("div");
