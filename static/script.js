@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 
 // --- 定数 ---
 const APP_NAME = 'Studyplanner';
-const SW_VERSION = 'v3.8.0';
+const SW_VERSION = 'v3.8.1';
 const LAST_UPDATED = '2025/12/15';
 const BASE_PATH = '/Studyplanner/';
 
@@ -740,14 +740,18 @@ cancelInfoBtn.addEventListener("click", () => {
     toggleModal(infoMaterialModal, false);
 });
 confirmInfoBtn.addEventListener("click", () => {
-    // ★★★ ステータス取得 ★★★
-    const status = materialStatusSelect.value;
+    let status = materialStatusSelect.value;  // letに変更（後で書き換える可能性があるため）
     
     const date = materialDateInput.value;
     const progress = parseInt(materialProgressInput.value);
     const detail = materialDetailInput.value.replace(/^\s+|\s+$/g, '');
     
     if (isNaN(progress) || progress < 0 || progress > 100) return alert("進度は0～100の整数値で入力してください");
+    if (progress === 100 && status !== "completed") {
+        if (confirm("進捗が100%になりました。\nステータスを「完了」に変更しますか？")) {
+            status = "completed";
+        }
+    }
     
     if (editingMaterialId !== null) {
         const mat = materials.find(m => m.id === editingMaterialId);
@@ -901,3 +905,4 @@ function Instructions() {
     );
 }
 window.Instructions = Instructions;
+
