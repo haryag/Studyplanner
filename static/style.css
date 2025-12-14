@@ -390,7 +390,6 @@ body {
 .buttons button:active { background-color: #f0f0f0; }
 .buttons button i { font-size: 1.0rem !important; vertical-align: middle; }
 
-
 /* --- 汎用ボタン (upload等) --- */
 .option-button-wrapper {
     margin-left: 8px;
@@ -556,7 +555,7 @@ select {
     cursor: pointer;
 }
 .about-btn i {
-    margin-right: 4px;
+    margin-right: 2px;
     font-size: 13px;
 }
 .about-btn:hover {
