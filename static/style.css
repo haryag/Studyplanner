@@ -565,3 +565,20 @@ button:disabled {
     border-color: #bbb !important;
     color: #666 !important;
 }
+
+/* --- 教材ステータスバッジ --- */
+.status-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    z-index: 10;
+    /* box-shadow: 0 1px 2px rgba(0,0,0,0.2); */
+}
+
+/* 各ステータスの色定義 */
+.status-badge.learning { background-color: #515de1; }
+.status-badge.waiting { background-color: #bbb; }
+.status-badge.completed { background-color: #3cd651; }
