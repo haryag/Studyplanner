@@ -1,4 +1,3 @@
-import './firebase-config.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
 
@@ -49,4 +48,3 @@ onAuthStateChanged(auth, (user) => {
         document.getElementById("logout-btn").style.display = "none";
     }
 });
-
