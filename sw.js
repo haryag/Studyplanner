@@ -1,4 +1,4 @@
-const CACHE_NAME = 'static-v2.0.1';
+const CACHE_NAME = 'static-v2.0.2';
 const BASE_PATH = '/Studyplanner/';
 
 const FILES_TO_CACHE = [
@@ -14,7 +14,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
   );
-  // self.skipWaiting();
+  // self.skipWaiting();  // 有効にしない方がよい
 });
 
 // 古いキャッシュ削除
@@ -64,10 +64,4 @@ self.addEventListener('fetch', event => {
       return cache.match(`${BASE_PATH}index.html`);
     }
   })());
-});
-
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
 });
