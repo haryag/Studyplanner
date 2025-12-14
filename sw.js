@@ -1,4 +1,4 @@
-const CACHE_NAME = 'static-v2.0.2';
+const CACHE_NAME = 'static-v2.0.3';
 const BASE_PATH = '/Studyplanner/';
 
 const FILES_TO_CACHE = [
@@ -29,6 +29,11 @@ self.addEventListener('activate', event => {
 
 // Stale-While-Revalidate
 self.addEventListener('fetch', event => {
+  // 自分のオリジン以外（chrome-extension:// 等）は無視する
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
+
+  // GET リクエスト以外（POST / PUT など）はキャッシュ対象にしない
   if (event.request.method !== 'GET') return;
 
   event.respondWith((async () => {
