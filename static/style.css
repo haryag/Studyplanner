@@ -544,7 +544,7 @@ select {
 /* --- このアプリについて --- */
 .about-wrapper {
     text-align: center;
-    margin: 36px 0;
+    margin-top: 36px;
 }
 .about-btn {
     background: none;
