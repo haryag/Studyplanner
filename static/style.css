@@ -124,7 +124,7 @@ body {
 /* フィルタボタン群 */
 .filter-group {
     display: flex;
-    gap: 8px;
+    gap: 4px;
     overflow-x: auto;
     padding-bottom: 4px;
     -webkit-overflow-scrolling: touch;
@@ -563,3 +563,4 @@ select {
 .about-btn:hover {
     color: #555;
 }
+
