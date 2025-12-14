@@ -2,7 +2,9 @@ import { currentUser } from './login.js';
 import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
 // --- 定数 ---
+const APP_NAME = 'Studyplanner';
 const SW_VERSION = 'v3.6.1';
+const LAST_UPDATED = '2025/12/14';
 const BASE_PATH = '/Studyplanner/';
 
 // --- 日付取得 ---
@@ -821,3 +823,12 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// --- バージョン表示 ---
+function showVersion() {
+    window.alert(
+        APP_NAME +
+        "\n\n" +
+        "バージョン：" + APP_VERSION +
+        "\n最終更新日：" + LAST_UPDATED
+    );
+}
