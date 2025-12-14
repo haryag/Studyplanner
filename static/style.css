@@ -557,10 +557,9 @@ select {
     text-decoration: underline;
 }
 .about-btn i {
-    margin-right: 4px;
+    /* margin-right: 4px; */
     font-size: 13px;
 }
 .about-btn:hover {
     color: #555;
 }
-
