@@ -47,4 +47,7 @@ onAuthStateChanged(auth, (user) => {
         document.getElementById("login-btn").style.display = "block";
         document.getElementById("logout-btn").style.display = "none";
     }
+
+    // ログイン状態変更をscript.jsに通知（カスタムイベント）
+    window.dispatchEvent(new Event('auth-changed'));
 });
