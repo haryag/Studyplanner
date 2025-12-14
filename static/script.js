@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 
 // --- 定数 ---
 const APP_NAME = 'Studyplanner';
-const SW_VERSION = 'v3.7';
+const SW_VERSION = 'v3.7.1';
 const LAST_UPDATED = '2025/12/14';
 const BASE_PATH = '/Studyplanner/';
 
@@ -758,6 +758,35 @@ document.addEventListener("keydown", (e) => {
     }
 });
 
+// --- ボタンの有効/無効を切り替える関数 ---
+function updateSyncButtons() {
+    const isOnline = navigator.onLine;
+    const isLoggedIn = (currentUser !== null);
+    const isDisabled = !(isOnline && isLoggedIn);
+
+    // ボタンの状態を変更
+    if (uploadBtn) uploadBtn.disabled = isDisabled;
+    if (downloadBtn) downloadBtn.disabled = isDisabled;
+    
+    // ボタンの見た目上のテキストを変える（親切にする場合）
+    // ※不要なら削除してOKです
+    if (!isOnline) {
+        uploadBtn.title = "オフラインのため利用できません";
+        downloadBtn.title = "オフラインのため利用できません";
+    } else if (!isLoggedIn) {
+        uploadBtn.title = "ログインが必要です";
+        downloadBtn.title = "ログインが必要です";
+    } else {
+        uploadBtn.title = "";
+        downloadBtn.title = "";
+    }
+}
+
+// --- ネットワーク・認証状態変化を監視 ---
+window.addEventListener('online', updateSyncButtons);
+window.addEventListener('offline', updateSyncButtons);
+window.addEventListener('auth-changed', updateSyncButtons);  // login.js からのカスタムイベントを監視
+
 // --- 初期化フロー ---
 renderAppShell();
 
@@ -789,6 +818,8 @@ window.addEventListener('DOMContentLoaded', () => {
         renderMaterialList();
         renderTodayPlans();
     }, 0);
+
+    setTimeout(updateSyncButtons, 500);  // ログイン状態反映のため少し遅延
 });
 
 // --- Service Worker 設定 ---
