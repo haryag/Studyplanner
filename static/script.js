@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 
 // --- 定数 ---
 const APP_NAME = 'Studyplanner';
-const SW_VERSION = 'v3.7.1';
+const SW_VERSION = 'v3.7.2';
 const LAST_UPDATED = '2025/12/14';
 const BASE_PATH = '/Studyplanner/';
 
@@ -767,19 +767,6 @@ function updateSyncButtons() {
     // ボタンの状態を変更
     if (uploadBtn) uploadBtn.disabled = isDisabled;
     if (downloadBtn) downloadBtn.disabled = isDisabled;
-    
-    // ボタンの見た目上のテキストを変える（親切にする場合）
-    // ※不要なら削除してOKです
-    if (!isOnline) {
-        uploadBtn.title = "オフラインのため利用できません";
-        downloadBtn.title = "オフラインのため利用できません";
-    } else if (!isLoggedIn) {
-        uploadBtn.title = "ログインが必要です";
-        downloadBtn.title = "ログインが必要です";
-    } else {
-        uploadBtn.title = "";
-        downloadBtn.title = "";
-    }
 }
 
 // --- ネットワーク・認証状態変化を監視 ---
@@ -838,3 +825,4 @@ function showVersion() {
 }
 // HTML の onclick から呼べるように、関数をグローバルに公開する
 window.showVersion = showVersion;
+
