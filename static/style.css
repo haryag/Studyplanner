@@ -554,13 +554,5 @@ select {
     color: #777;
     cursor: pointer;
 }
-.about-btn i {
-    margin-right: 2px;
-    font-size: 13px;
-}
-.about-btn:hover {
-    color: #555;
-}
-.underlined {
-    text-decoration: underline;
-}
+.about-btn:hover { color: #555; }
+.underlined { text-decoration: underline; }
