@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 
 // --- 定数 ---
 const APP_NAME = 'Studyplanner';
-const SW_VERSION = 'v3.8.1';
+const SW_VERSION = 'v3.8.2';
 const LAST_UPDATED = '2025/12/15';
 const BASE_PATH = '/Studyplanner/';
 
@@ -784,8 +784,6 @@ confirmSortBtn.addEventListener("click", () => {
 // --- フィルタ・検索・状態保存 ---
 toggleSectionBtn.addEventListener("click", () => {
     toggleSections();
-    const mode = planContainer.classList.contains("hidden") ? "material" : "plan";
-    localStorage.setItem("sp_activeSection", mode);
 });
 searchMaterialInput.addEventListener("input", () => {
     localStorage.setItem("sp_searchQuery", searchMaterialInput.value);
@@ -855,15 +853,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const savedStatus = localStorage.getItem("sp_filterStatus");
     if (savedStatus !== null) filterStatusSelect.value = savedStatus;
-
-    const savedSection = localStorage.getItem("sp_activeSection");
-    if (savedSection === "material") {
-        planContainer.classList.add("hidden");
-        materialContainer.classList.remove("hidden");
-    } else {
-        planContainer.classList.remove("hidden");
-        materialContainer.classList.add("hidden");
-    }
     
     setTimeout(async () => {
         await loadData();
