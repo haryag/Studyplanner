@@ -44,7 +44,7 @@ const toggleSectionBtn = document.getElementById("toggle-section-btn");
 const uploadBtn = document.getElementById('upload-btn');
 const downloadBtn = document.getElementById('download-btn');
 const exportJsonBtn = document.getElementById("export-json-btn");
-const inmportJsonBtn = document.getElementById("import-json-btn");
+const importJsonBtn = document.getElementById("import-json-btn");
 const importFileInput = document.getElementById("import-file-input");
 
 // フィルタ・検索系入力要素
@@ -964,4 +964,5 @@ function showVersion() {
     );
 }
 window.showVersion = showVersion;
+
 
