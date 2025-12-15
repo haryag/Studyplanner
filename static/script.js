@@ -3,8 +3,8 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 
 // --- 定数 ---
 const APP_NAME = 'Studyplanner';
-const SW_VERSION = 'v3.8.2';
-const LAST_UPDATED = '2025/12/15';
+const SW_VERSION = 'v3.9.0';
+const LAST_UPDATED = '2025/12/16';
 const BASE_PATH = '/Studyplanner/';
 
 // --- 日付取得 ---
@@ -43,6 +43,9 @@ const openSortModalBtn = document.getElementById("sort-material-btn");
 const toggleSectionBtn = document.getElementById("toggle-section-btn");
 const uploadBtn = document.getElementById('upload-btn');
 const downloadBtn = document.getElementById('download-btn');
+const exportJsonBtn = document.getElementById("export-json-btn");
+const inmportJsonBtn = document.getElementById("import-json-btn");
+const importFileInput = document.getElementById("import-file-input");
 
 // フィルタ・検索系入力要素
 const searchMaterialInput = document.getElementById("search-material-input");
@@ -491,7 +494,7 @@ function renderMaterialList() {
         const infoBtn = createIconButton("info", '<i class="fa-solid fa-info"></i>', () => {
             materialNamePanel.textContent = mat.name;
             
-            // ★★★ プルダウンに値をセット ★★★
+            // プルダウンに値をセット
             materialStatusSelect.value = mat.status || "waiting";
 
             materialDateInput.value = mat.date || "";
@@ -802,6 +805,85 @@ filterCategorySelect.addEventListener("change", () => {
     renderMaterialList();
 });
 
+// --- JSON エクスポート/インポート機能 ---
+exportJsonBtn.addEventListener("click", () => {
+    if (!confirm("現在のデータをファイルとして保存（ダウンロード）しますか？")) return;
+
+    // 保存するデータを作成
+    const data = {
+        materials: materials,
+        dailyPlans: dailyPlans,
+        exportedAt: new Date().toISOString(),
+        appName: APP_NAME,
+        version: SW_VERSION
+    };
+
+    // JSON文字列に変換
+    const jsonStr = JSON.stringify(data, null, 2);
+    
+    // Blobオブジェクトを作成 (データをファイル化)
+    const blob = new Blob([jsonStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    
+    // ダウンロード用リンクを生成してクリックさせる
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `studyplanner_backup_${getLocalDate()}.json`; // ファイル名
+    document.body.appendChild(a);
+    a.click();
+    
+    // 後始末
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+});
+importJsonBtn.addEventListener("click", () => {
+    // 隠しinputをクリックしてファイル選択画面を出す
+    importFileInput.value = ""; // 同じファイルを再度選べるようにリセット
+    importFileInput.click();
+});
+// ファイルが選択された時の処理
+importFileInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+        try {
+            const jsonStr = event.target.result;
+            const data = JSON.parse(jsonStr);
+
+            // 簡易的なデータ検証
+            if (!data.materials || !data.dailyPlans) {
+                return alert("エラー：正しいバックアップファイルではありません。");
+            }
+
+            if (!confirm(`データ（${data.exportedAt || '日付不明'} 作成）を読み込みますか？\n※現在のデータは上書きされます。`)) {
+                return;
+            }
+
+            // データを変数に反映
+            materials.splice(0, materials.length, ...data.materials);
+            
+            // dailyPlansをクリアして反映
+            for (const key in dailyPlans) delete dailyPlans[key];
+            Object.assign(dailyPlans, data.dailyPlans);
+
+            // カテゴリやインデックスDBも更新
+            await saveData();
+            updateCategoryOptions();
+            renderMaterialList();
+            renderTodayPlans();
+
+            alert("インポートが完了しました！");
+
+        } catch (err) {
+            console.error(err);
+            alert("読み込みに失敗しました。ファイルが破損している可能性があります。");
+        }
+    };
+    reader.readAsText(file);
+});
+
 // Enterキー・Escキー操作
 [addMaterialModal, addPlanModal].forEach(modal => {
     modal.addEventListener("keydown", e => {
@@ -882,3 +964,4 @@ function showVersion() {
     );
 }
 window.showVersion = showVersion;
+
