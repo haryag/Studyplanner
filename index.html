@@ -165,7 +165,7 @@
             <input type="text" id="new-category-input" class="hidden" placeholder="新しいカテゴリ名を入力">
             <div class="modal-btns">
                 <button id="cancel-material-btn" class="cancel">キャンセル</button>
-                <button id="confirm-material-btn" class="ok">OK</button>
+                <button id="confirm-material-btn" class="ok">登録</button>
             </div>
         </div>
     </div>
@@ -188,7 +188,7 @@
             </label>
             <div class="modal-btns">
                 <button id="cancel-plan-btn" class="cancel">キャンセル</button>
-                <button id="confirm-plan-btn" class="ok">OK</button>
+                <button id="confirm-plan-btn" class="ok">追加</button>
             </div>
         </div>
     </div>
@@ -200,7 +200,7 @@
             <div id="sort-items"></div>
             <div class="modal-btns">
                 <button id="cancel-sort-btn" class="cancel">キャンセル</button>
-                <button id="confirm-sort-btn" class="ok">OK</button>
+                <button id="confirm-sort-btn" class="ok">決定</button>
             </div>
         </div>
     </div>
@@ -232,7 +232,23 @@
             </div>
             <div class="modal-btns">
                 <button id="cancel-info-btn" class="cancel">キャンセル</button>
-                <button id="confirm-info-btn" class="ok">OK</button>
+                <button id="confirm-info-btn" class="ok">登録</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="bulk-add-modal" class="modal hidden">
+        <div class="modal-container">
+            <h2>教材をまとめて追加</h2>
+            <p style="font-size:12px; color:#666; margin-bottom:12px;">
+                今日やる教材を選択してください。<br>内容は「仮」として登録されます。
+            </p>
+            <!-- ここにチェックリストをJSで生成 -->
+            <div id="bulk-material-list"></div>
+            
+            <div class="modal-btns">
+                <button id="cancel-bulk-btn" class="cancel">キャンセル</button>
+                <button id="confirm-bulk-btn" class="ok">追加</button>
             </div>
         </div>
     </div>
@@ -242,8 +258,8 @@
         <button onclick="location.reload()" class="footer-btn">
             <i class="fa-solid fa-arrow-rotate-right"></i> 再読み込み
         </button>
-        <button id="add-plan-btn" class="footer-btn">
-            <i class="fa-solid fa-plus"></i> 予定を追加
+        <button id="bulk-add-btn" class="footer-btn">
+            <i class="fa-solid fa-list-check"></i> まとめて追加
         </button>
         <button id="toggle-section-btn" class="footer-btn">
             <i class="fa-solid fa-list"></i> 表示切替
