@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 
 // --- 定数 ---
 const APP_NAME = 'Studyplanner';
-const SW_VERSION = 'v3.9.1';
+const SW_VERSION = 'v3.10.0';
 const LAST_UPDATED = '2025/12/16';
 const BASE_PATH = '/Studyplanner/';
 
@@ -37,7 +37,6 @@ const materialContainer = document.getElementById("material-container");
 const materialItems = document.getElementById("material-items");
 
 // ユーティリティボタン
-const openPlanModalBtn = document.getElementById("add-plan-btn");
 const openMaterialModalBtn = document.getElementById("add-material-btn");
 const openSortModalBtn = document.getElementById("sort-material-btn");
 const toggleSectionBtn = document.getElementById("toggle-section-btn");
@@ -85,6 +84,13 @@ const sortMaterialModal = document.getElementById("sort-material-modal");
 const sortItems = document.getElementById("sort-items");
 const cancelSortBtn = document.getElementById("cancel-sort-btn");
 const confirmSortBtn = document.getElementById("confirm-sort-btn");
+
+// まとめて追加モーダル要素
+const bulkAddBtn = document.getElementById("bulk-add-btn");
+const bulkAddModal = document.getElementById("bulk-add-modal");
+const bulkMaterialList = document.getElementById("bulk-material-list");
+const cancelBulkBtn = document.getElementById("cancel-bulk-btn");
+const confirmBulkBtn = document.getElementById("confirm-bulk-btn");
 
 // 編集用変数
 let editingMaterialId = null;
@@ -657,13 +663,6 @@ downloadBtn.addEventListener("click", async () => {
 });
 
 // --- モーダル操作イベント ---
-openPlanModalBtn.addEventListener("click", () => {
-    populateMaterialSelect();
-    planContentInput.value = "";
-    planTimeInput.value = "";
-    editingIndex = null;
-    toggleModal(addPlanModal, true);
-});
 cancelPlanBtn.addEventListener("click", () => {
     toggleModal(addPlanModal, false);
 });
@@ -784,6 +783,62 @@ confirmSortBtn.addEventListener("click", () => {
     saveAndRender();
 });
 
+bulkAddBtn.addEventListener("click", () => {
+    bulkMaterialList.innerHTML = "";
+    
+    // 完了していない教材のみ抽出して表示
+    const activeMaterials = materials.filter(m => m.status !== "completed");
+    
+    if (activeMaterials.length === 0) {
+        bulkMaterialList.innerHTML = "<p style='text-align:center; font-size:12px;'>学習中・未着手の教材がありません</p>";
+    } else {
+        activeMaterials.forEach(m => {
+            const label = document.createElement("label");
+            label.className = "bulk-item-label";
+            
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.value = m.id;
+            
+            const span = document.createElement("span");
+            span.textContent = m.name;
+            
+            label.append(checkbox, span);
+            bulkMaterialList.appendChild(label);
+        });
+    }
+    
+    toggleModal(bulkAddModal, true);
+});
+cancelBulkBtn.addEventListener("click", () => {
+    toggleModal(bulkAddModal, false);
+});
+confirmBulkBtn.addEventListener("click", () => {
+    // チェックされた教材のIDを取得
+    const checkboxes = bulkMaterialList.querySelectorAll("input[type='checkbox']:checked");
+    
+    if (checkboxes.length === 0) {
+        return alert("教材が選択されていません");
+    }
+    
+    if (!dailyPlans[todayKey]) dailyPlans[todayKey] = [];
+    
+    checkboxes.forEach(cb => {
+        const materialId = parseInt(cb.value);
+        // 内容を「仮」、時間は空で追加
+        dailyPlans[todayKey].push({ 
+            materialId, 
+            range: "仮", 
+            time: "", 
+            checked: false 
+        });
+    });
+    
+    toggleModal(bulkAddModal, false);
+    saveAndRender();
+    alert(`${checkboxes.length}件の予定を追加しました`);
+});
+
 // --- フィルタ・検索・状態保存 ---
 toggleSectionBtn.addEventListener("click", () => {
     toggleSections();
@@ -841,7 +896,6 @@ importJsonBtn.addEventListener("click", () => {
     importFileInput.value = ""; // 同じファイルを再度選べるようにリセット
     importFileInput.click();
 });
-// ファイルが選択された時の処理
 importFileInput.addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -964,6 +1018,3 @@ function showVersion() {
     );
 }
 window.showVersion = showVersion;
-
-
-
