@@ -3,8 +3,8 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 
 // --- 定数 ---
 const APP_NAME = 'Studyplanner';
-const SW_VERSION = 'v3.10.0';
-const LAST_UPDATED = '2025/12/16';
+const SW_VERSION = 'v3.10.1';
+const LAST_UPDATED = '2025/12/19';
 const BASE_PATH = '/Studyplanner/';
 
 // --- 日付取得 ---
@@ -1018,3 +1018,4 @@ function showVersion() {
     );
 }
 window.showVersion = showVersion;
+
