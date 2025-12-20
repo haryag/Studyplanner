@@ -1,10 +1,11 @@
-const CACHE_NAME = 'static-v2.2.1';
+const CACHE_NAME = 'static-v2.3.0';
 const BASE_PATH = '/Studyplanner/';
 
 const FILES_TO_CACHE = [
     BASE_PATH,
     `${BASE_PATH}index.html`,
     `${BASE_PATH}static/style.css`,
+    `${BASE_PATH}static/basic-style.css`,
     `${BASE_PATH}static/script.js`,
     `${BASE_PATH}static/login.js`,
     `${BASE_PATH}static/firebase-config.js`,
