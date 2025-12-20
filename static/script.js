@@ -1,5 +1,4 @@
-import { currentUser } from './login.js';
-import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
+import { initFirebase, currentUser, loginWithGoogle, logoutGoogle } from './login.js';
 
 // --- 定数 ---
 const APP_NAME = 'Studyplanner';
@@ -16,7 +15,7 @@ const getLocalDate = () => {
 };
 
 // --- Firebase / Firestore ---
-const db = getFirestore();
+let db = null;
 
 // --- データ初期化 ---
 const todayKey = getLocalDate();
@@ -637,52 +636,59 @@ function renderSortMaterialModal() {
     });
 }
 
-// --- Firestore バックアップ ---
+// --- アップロード処理 ---
 uploadBtn.addEventListener("click", async () => {
-    if (!window.confirm("データをアップロードします。よろしいですか？")) return;
-    if (!navigator.onLine) { return alert("オフラインのため操作できません。"); }
-    if (!currentUser) { return alert("まずログインしてください。"); }
+    if (!db || !currentUser) return; // 念のためcurrentUserもチェック
+    if (!window.confirm("データをクラウドへアップロードします。よろしいですか？")) return;
     
     uploadBtn.disabled = true;
+
     try {
-        const localMaterials = (await getAll("materials")) || [];
-        const localDailyPlans = (await getAll("dailyPlans")) || {};
-        const data = {
-            materials: localMaterials,
-            dailyPlans: localDailyPlans,
+        const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js');
+        
+        await setDoc(doc(db, "backups", currentUser.uid), {
+            materials: materials,
+            dailyPlans: dailyPlans,
             updatedAt: new Date().toISOString(),
-        };
-        await setDoc(doc(db, "backups", currentUser.uid), data);
-        alert("アップロード完了！");
-    } catch (err) {
-        console.error(err);
-        alert("失敗しました。");
+        });
+        
+        alert("アップロードが完了しました。");
+    } catch (e) {
+        console.error("Upload error:", e);
+        alert("アップロードに失敗しました。");
     } finally {
         uploadBtn.disabled = false;
     }
 });
+
+// --- ダウンロード処理 ---
 downloadBtn.addEventListener("click", async () => {
-    if (!window.confirm("データを上書きします。よろしいですか？")) return;
-    if (!navigator.onLine) { return alert("オフラインのため操作できません。"); }
-    if (!currentUser) { return alert("まずログインしてください。"); }
+    if (!db || !currentUser) return;
+    if (!window.confirm("データをクラウドからダウンロードして上書きします。よろしいですか？")) return;
     
     downloadBtn.disabled = true;
+
     try {
+        const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js');
+        
         const snapshot = await getDoc(doc(db, "backups", currentUser.uid));
         if (!snapshot.exists()) {
-            alert("バックアップデータが存在しません。");
+            alert("バックアップデータが存在しませんでした。");
             return;
         }
+
         const data = snapshot.data();
-        await saveAll("materials", data.materials || []);
-        await saveAll("dailyPlans", data.dailyPlans || {});
-        await loadData();
-        renderMaterialList();
-        renderTodayPlans();
-        alert("ダウンロード完了！");
-    } catch (err) {
-        console.error(err);
-        alert("失敗しました。");
+        
+        // データ反映
+        materials.splice(0, materials.length, ...(data.materials || []));
+        for (const key in dailyPlans) delete dailyPlans[key];
+        Object.assign(dailyPlans, data.dailyPlans || {});
+        
+        saveAndRender();
+        alert("ダウンロードが完了しました。");
+    } catch (e) {
+        console.error("Download error:", e);
+        alert("ダウンロードに失敗しました。");
     } finally {
         downloadBtn.disabled = false;
     }
@@ -1029,19 +1035,25 @@ if ('serviceWorker' in navigator) {
 
 // --- [9. ★新設：初期化フロー] ---
 window.addEventListener('DOMContentLoaded', () => {
-    // A. フィルタの状態を戻す
+    // A. UIの状態を復元
     restoreUIState();
 
-    // B. データの読込と描画を最速で開始
+    // B. IndexedDBからロードして即描画 (Firebaseを待たない！)
     loadData().then(() => {
-        const savedCategory = localStorage.getItem("sp_filterCategory");
-        if (savedCategory !== null) filterCategorySelect.value = savedCategory;
+        const savedCat = localStorage.getItem("sp_filterCategory");
+        if (savedCat !== null) filterCategorySelect.value = savedCat;
         renderMaterialList();
         renderTodayPlans();
+        
+        // C. 画面が出た後、裏でFirebaseを読み込み開始
+        initFirebase().then((res) => {
+            db = res.db;
+            updateSyncButtons();
+        });
     });
 
-    // C. 同期ボタンは後回し
-    setTimeout(updateSyncButtons, 500);
+    // 初期状態のボタン更新
+    updateSyncButtons();
 });
 
 // バージョン表示
@@ -1051,6 +1063,5 @@ window.showVersion = function() {
 
 window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
+window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
-
-
