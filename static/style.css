@@ -382,7 +382,7 @@ body {
 /* --- フッター --- */
 .button-group {
     width: 100%;
-    max-width: 600px;
+    max-width: var(--main-max-width);
 
     /* ↓ここを修正：高さは「60px + セーフエリア」と明示する */
     height: calc(60px + env(safe-area-inset-bottom));
@@ -572,6 +572,7 @@ button:disabled {
 .status-badge.learning { background-color: #515de1; }
 .status-badge.waiting { background-color: #bbb; }
 .status-badge.completed { background-color: #3cd651; }
+
 
 
 
