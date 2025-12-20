@@ -1,4 +1,4 @@
-const CACHE_NAME = 'static-v2.3.0';
+const CACHE_NAME = 'static-v2.3.1';
 const BASE_PATH = '/Studyplanner/';
 
 const FILES_TO_CACHE = [
@@ -31,6 +31,13 @@ self.addEventListener('activate', event => {
         )
     );
     self.clients.claim();
+});
+
+// メッセージを受け取って即座に入れ替える
+self.addEventListener('message', (event) => {
+    if (event.data === 'skipWaiting') {
+        self.skipWaiting();
+    }
 });
 
 // Stale-While-Revalidate
