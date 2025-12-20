@@ -1,53 +1,32 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
-
-const app = initializeApp(window.FIREBASE_CONFIG);
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
-provider.setCustomParameters({
-    prompt: 'select_account'
-});
-
+// 外部から参照する変数は最初 null にしておく
 export let currentUser = null;
+let auth = null;
 
-// --- ログイン ---
-document.getElementById("login-btn").addEventListener("click", async () => {
-    try {
-        const result = await signInWithPopup(auth, provider);
-        currentUser = result.user;
-        alert(`ようこそ、${currentUser.displayName}さん！`);
-    } catch (error) {
-        console.error("ログインエラー:", error);
-        alert("ログインに失敗しました。");
-    }
-});
+// Firebaseをバックグラウンドで読み込む関数
+export async function initFirebase() {
+    // ここで初めて重いファイルを読みに行く（非同期）
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js');
+    const { getAuth, GoogleAuthProvider, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js');
+    const { getFirestore } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js');
 
-// --- ログアウト ---
-document.getElementById("logout-btn").addEventListener("click", async () => {
-    try {
-        await signOut(auth);
-        currentUser = null;
-        alert("ログアウトしました");
-    } catch (error) {
-        console.error("ログアウトエラー:", error);
-        alert("ログアウトに失敗しました");
-    }
-});
+    const app = initializeApp(window.FIREBASE_CONFIG);
+    auth = getAuth(app);
+    const db = getFirestore(app);
 
-// --- ログイン状態監視 ---
-const status = document.getElementById("login-status-panel");
-onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    if (user) {
-        status.textContent = `ログイン中： ${user.displayName} さん`;
-        document.getElementById("login-btn").style.display = "none";
-        document.getElementById("logout-btn").style.display = "block";
-    } else {
-        status.textContent = "未ログイン";
-        document.getElementById("login-btn").style.display = "block";
-        document.getElementById("logout-btn").style.display = "none";
-    }
+    // ログイン状態の監視を開始
+    onAuthStateChanged(auth, (user) => {
+        currentUser = user;
+        // 準備ができたらイベントを飛ばして script.js に知らせる
+        window.dispatchEvent(new Event('auth-ready'));
+    });
 
-    // ログイン状態変更をscript.jsに通知（カスタムイベント）
-    window.dispatchEvent(new Event('auth-changed'));
-});
+    return { auth, db };
+}
+
+// 実際のログイン処理（ボタンが押されたとき用）
+export async function loginWithGoogle() {
+    if (!auth) return; // まだ読み込み中なら何もしない
+    const { GoogleAuthProvider, signInWithPopup } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js');
+    const provider = new GoogleAuthProvider();
+    return await signInWithPopup(auth, provider);
+}
