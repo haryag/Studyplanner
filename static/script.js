@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 
 // --- 定数 ---
 const APP_NAME = 'Studyplanner';
-const SW_VERSION = 'v3.10.4';
+const APP_VERSION = 'v3.10.5';
 const LAST_UPDATED = '2025/12/20';
 const BASE_PATH = '/Studyplanner/';
 
@@ -897,7 +897,7 @@ exportJsonBtn.addEventListener("click", () => {
         dailyPlans: dailyPlans,
         exportedAt: new Date().toISOString(),
         appName: APP_NAME,
-        version: SW_VERSION
+        version: APP_VERSION
     };
 
     // JSON文字列に変換
@@ -1006,7 +1006,7 @@ function offerUpdate(worker) {
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`)
+        navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${Date.now()}`)
             .then(reg => {
                 // A. すでに待機中の更新があるかチェック
                 if (reg.waiting) offerUpdate(reg.waiting);
@@ -1047,11 +1047,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // バージョン表示
 window.showVersion = function() {
-    alert(`${APP_NAME}\nバージョン：${SW_VERSION}\n最終更新日：${LAST_UPDATED}`);
+    alert(`${APP_NAME}\nバージョン：${APP_VERSION}\n最終更新日：${LAST_UPDATED}`);
 };
 
 window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
-
-
