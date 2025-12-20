@@ -1,4 +1,6 @@
-const CACHE_NAME = 'static-v2.4.0';
+importScripts('static/version.js');
+
+const CACHE_NAME = 'static-' + self.APP_VERSION;
 const BASE_PATH = '/Studyplanner/';
 
 const FILES_TO_CACHE = [
