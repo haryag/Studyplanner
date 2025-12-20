@@ -1,32 +1,77 @@
-// 外部から参照する変数は最初 null にしておく
+// --- グローバル変数とエクスポート ---
 export let currentUser = null;
-let auth = null;
+export let auth = null;
+export let db = null;
 
-// Firebaseをバックグラウンドで読み込む関数
+// Firebaseをバックグラウンドで非同期初期化する関数
 export async function initFirebase() {
-    // ここで初めて重いファイルを読みに行く（非同期）
-    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js');
-    const { getAuth, GoogleAuthProvider, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js');
-    const { getFirestore } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js');
+    try {
+        const { initializeApp } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js');
+        const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js');
+        const { getFirestore } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js');
 
-    const app = initializeApp(window.FIREBASE_CONFIG);
-    auth = getAuth(app);
-    const db = getFirestore(app);
+        const app = initializeApp(window.FIREBASE_CONFIG);
+        auth = getAuth(app);
+        db = getFirestore(app);
 
-    // ログイン状態の監視を開始
-    onAuthStateChanged(auth, (user) => {
-        currentUser = user;
-        // 準備ができたらイベントを飛ばして script.js に知らせる
+        // ログイン状態の監視を開始
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            // ★追加: ログイン/ログアウトした瞬間に script.js に通知してボタンを切り替えさせる
+            window.dispatchEvent(new Event('auth-changed'));
+        });
+
+        // 初期化完了を通知
         window.dispatchEvent(new Event('auth-ready'));
-    });
 
-    return { auth, db };
+        return { auth, db };
+    } catch (e) {
+        console.error("Firebase init failed:", e);
+    }
 }
 
-// 実際のログイン処理（ボタンが押されたとき用）
-export async function loginWithGoogle() {
-    if (!auth) return; // まだ読み込み中なら何もしない
-    const { GoogleAuthProvider, signInWithPopup } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js');
-    const provider = new GoogleAuthProvider();
-    return await signInWithPopup(auth, provider);
-}
+// --- ログイン処理 ---
+const loginBtn = document.getElementById("login-btn");
+loginBtn.addEventListener("click", async () => {
+    // 準備（ガード）
+    if (!auth || !navigator.onLine) return; 
+
+    loginBtn.disabled = true;
+
+    try {
+        const { signInWithPopup, GoogleAuthProvider } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js');
+        const provider = new GoogleAuthProvider();
+        
+        // currentUser = result.user は onAuthStateChanged側で自動反映されるので代入不要です
+        await signInWithPopup(auth, provider);
+        
+        // ログインに成功しても、ここにはcurrentUser名などは出さずシンプルな通知にします（安定のため）
+        alert(`ようこそ！ログインに成功しました。`);
+    } catch (e) {
+        console.error("Login error:", e);
+        alert("ログインに失敗しました。");
+    } finally {
+        loginBtn.disabled = false;
+    }
+});
+
+// --- ログアウト処理 ---
+const logoutBtn = document.getElementById("logout-btn");
+logoutBtn.addEventListener("click", async () => {
+    if (!auth) return; 
+    if (!window.confirm("ログアウトしますか？")) return;
+
+    logoutBtn.disabled = true;
+
+    try {
+        const { signOut } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js');
+        await signOut(auth);
+        
+        alert("ログアウトしました。");
+    } catch (e) {
+        console.error("Logout error:", e);
+        alert("ログアウトに失敗しました。");
+    } finally {
+        logoutBtn.disabled = false;
+    }
+});
