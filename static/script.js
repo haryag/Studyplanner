@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 
 // --- 定数 ---
 const APP_NAME = 'Studyplanner';
-const SW_VERSION = 'v3.10.3';
+const SW_VERSION = 'v3.10.4';
 const LAST_UPDATED = '2025/12/20';
 const BASE_PATH = '/Studyplanner/';
 
@@ -113,6 +113,21 @@ const restoreUIState = () => {
     const savedStatus = localStorage.getItem("sp_filterStatus");
     if (savedStatus !== null) filterStatusSelect.value = savedStatus;
 };
+
+function updateSyncButtons() {
+    const isOnline = navigator.onLine;
+    const isLoggedIn = (currentUser !== null);
+    const isDisabled = !(isOnline && isLoggedIn);
+
+    if (uploadBtn) uploadBtn.disabled = isDisabled;
+    if (downloadBtn) downloadBtn.disabled = isDisabled;
+    
+    // ついでにログイン状態のパネルも更新する
+    const statusPanel = document.getElementById("login-status-panel");
+    if (statusPanel) {
+        statusPanel.textContent = currentUser ? `ログイン中： ${currentUser.displayName} さん` : "未ログイン";
+    }
+}
 
 // --- IndexedDB 関連 ---
 const dbPromise = new Promise((resolve, reject) => {
@@ -974,9 +989,18 @@ document.addEventListener("keydown", (e) => {
     }
 });
 
+let isAlertShowing = false; // アラートの二重出し防止フラグ
+
 function offerUpdate(worker) {
+    // すでにアラート表示中なら何もしない
+    if (isAlertShowing) return;
+    
+    isAlertShowing = true;
     if (confirm("新しいバージョンがあります。更新（再起動）しますか？")) {
         worker.postMessage('skipWaiting');
+    } else {
+        // キャンセルした場合はフラグを戻す（次の更新チェックに備える）
+        isAlertShowing = false;
     }
 }
 
@@ -1029,4 +1053,5 @@ window.showVersion = function() {
 window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
+
 
