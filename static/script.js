@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 
 // --- 定数 ---
 const APP_NAME = 'Studyplanner';
-const APP_VERSION = 'v3.10.5';
+const APP_VERSION = 'v3.10.6';
 const LAST_UPDATED = '2025/12/20';
 const BASE_PATH = '/Studyplanner/';
 
@@ -1006,7 +1006,7 @@ function offerUpdate(worker) {
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${Date.now()}`)
+        navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${APP_VERSION}`)
             .then(reg => {
                 // A. すでに待機中の更新があるかチェック
                 if (reg.waiting) offerUpdate(reg.waiting);
@@ -1047,9 +1047,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // バージョン表示
 window.showVersion = function() {
-    alert(`${APP_NAME}\nバージョン：${APP_VERSION}\n最終更新日：${LAST_UPDATED}`);
+    alert(`${APP_NAME}\n\nバージョン：${APP_VERSION}\n最終更新日：${LAST_UPDATED}`);
 };
 
 window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
+
