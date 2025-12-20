@@ -3,6 +3,7 @@
 /* --- 変数定義 --- */
 :root {
     --app-bg-color: #f8f9fa;
+    --main-max-width: 600px;
     --border-radius-size: 5px;
 }
 
@@ -23,7 +24,7 @@ html, body {
 /* --- メインレイアウト --- */
 .main-wrapper {
     width: 100%;
-    max-width: 600px;
+    max-width: var(--main-max-width);
     height: 100%;
     margin: 0 auto;
     background-color: var(--app-bg-color);
