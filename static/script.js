@@ -1,4 +1,4 @@
-import { initFirebase, currentUser, loginWithGoogle, logoutGoogle } from './login.js';
+import { initFirebase, currentUser } from './login.js';
 
 // --- 定数 ---
 const APP_NAME = 'Studyplanner';
@@ -1065,3 +1065,4 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
+
