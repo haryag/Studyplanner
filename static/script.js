@@ -1009,32 +1009,40 @@ document.addEventListener("keydown", (e) => {
     }
 });
 
-let isAlertShowing = false; // アラートの二重出し防止フラグ
+// --- [8. サービスワーカー登録と更新感知] ---
+let isUpdateProcessed = (sessionStorage.getItem('sw_update_processed') === 'true');
 
 function offerUpdate(worker) {
-    // すでにアラート表示中なら何もしない
-    if (isAlertShowing) return;
-    
-    isAlertShowing = true;
-    if (confirm("新しいバージョンがあります。更新（再起動）しますか？")) {
-        worker.postMessage('skipWaiting');
-    } else {
-        // キャンセルした場合はフラグを戻す（次の更新チェックに備える）
-        isAlertShowing = false;
-    }
+    if (isUpdateProcessed) return;
+
+    isUpdateProcessed = true;
+    sessionStorage.setItem('sw_update_processed', 'true');
+
+    // 起動直後の安定を待ってから通知
+    setTimeout(() => {
+        if (confirm("新しいバージョンがあります。更新（再起動）しますか？")) {
+            worker.postMessage('skipWaiting');
+        }
+    }, 1000); 
 }
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${window.APP_VERSION}`)
+        navigator.serviceWorker.register(`${BASE_PATH}sw.js?v=${window.APP_VERSION}`)
             .then(reg => {
-                // 少し（0.5秒）遅らせることで、交代完了を確実に待つ
-                setTimeout(() => {
-                    if (reg.waiting) offerUpdate(reg.waiting);
-                }, 500); 
                 
+                // パターンA: すでに待機中の更新がある場合
+                setTimeout(() => {
+                    if (reg.waiting && navigator.serviceWorker.controller) {
+                        offerUpdate(reg.waiting);
+                    }
+                }, 1000);
+
+                // パターンB: 起動中に新バージョンを検知した場合
                 reg.addEventListener('updatefound', () => {
                     const newWorker = reg.installing;
+                    if (!newWorker) return;
+
                     newWorker.addEventListener('statechange', () => {
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                             offerUpdate(newWorker);
@@ -1043,13 +1051,16 @@ if ('serviceWorker' in navigator) {
                 });
             });
     });
-    // SWが入れ替わったら自動リロード
+
+    // サービスワーカーの入れ替え完了時にリロード
     let refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) { refreshing = true; window.location.reload(); }
+        if (refreshing) return;
+        refreshing = true;
+        sessionStorage.setItem('sw_update_processed', 'true');
+        window.location.reload();
     });
 }
-
 // --- [9. ★新設：初期化フロー] ---
 window.addEventListener('DOMContentLoaded', () => {
     // A. UIの状態を復元
@@ -1082,6 +1093,7 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
+
 
 
 
