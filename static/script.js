@@ -3,7 +3,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 
 // --- 定数 ---
 const APP_NAME = 'Studyplanner';
-const SW_VERSION = 'v3.10.2';
+const SW_VERSION = 'v3.10.3';
 const LAST_UPDATED = '2025/12/20';
 const BASE_PATH = '/Studyplanner/';
 
@@ -1029,3 +1029,4 @@ window.showVersion = function() {
 window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
+
