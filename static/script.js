@@ -1028,9 +1028,11 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${window.APP_VERSION}`)
             .then(reg => {
-                // A. すでに待機中の更新があるかチェック
-                if (reg.waiting) offerUpdate(reg.waiting);
-                // B. 実行中に新しい更新が見つかった場合
+                // 少し（0.5秒）遅らせることで、交代完了を確実に待つ
+                setTimeout(() => {
+                    if (reg.waiting) offerUpdate(reg.waiting);
+                }, 500); 
+                
                 reg.addEventListener('updatefound', () => {
                     const newWorker = reg.installing;
                     newWorker.addEventListener('statechange', () => {
@@ -1080,5 +1082,6 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
+
 
 
