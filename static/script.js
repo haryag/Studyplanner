@@ -3,8 +3,8 @@ import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/fireb
 
 // --- 定数 ---
 const APP_NAME = 'Studyplanner';
-const SW_VERSION = 'v3.10.1';
-const LAST_UPDATED = '2025/12/19';
+const SW_VERSION = 'v3.10.2';
+const LAST_UPDATED = '2025/12/20';
 const BASE_PATH = '/Studyplanner/';
 
 // --- 日付取得 ---
@@ -101,6 +101,18 @@ let editingSortId = null;
 function renderAppShell() {
     todayDatePanel.textContent = "Loading...";
 }
+
+// 入力データを復元
+const restoreUIState = () => {
+    const savedQuery = localStorage.getItem("sp_searchQuery");
+    if (savedQuery !== null) searchMaterialInput.value = savedQuery;
+
+    const savedFilter = localStorage.getItem("sp_filterSubject");
+    if (savedFilter !== null) filterSubjectSelect.value = savedFilter;
+
+    const savedStatus = localStorage.getItem("sp_filterStatus");
+    if (savedStatus !== null) filterStatusSelect.value = savedStatus;
+};
 
 // --- IndexedDB 関連 ---
 const dbPromise = new Promise((resolve, reject) => {
@@ -962,60 +974,58 @@ document.addEventListener("keydown", (e) => {
     }
 });
 
-// --- ボタンの有効/無効を切り替える関数 ---
-function updateSyncButtons() {
-    const isOnline = navigator.onLine;
-    const isLoggedIn = (currentUser !== null);
-    const isDisabled = !(isOnline && isLoggedIn);
-
-    if (uploadBtn) uploadBtn.disabled = isDisabled;
-    if (downloadBtn) downloadBtn.disabled = isDisabled;
+function offerUpdate(worker) {
+    if (confirm("新しいバージョンがあります。更新（再起動）しますか？")) {
+        worker.postMessage('skipWaiting');
+    }
 }
 
-// --- ネットワーク・認証状態変化を監視 ---
-window.addEventListener('online', updateSyncButtons);
-window.addEventListener('offline', updateSyncButtons);
-window.addEventListener('auth-changed', updateSyncButtons);
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`)
+            .then(reg => {
+                // A. すでに待機中の更新があるかチェック
+                if (reg.waiting) offerUpdate(reg.waiting);
+                // B. 実行中に新しい更新が見つかった場合
+                reg.addEventListener('updatefound', () => {
+                    const newWorker = reg.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            offerUpdate(newWorker);
+                        }
+                    });
+                });
+            });
+    });
+    // SWが入れ替わったら自動リロード
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) { refreshing = true; window.location.reload(); }
+    });
+}
 
-// --- 初期化フロー ---
-renderAppShell();
-
+// --- [9. ★新設：初期化フロー] ---
 window.addEventListener('DOMContentLoaded', () => {
-    const savedQuery = localStorage.getItem("sp_searchQuery");
-    if (savedQuery !== null) searchMaterialInput.value = savedQuery;
+    // A. フィルタの状態を戻す
+    restoreUIState();
 
-    const savedFilter = localStorage.getItem("sp_filterSubject");
-    if (savedFilter !== null) filterSubjectSelect.value = savedFilter;
-
-    const savedStatus = localStorage.getItem("sp_filterStatus");
-    if (savedStatus !== null) filterStatusSelect.value = savedStatus;
-    
-    setTimeout(async () => {
-        await loadData();
-        updateCategoryOptions();
+    // B. データの読込と描画を最速で開始
+    loadData().then(() => {
         const savedCategory = localStorage.getItem("sp_filterCategory");
         if (savedCategory !== null) filterCategorySelect.value = savedCategory;
-
         renderMaterialList();
         renderTodayPlans();
-    }, 0);
+    });
 
+    // C. 同期ボタンは後回し
     setTimeout(updateSyncButtons, 500);
 });
 
-// --- Service Worker 設定 ---
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register(`${BASE_PATH}sw.js?version=${SW_VERSION}`);
-}
+// バージョン表示
+window.showVersion = function() {
+    alert(`${APP_NAME}\nバージョン：${SW_VERSION}\n最終更新日：${LAST_UPDATED}`);
+};
 
-// --- バージョン表示 ---
-function showVersion() {
-    window.alert(
-        APP_NAME +
-        "\n\n" +
-        "バージョン：" + SW_VERSION +
-        "\n最終更新日：" + LAST_UPDATED
-    );
-}
-window.showVersion = showVersion;
-
+window.addEventListener('online', updateSyncButtons);
+window.addEventListener('offline', updateSyncButtons);
+window.addEventListener('auth-changed', updateSyncButtons);
