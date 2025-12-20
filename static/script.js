@@ -115,15 +115,30 @@ const restoreUIState = () => {
 function updateSyncButtons() {
     const isOnline = navigator.onLine;
     const isLoggedIn = (currentUser !== null);
-    const isDisabled = !(isOnline && isLoggedIn);
+    const isLoaded = (db !== null); // Firebase読み込み済みか
 
+    // 同期ボタンの有効・無効（前回までのお揃い部分）
+    const isDisabled = !(isOnline && isLoggedIn && isLoaded);
     if (uploadBtn) uploadBtn.disabled = isDisabled;
     if (downloadBtn) downloadBtn.disabled = isDisabled;
-    
-    // ついでにログイン状態のパネルも更新する
+
+    // --- ここから追加：ログイン・ログアウトボタンの出し分け ---
+    const loginBtn = document.getElementById("login-btn");
+    const logoutBtn = document.getElementById("logout-btn");
     const statusPanel = document.getElementById("login-status-panel");
-    if (statusPanel) {
-        statusPanel.textContent = currentUser ? `ログイン中： ${currentUser.displayName} さん` : "未ログイン";
+
+    if (loginBtn && logoutBtn) {
+        if (isLoggedIn) {
+            // ログイン中のとき
+            loginBtn.style.display = "none";   // ログインボタンを隠す
+            logoutBtn.style.display = "block"; // ログアウトボタンを出す
+            if (statusPanel) statusPanel.textContent = `ログイン中： ${currentUser.displayName} さん`;
+        } else {
+            // 未ログインのとき
+            loginBtn.style.display = "block";  // ログインボタンを出す
+            logoutBtn.style.display = "none";  // ログアウトボタンを隠す
+            if (statusPanel) statusPanel.textContent = isLoaded ? "未ログイン" : "接続準備中...";
+        }
     }
 }
 
@@ -1065,4 +1080,5 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
+
 
