@@ -1,0 +1,57 @@
+/* 初期表示で使う可能性のある変数を最低限入れる */
+
+/* --- 変数定義 --- */
+:root {
+    --app-bg-color: #f8f9fa;
+    --border-radius-size: 5px;
+}
+
+/* --- リセット & 全体設定 --- */
+* {
+    box-sizing: border-box !important;
+    font-family: sans-serif;
+}
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: var(--app-bg-color);
+}
+.hidden { display: none !important; }
+
+/* --- メインレイアウト --- */
+.main-wrapper {
+    width: 100%;
+    max-width: 600px;
+    height: 100%;
+    margin: 0 auto;
+    background-color: var(--app-bg-color);
+    position: relative;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+}
+
+/* コンテンツ表示領域 */
+.display-container {
+    width: 100%;
+    height: calc(100% - 60px - env(safe-area-inset-bottom));
+    overflow-y: auto;
+    padding: 16px;
+}
+
+/* --- ヘッダー --- */
+.header {
+    margin: 24px 0 32px 0;
+    text-align: center;
+}
+.header h1 {
+    font-size: 20px;
+    margin: 0 0 4px 0;
+    color: #333;
+}
+.header p {
+    font-size: 13px;
+    color: #666;
+    margin: 0;
+    min-height: 1.2em;
+}
