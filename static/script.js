@@ -339,12 +339,10 @@ function createIconButton(className, iconHtml, onClick) {
 
 // ----- 保存して再描画 -----
 async function saveAndRender() {
-    // 確実に保存が終わってから描画
-    try {
-        await saveData();
-    } catch (e) {
-        console.error('データ保存に失敗しました', e);
-    }
+    // すぐに反映され描画されるが、保存は裏で行われる
+    saveData().catch(e => {
+        console.error("端末への保存に失敗しました", e);
+    });
     renderMaterialList();
     renderTodayPlans();
 }
@@ -1076,3 +1074,4 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
+
