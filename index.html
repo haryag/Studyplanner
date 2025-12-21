@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="static/style.css" media="print" onload="this.media='all'">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400..700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400..700&display=swap" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
 </head>
@@ -32,7 +33,7 @@
             <div class="operate-wrapper">
                 <!-- 検索バー -->
                 <div class="search-box">
-                    <input type="text" id="search-material-input" placeholder="教材名を検索...">
+                    <input type="text" id="search-material-input" placeholder="教材名を検索..." aria-label="教材名を検索">
                 </div>
             
                 <!-- フィルタボタン群（横並び） -->
@@ -266,3 +267,4 @@
     <script type="module" src="static/script.js" defer></script>
 </body>
 </html>
+
