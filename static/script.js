@@ -2,10 +2,10 @@ import { initFirebase, currentUser } from './login.js';
 
 // --- 定数 ---
 const APP_NAME = 'Studyplanner';
-const LAST_UPDATED = '2025/12/20';
+const LAST_UPDATED = '2025/12/21';
 const BASE_PATH = '/Studyplanner/';
 
-// --- 日付取得 ---
+// --- 日付 ---
 const getLocalDate = () => {
     const d = new Date();
     const y = d.getFullYear();
@@ -115,7 +115,7 @@ const restoreUIState = () => {
 function updateSyncButtons() {
     const isOnline = navigator.onLine;
     const isLoggedIn = (currentUser !== null);
-    const isLoaded = (db !== null); // Firebase読み込み済みか
+    const isLoaded = (db !== null);
 
     // 同期ボタンの有効・無効（前回までのお揃い部分）
     const isDisabled = !(isOnline && isLoggedIn && isLoaded);
@@ -129,14 +129,12 @@ function updateSyncButtons() {
 
     if (loginBtn && logoutBtn) {
         if (isLoggedIn) {
-            // ログイン中のとき
-            loginBtn.style.display = "none";   // ログインボタンを隠す
-            logoutBtn.style.display = "block"; // ログアウトボタンを出す
+            loginBtn.style.display = "none";
+            logoutBtn.style.display = "block";
             if (statusPanel) statusPanel.textContent = `ログイン中： ${currentUser.displayName} さん`;
         } else {
-            // 未ログインのとき
-            loginBtn.style.display = "block";  // ログインボタンを出す
-            logoutBtn.style.display = "none";  // ログアウトボタンを隠す
+            loginBtn.style.display = "block";
+            logoutBtn.style.display = "none";
             if (statusPanel) statusPanel.textContent = isLoaded ? "未ログイン" : "接続準備中...";
         }
     }
@@ -306,8 +304,7 @@ function toggleModal(modal, show = true) {
 function populateMaterialSelect(selectedId = null) {
     planMaterialInput.innerHTML = "";
     materials.forEach(m => {
-        // 完了した教材は予定追加のリストに出さない場合はここでフィルタできますが、
-        // 復習の可能性もあるので一旦全表示にします。
+        // 復習の可能性を考慮し、完了教材も表示する
         const option = document.createElement("option");
         option.value = m.id;
         option.textContent = m.name;
@@ -333,13 +330,14 @@ function closeAllModals() {
     });
 }
 
+// 保存して再描画
 function saveAndRender() {
     saveData();
     renderMaterialList();
     renderTodayPlans();
 }
 
-// --- 描画ロジック ---
+// --- 予定描画 ---
 function renderTodayPlans() {
     document.getElementById("todaydate-panel").textContent = todayDisplay;
     planItems.innerHTML = "";
@@ -406,6 +404,7 @@ function renderTodayPlans() {
     });
 }
 
+// --- 教材描画 ---
 function renderMaterialList() {
     const query = searchMaterialInput.value.toLowerCase();
     const subjectFilter = filterSubjectSelect.value;
@@ -431,13 +430,12 @@ function renderMaterialList() {
             }
         }
 
-        // ★★★ ステータスフィルタ ★★★
+        // ステータスフィルタ
         if (statusFilter !== "all") {
             if (statusFilter === "planning") {
-                // 進行中 = 「完了」以外（つまり未着手 or 学習中）
+                // planning = 未完了（waiting + learning）扱い
                 if (status === "completed") return;
             } else {
-                // それ以外は完全一致で判定 (waiting, learning, completed)
                 if (status !== statusFilter) return;
             }
         }
@@ -560,6 +558,7 @@ function renderMaterialList() {
     }
 }
 
+// --- 教材並び替えモーダル描画 ---
 function renderSortMaterialModal() {
     sortItems.innerHTML = "";
     
@@ -635,7 +634,7 @@ function renderSortMaterialModal() {
 
 // --- アップロード処理 ---
 uploadBtn.addEventListener("click", async () => {
-    if (!db || !currentUser) return; // 念のためcurrentUserもチェック
+    if (!db || !currentUser) return;
     if (!window.confirm("データをクラウドへアップロードします。よろしいですか？")) return;
     
     uploadBtn.disabled = true;
@@ -744,7 +743,7 @@ confirmMaterialBtn.addEventListener("click", () => {
 
     if (!name) return alert("教材名を入力してください");
     
-    // 新規作成時はデフォルトで waiting (未着手) にする
+    // 新規作成時はデフォルトで waiting（未着手）にする
     if (editingMaterialId !== null) {
         const mat = materials.find(m => m.id === editingMaterialId);
         if (mat) { mat.name = name; mat.subject = subject; mat.category = category; }
@@ -756,7 +755,7 @@ confirmMaterialBtn.addEventListener("click", () => {
             subject, 
             category, 
             progress: 0, 
-            status: "waiting", // 新規デフォルト
+            status: "waiting",
             checked: false 
         });
     }
@@ -771,7 +770,7 @@ cancelInfoBtn.addEventListener("click", () => {
     toggleModal(infoMaterialModal, false);
 });
 confirmInfoBtn.addEventListener("click", () => {
-    let status = materialStatusSelect.value;  // letに変更（後で書き換える可能性があるため）
+    let status = materialStatusSelect.value;  // 後で書き換える可能性がある
     
     const date = materialDateInput.value;
     const progress = parseInt(materialProgressInput.value);
@@ -916,12 +915,10 @@ exportJsonBtn.addEventListener("click", () => {
     document.body.appendChild(a);
     a.click();
     
-    // 後始末
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 });
 importJsonBtn.addEventListener("click", () => {
-    // 隠しinputをクリックしてファイル選択画面を出す
     importFileInput.value = ""; // 同じファイルを再度選べるようにリセット
     importFileInput.click();
 });
@@ -936,13 +933,8 @@ importFileInput.addEventListener("change", (e) => {
             const data = JSON.parse(jsonStr);
 
             // 簡易的なデータ検証
-            if (!data.materials || !data.dailyPlans) {
-                return alert("エラー：正しいバックアップファイルではありません。");
-            }
-
-            if (!confirm(`データ（${data.exportedAt || '日付不明'} 作成）を読み込みますか？\n※現在のデータは上書きされます。`)) {
-                return;
-            }
+            if (!data.materials || !data.dailyPlans) return alert("エラー：正しいバックアップファイルではありません。");
+            if (!confirm(`データ（${data.exportedAt || '日付不明'} 作成）を読み込みますか？\n※現在のデータは上書きされます。`)) return;
 
             // データを変数に反映
             materials.splice(0, materials.length, ...data.materials);
@@ -951,7 +943,7 @@ importFileInput.addEventListener("change", (e) => {
             for (const key in dailyPlans) delete dailyPlans[key];
             Object.assign(dailyPlans, data.dailyPlans);
 
-            // カテゴリやインデックスDBも更新
+            // カテゴリやIndexed DBも更新
             await saveData();
             updateCategoryOptions();
             renderMaterialList();
@@ -991,7 +983,7 @@ document.addEventListener("keydown", (e) => {
     }
 });
 
-// --- [8. サービスワーカー登録と更新感知] ---
+// --- Service Worker登録と更新感知 ---
 let isUpdateProcessed = (sessionStorage.getItem('sw_update_processed') === 'true');
 
 function offerUpdate(worker) {
@@ -1011,7 +1003,6 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register(`${BASE_PATH}sw.js?v=${window.APP_VERSION}`)
             .then(reg => {
-                
                 // パターンA: すでに待機中の更新がある場合
                 setTimeout(() => {
                     if (reg.waiting && navigator.serviceWorker.controller) {
@@ -1033,7 +1024,7 @@ if ('serviceWorker' in navigator) {
             });
     });
 
-    // サービスワーカーの入れ替え完了時にリロード
+    // Service Workerの入れ替え完了時にリロード
     let refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (refreshing) return;
@@ -1042,19 +1033,16 @@ if ('serviceWorker' in navigator) {
         window.location.reload();
     });
 }
-// --- [9. ★新設：初期化フロー] ---
+// --- 初期化フロー ---
 window.addEventListener('DOMContentLoaded', () => {
-    // A. UIの状態を復元
     restoreUIState();
-
-    // B. IndexedDBからロードして即描画 (Firebaseを待たない！)
     loadData().then(() => {
         const savedCat = localStorage.getItem("sp_filterCategory");
         if (savedCat !== null) filterCategorySelect.value = savedCat;
         renderMaterialList();
         renderTodayPlans();
         
-        // C. 画面が出た後、裏でFirebaseを読み込み開始
+        // 画面が出た後、裏でFirebaseを読み込み開始
         initFirebase().then((res) => {
             db = res.db;
             updateSyncButtons();
@@ -1074,8 +1062,3 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
-
-
-
-
-
