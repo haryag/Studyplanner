@@ -180,37 +180,19 @@ async function getAll(key) {
 
 // --- 保存/読込 ---
 async function saveData() {
-    await saveAll("materials", materials);
-    await saveAll("dailyPlans", dailyPlans);
+    try {
+        await saveAll("materials", materials);
+        await saveAll("dailyPlans", dailyPlans);
+    } catch (e) {
+        console.error("端末への保存に失敗しました", e);
+    }
 }
 
 async function loadData() {
-    let savedMaterials = await getAll("materials");
-    let savedPlans = await getAll("dailyPlans");
+    const savedMaterials = await getAll("materials");
+    const savedPlans = await getAll("dailyPlans");
 
-    if (savedMaterials) {
-        // データ移行（旧データ互換）
-        savedMaterials = savedMaterials.map(m => {
-            // すでに status プロパティがあるなら何もしない
-            if (m.status) return m;
-
-            // status がない場合、旧プロパティから変換
-            if (m.learning === true || m.ongoing === true) { 
-                // 以前 learning または ongoing が true だった場合 → 学習中
-                m.status = "learning";
-            } else if (m.completed === true) {
-                // completed が true だった場合 → 完了
-                m.status = "completed";
-            } else {
-                // それ以外 → 未着手
-                m.status = "waiting";
-            }
-            
-            return m;
-        });
-
-        materials.splice(0, materials.length, ...savedMaterials);
-    }
+    if (savedMaterials) materials.splice(0, materials.length, ...savedMaterials);
     if (savedPlans) Object.assign(dailyPlans, savedPlans);
 
     updateCategoryOptions();
@@ -1015,12 +997,11 @@ let isUpdateProcessed = (sessionStorage.getItem('sw_update_processed') === 'true
 function offerUpdate(worker) {
     if (isUpdateProcessed) return;
 
-    isUpdateProcessed = true;
-    sessionStorage.setItem('sw_update_processed', 'true');
-
     // 起動直後の安定を待ってから通知
     setTimeout(() => {
         if (confirm("新しいバージョンがあります。更新（再起動）しますか？")) {
+            isUpdateProcessed = true;
+            sessionStorage.setItem('sw_update_processed', 'true');
             worker.postMessage('skipWaiting');
         }
     }, 1000); 
@@ -1093,6 +1074,7 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
+
 
 
 
