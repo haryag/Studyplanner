@@ -1,11 +1,11 @@
 import { initFirebase, currentUser } from './login.js';
 
-// --- 定数 ---
+// ----- 定数 -----
 const APP_NAME = 'Studyplanner';
 const LAST_UPDATED = '2025/12/21';
 const BASE_PATH = '/Studyplanner/';
 
-// --- 日付 ---
+// ----- 日付 -----
 const getLocalDate = () => {
     const d = new Date();
     const y = d.getFullYear();
@@ -14,19 +14,18 @@ const getLocalDate = () => {
     return `${y}-${m}-${day}`;
 };
 
-// --- Firebase / Firestore ---
+// ----- Firebase / Firestore -----
 let db = null;
 
-// --- データ初期化 ---
+// ----- データ初期化 -----
 const todayKey = getLocalDate();
 const todayDisplay = new Date().toLocaleDateString('ja-JP');
 const materials = [];
 const dailyPlans = {};
 let backupMaterials = [];
 let categories = new Set();
-let newWorker = null;
 
-// --- DOM要素 ---
+// ----- DOM要素 -----
 const wrapper = document.getElementById("wrapper");
 const todayDatePanel = document.getElementById("todaydate-panel");
 const planContainer = document.getElementById("plan-container");
@@ -95,7 +94,7 @@ let editingMaterialId = null;
 let editingIndex = null;
 let editingSortId = null;
 
-// --- 共通関数 ---
+// ----- 共通関数 -----
 function renderAppShell() {
     todayDatePanel.textContent = "Loading...";
 }
@@ -122,7 +121,7 @@ function updateSyncButtons() {
     if (uploadBtn) uploadBtn.disabled = isDisabled;
     if (downloadBtn) downloadBtn.disabled = isDisabled;
 
-    // --- ここから追加：ログイン・ログアウトボタンの出し分け ---
+    // ここから追加：ログイン・ログアウトボタンの出し分け
     const loginBtn = document.getElementById("login-btn");
     const logoutBtn = document.getElementById("logout-btn");
     const statusPanel = document.getElementById("login-status-panel");
@@ -140,7 +139,7 @@ function updateSyncButtons() {
     }
 }
 
-// --- IndexedDB 関連 ---
+// ----- IndexedDB 関連 -----
 const dbPromise = new Promise((resolve, reject) => {
     const request = indexedDB.open("Studyplanner", 1);
     request.onupgradeneeded = (event) => {
@@ -176,7 +175,7 @@ async function getAll(key) {
     });
 }
 
-// --- 保存/読込 ---
+// ----- 保存・読み込み -----
 async function saveData() {
     try {
         await saveAll("materials", materials);
@@ -196,7 +195,7 @@ async function loadData() {
     updateCategoryOptions();
 }
 
-// --- カテゴリ関連 ---
+// ----- カテゴリ関連 -----
 function updateCategoryOptions() {
     categories.clear();
     materials.forEach(m => {
@@ -404,7 +403,8 @@ function renderTodayPlans() {
     });
 }
 
-// --- 教材描画 ---
+// ----- 描画関数 -----
+// 教材描画
 function renderMaterialList() {
     const query = searchMaterialInput.value.toLowerCase();
     const subjectFilter = filterSubjectSelect.value;
@@ -558,7 +558,7 @@ function renderMaterialList() {
     }
 }
 
-// --- 教材並び替えモーダル描画 ---
+// 教材並び替えモーダル描画
 function renderSortMaterialModal() {
     sortItems.innerHTML = "";
     
@@ -632,7 +632,8 @@ function renderSortMaterialModal() {
     });
 }
 
-// --- アップロード処理 ---
+// ----- クラウド関連 -----
+// アップロード処理
 uploadBtn.addEventListener("click", async () => {
     if (!db || !currentUser) return;
     if (!window.confirm("データをクラウドへアップロードします。よろしいですか？")) return;
@@ -657,7 +658,7 @@ uploadBtn.addEventListener("click", async () => {
     }
 });
 
-// --- ダウンロード処理 ---
+// ダウンロード処理
 downloadBtn.addEventListener("click", async () => {
     if (!db || !currentUser) return;
     if (!window.confirm("データをクラウドからダウンロードして上書きします。よろしいですか？")) return;
@@ -690,7 +691,8 @@ downloadBtn.addEventListener("click", async () => {
     }
 });
 
-// --- モーダル操作イベント ---
+// --- モーダル操作 ---
+// 予定追加モーダル
 cancelPlanBtn.addEventListener("click", () => {
     toggleModal(addPlanModal, false);
 });
@@ -711,6 +713,7 @@ confirmPlanBtn.addEventListener("click", () => {
     saveAndRender();
 });
 
+// 教材追加モーダル
 openMaterialModalBtn.addEventListener("click", () => {
     updateCategoryOptions();
     
@@ -766,6 +769,7 @@ confirmMaterialBtn.addEventListener("click", () => {
     updateCategoryOptions();
 });
 
+// 教材詳細モーダル
 cancelInfoBtn.addEventListener("click", () => {
     toggleModal(infoMaterialModal, false);
 });
@@ -796,6 +800,7 @@ confirmInfoBtn.addEventListener("click", () => {
     saveAndRender();
 });
 
+// 教材並び替えモーダル
 openSortModalBtn.addEventListener("click", () => {
     backupMaterials = JSON.parse(JSON.stringify(materials));
     editingSortId = null;
@@ -811,6 +816,7 @@ confirmSortBtn.addEventListener("click", () => {
     saveAndRender();
 });
 
+// まとめて追加モーダル
 bulkAddBtn.addEventListener("click", () => {
     bulkMaterialList.innerHTML = "";
     
@@ -959,7 +965,7 @@ importFileInput.addEventListener("change", (e) => {
     reader.readAsText(file);
 });
 
-// Enterキー・Escキー操作
+// ----- Enterキー・Escキー操作 -----
 [addMaterialModal, addPlanModal].forEach(modal => {
     modal.addEventListener("keydown", e => {
         if (e.key === "Enter") {
@@ -983,7 +989,8 @@ document.addEventListener("keydown", (e) => {
     }
 });
 
-// --- Service Worker登録と更新感知 ---
+// ----- Service Worker登録と更新感知 -----
+let newWorker = null;
 let isUpdateProcessed = (sessionStorage.getItem('sw_update_processed') === 'true');
 
 function offerUpdate(worker) {
@@ -1033,7 +1040,7 @@ if ('serviceWorker' in navigator) {
         window.location.reload();
     });
 }
-// --- 初期化フロー ---
+// ----- 初期化フロー -----
 window.addEventListener('DOMContentLoaded', () => {
     restoreUIState();
     loadData().then(() => {
@@ -1062,3 +1069,4 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
+
