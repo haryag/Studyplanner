@@ -14,7 +14,6 @@
 
 /* --- リセット & 全体設定 --- */
 * {
-    /* box-sizing: border-box !important; */
     font-family: "Noto Sans JP", sans-serif;
     -webkit-tap-highlight-color: transparent;
 }
@@ -148,9 +147,7 @@ body {
     padding: 14px 14px;
     display: flex;
     align-items: center;
-    /* border: 1px solid transparent; */
     border-left: 5px solid transparent;
-    transition: all 0.3s ease;
     min-height: 60px;
 }
 .plan-item:active { background-color: #fafafa; }
@@ -174,10 +171,7 @@ body {
 .plan-info > div:first-child { font-weight: 700; font-size: 15px; margin-bottom: 2px; color: #333; padding-right: 4px; }
 .plan-info > div { font-size: 13px; color: #666; line-height: 1.4; }
 .plan-info i { width: 14px; margin-right: 2px; }
-.plan-item.checked .plan-icon i,
-.plan-item.checked .plan-info i {
-    color: #808080;
-}
+.plan-item.checked .plan-icon i, .plan-item.checked .plan-info i { color: #808080; }
 
 /* --- 教材アイテム --- */
 .material-item {
@@ -186,7 +180,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: stretch;
-    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: height 0.3s ease, padding 0.3s ease, box-shadow 0.3s ease;
     min-height: 64px;
 }
 
@@ -221,7 +215,6 @@ body {
     height: 6px;
     width: var(--material-bg-width);
     background-color: #f0f0f0;
-    transition: width 0.4s ease;
     z-index: 5;
 }
 .material-item::before { display: none; }
@@ -246,7 +239,7 @@ body {
     max-height: 0;
     opacity: 0;
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: max-height 0.3s ease, opacity 0.3s ease, margin-top 0.3s ease;
     font-size: 12px;
     color: #666;
     margin: 0;
@@ -383,11 +376,8 @@ body {
 .button-group {
     width: 100%;
     max-width: var(--main-max-width);
-
-    /* ↓ここを修正：高さは「60px + セーフエリア」と明示する */
     height: calc(60px + env(safe-area-inset-bottom));
     padding-bottom: env(safe-area-inset-bottom);
-    /* padding-top: 8px; */
     
     border-top: 1px solid #eee;
     background: rgba(255, 255, 255, 0.95);
@@ -484,7 +474,7 @@ select {
 #new-category-input {
     margin-top: 4px;
     border-color: #006ce0;
-    transition: all 0.3s ease;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
 .modal-btns {
@@ -523,7 +513,7 @@ select {
     border-bottom: none;
 }
 .bulk-item-label input {
-    margin: 0 10px 0 0 !important; /* 既存のinputスタイルを上書き */
+    margin: 0 10px 0 0 !important;
     width: auto !important;
 }
 .bulk-item-label span {
@@ -565,14 +555,9 @@ button:disabled {
     height: 10px;
     border-radius: 50%;
     z-index: 10;
-    /* box-shadow: 0 1px 2px rgba(0,0,0,0.2); */
 }
 
 /* 各ステータスの色定義 */
 .status-badge.learning { background-color: #515de1; }
 .status-badge.waiting { background-color: #bbb; }
 .status-badge.completed { background-color: #3cd651; }
-
-
-
-
