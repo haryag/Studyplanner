@@ -14,17 +14,6 @@ const getLocalDate = () => {
     return `${y}-${m}-${day}`;
 };
 
-// ----- Firebase / Firestore -----
-let db = null;
-
-// ----- データ初期化 -----
-const todayKey = getLocalDate();
-const todayDisplay = new Date().toLocaleDateString('ja-JP');
-const materials = [];
-const dailyPlans = {};
-let backupMaterials = [];
-let categories = new Set();
-
 // ----- DOM要素 -----
 const wrapper = document.getElementById("wrapper");
 const todayDatePanel = document.getElementById("todaydate-panel");
@@ -89,17 +78,26 @@ const bulkMaterialList = document.getElementById("bulk-material-list");
 const cancelBulkBtn = document.getElementById("cancel-bulk-btn");
 const confirmBulkBtn = document.getElementById("confirm-bulk-btn");
 
+// ----- Firebase / Firestore -----
+let db = null;
+
+// ----- データ初期化 -----
+const todayKey = getLocalDate();
+const todayDisplay = new Date().toLocaleDateString('ja-JP');
+const materials = [];
+const dailyPlans = {};
+let backupMaterials = [];
+let categories = new Set();
+
 // 編集用変数
 let editingMaterialId = null;
 let editingIndex = null;
 let editingSortId = null;
 
-// ----- 共通関数 -----
+// ----- UI初期化・状態復元 -----
 function renderAppShell() {
     todayDatePanel.textContent = "Loading...";
 }
-
-// 入力データを復元
 const restoreUIState = () => {
     const savedQuery = localStorage.getItem("sp_searchQuery");
     if (savedQuery !== null) searchMaterialInput.value = savedQuery;
@@ -111,6 +109,7 @@ const restoreUIState = () => {
     if (savedStatus !== null) filterStatusSelect.value = savedStatus;
 };
 
+// ----- 認証・同期UI制御 -----
 function updateSyncButtons() {
     const isOnline = navigator.onLine;
     const isLoggedIn = (currentUser !== null);
@@ -267,13 +266,31 @@ materialCategorySelect.addEventListener("change", () => {
     }
 });
 
-// --- 画面操作 ---
+// ----- UI制御（表示・操作）-----
+// 画面全体の切り替え
 function toggleSections() {
     const planVisible = !planContainer.classList.contains("hidden");
     planContainer.classList.toggle("hidden", planVisible);
     materialContainer.classList.toggle("hidden", !planVisible);
 }
 
+// 画面レイヤー制御
+function toggleModal(modal, show = true) {
+    const footer = document.getElementById("button-container");
+    if (footer) footer.style.display = show ? "none" : "flex";
+    if (wrapper) wrapper.classList.toggle("full-height", show);
+    modal.classList.toggle("hidden", !show);
+    document.body.style.overflow = show ? "hidden" : "";
+}
+
+// モーダル一括制御
+function closeAllModals() {
+    [addPlanModal, addMaterialModal, infoMaterialModal, sortMaterialModal].forEach(modal => {
+        if (!modal.classList.contains("hidden")) toggleModal(modal, false);
+    });
+}
+
+// 個別要素の操作
 function addTapToggle(itemDiv, type = "material", associatedData = null) {
     itemDiv.addEventListener("click", (e) => {
         if (e.target.closest("button")) return;
@@ -292,14 +309,8 @@ function addTapToggle(itemDiv, type = "material", associatedData = null) {
     });
 }
 
-function toggleModal(modal, show = true) {
-    const footer = document.getElementById("button-container");
-    if (footer) footer.style.display = show ? "none" : "flex";
-    if (wrapper) wrapper.classList.toggle("full-height", show);
-    modal.classList.toggle("hidden", !show);
-    document.body.style.overflow = show ? "hidden" : "";
-}
-
+// ----- UI生成・補助 -----
+// 予定追加時に使用する教材一覧を更新
 function populateMaterialSelect(selectedId = null) {
     planMaterialInput.innerHTML = "";
     materials.forEach(m => {
@@ -312,6 +323,7 @@ function populateMaterialSelect(selectedId = null) {
     });
 }
 
+// アイコン付きボタンを生成
 function createIconButton(className, iconHtml, onClick) {
     const btn = document.createElement("button");
     btn.className = className;
@@ -323,20 +335,15 @@ function createIconButton(className, iconHtml, onClick) {
     return btn;
 }
 
-function closeAllModals() {
-    [addPlanModal, addMaterialModal, infoMaterialModal, sortMaterialModal].forEach(modal => {
-        if (!modal.classList.contains("hidden")) toggleModal(modal, false);
-    });
-}
-
-// 保存して再描画
+// ----- 保存して再描画 -----
 function saveAndRender() {
     saveData();
     renderMaterialList();
     renderTodayPlans();
 }
 
-// --- 予定描画 ---
+// ----- 描画関数 -----
+// 予定描画
 function renderTodayPlans() {
     document.getElementById("todaydate-panel").textContent = todayDisplay;
     planItems.innerHTML = "";
@@ -403,7 +410,6 @@ function renderTodayPlans() {
     });
 }
 
-// ----- 描画関数 -----
 // 教材描画
 function renderMaterialList() {
     const query = searchMaterialInput.value.toLowerCase();
@@ -1069,4 +1075,5 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
+
 
