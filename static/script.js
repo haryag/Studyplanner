@@ -153,7 +153,7 @@ const dbPromise = new Promise((resolve, reject) => {
     request.onerror = (event) => reject(event.target.error);
 });
 
-async function saveAll(key, value) {
+async function saveLocalData(key, value) {
     const db = await dbPromise;
     return new Promise((resolve, reject) => {
         const tx = db.transaction("data", "readwrite");
@@ -165,7 +165,7 @@ async function saveAll(key, value) {
     });
 }
 
-async function getAll(key) {
+async function loadLocalData(key) {
     const db = await dbPromise;
     const tx = db.transaction("data", "readonly");
     const store = tx.objectStore("data");
@@ -177,19 +177,19 @@ async function getAll(key) {
 }
 
 // ----- 保存・読み込み -----
-async function saveData() {
+async function saveAll() {
     try {
-        await saveAll("materials", materials);
-        await saveAll("dailyPlans", dailyPlans);
+        await saveLocalData("materials", materials);
+        await saveLocalData("dailyPlans", dailyPlans);
     } catch (e) {
         console.error("端末への保存に失敗しました", e);
     }
 }
 
-async function loadData() {
+async function loadAll() {
     try {
-        const savedMaterials = await getAll("materials");
-        const savedPlans = await getAll("dailyPlans");
+        const savedMaterials = await loadLocalData("materials");
+        const savedPlans = await loadLocalData("dailyPlans");
 
         if (savedMaterials) materials.splice(0, materials.length, ...savedMaterials);
         if (savedPlans) Object.assign(dailyPlans, savedPlans);
@@ -344,7 +344,7 @@ function createIconButton(className, iconHtml, onClick) {
 // ----- 保存して再描画 -----
 function saveAndRender() {
     // UIはすぐに反映され描画されるが、保存は非同期で裏で行われる
-    saveData();
+    saveAll();
     renderMaterialList();
     renderTodayPlans();
 }
@@ -412,7 +412,7 @@ function renderTodayPlans() {
         if (plan.time) infoDiv.appendChild(timeDiv);
 
         item.append(iconDiv, infoDiv, btnContainer);
-        addTapToggle(item, "plan", plan);
+        addTapToggle(item, "plan");
         planItems.appendChild(item);
     });
 }
@@ -557,7 +557,7 @@ function renderMaterialList() {
 
         btnDiv.append(addPlanBtn, editBtn, infoBtn, delBtn);
         itemDiv.appendChild(btnDiv);
-        addTapToggle(itemDiv, "material", material);
+        addTapToggle(itemDiv, "material");
         materialItems.appendChild(itemDiv);
     });
 
@@ -962,7 +962,7 @@ importFileInput.addEventListener("change", (e) => {
             Object.assign(dailyPlans, data.dailyPlans);
 
             // カテゴリやIndexed DBも更新
-            await saveData();
+            await saveAll();
             updateCategoryOptions();
             renderMaterialList();
             renderTodayPlans();
@@ -1050,7 +1050,7 @@ if ('serviceWorker' in navigator) {
 // ----- 初期化フロー -----
 window.addEventListener('DOMContentLoaded', () => {
     restoreUIState();
-    loadData().then(() => {
+    loadAll().then(() => {
         const savedCat = localStorage.getItem("sp_filterCategory");
         if (savedCat !== null) filterCategorySelect.value = savedCat;
         renderMaterialList();
@@ -1076,4 +1076,5 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
+
 
