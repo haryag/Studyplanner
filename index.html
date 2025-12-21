@@ -83,7 +83,7 @@
             </div>
 
             <div>
-                <h3>教材管理</h3>
+                <h3>教材を管理</h3>
                 <div class="option-button-wrapper">
                     <button id="add-material-btn" class="bottom-btn">
                         <i class="fa-solid fa-plus"></i> 教材追加
@@ -93,9 +93,21 @@
                     </button>
                 </div>
             </div>
-        
+
             <div>
-                <h3>データを共有</h3>
+                <h3>オフラインで保存</h3>
+                <div class="option-button-wrapper">
+                    <button id="import-json-btn" class="bottom-btn">
+                        <i class="fa-solid fa-file-import"></i> JSON形式でインポート
+                    </button>
+                    <button id="export-json-btn" class="bottom-btn">
+                        <i class="fa-solid fa-file-export"></i> JSON形式でエクスポート
+                    </button>
+                </div>
+            </div>
+            
+            <div>
+                <h3>クラウドに保存</h3>
                 <div class="option-button-wrapper">
                     <p id="login-status-panel"></p>
                     <button id="upload-btn" class="bottom-btn" disabled>
@@ -103,12 +115,6 @@
                     </button>
                     <button id="download-btn" class="bottom-btn">
                         <i class="fa-solid fa-cloud-arrow-down"></i> ダウンロード
-                    </button>
-                    <button id="export-json-btn" class="bottom-btn">
-                        <i class="fa-solid fa-file-export"></i> エクスポート
-                    </button>
-                    <button id="import-json-btn" class="bottom-btn">
-                        <i class="fa-solid fa-file-import"></i> インポート
                     </button>
                     <input type="file" id="import-file-input" accept=".json" style="display: none;">
                     <button id="login-btn" class="bottom-btn">
@@ -267,4 +273,3 @@
     <script type="module" src="static/script.js" defer></script>
 </body>
 </html>
-
