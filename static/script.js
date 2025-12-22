@@ -222,13 +222,31 @@ async function saveAll() {
     }
 }
 
+// 124行目付近
 async function loadAll() {
     try {
         const savedMaterials = await loadLocalData("materials");
         const savedPlans = await loadLocalData("dailyPlans");
 
-        if (savedMaterials) materials.splice(0, materials.length, ...savedMaterials);
-        if (savedPlans) Object.assign(dailyPlans, savedPlans);
+        if (savedMaterials) {
+            // 読み込み時にプロパティを掃除
+            const cleaned = savedMaterials.map(m => {
+                const { ongoing, checked, ...rest } = m;
+                return sortObjectKeys(rest);
+            });
+            materials.splice(0, materials.length, ...cleaned);
+        }
+        
+        if (savedPlans) {
+            // 予定の中身もソートして反映
+            const cleanedPlans = {};
+            for (const key in savedPlans) {
+                if (savedPlans[key] && savedPlans[key].length > 0) {
+                    cleanedPlans[key] = savedPlans[key].map(task => sortObjectKeys(task));
+                }
+            }
+            Object.assign(dailyPlans, cleanedPlans);
+        }
 
         updateCategoryOptions();
     } catch (e) {
@@ -942,14 +960,15 @@ filterCategorySelect.addEventListener("change", () => {
 });
 
 // --- JSON エクスポート/インポート機能 ---
-exportJsonBtn.addEventListener("click", () => {
+exportJsonBtn.addEventListener("click", async () => {
     if (!confirm("現在のデータをファイルとして保存（ダウンロード）しますか？")) return;
-
+    await saveAll();
+    
     // 保存するデータを作成
     const data = {
         materials: materials,
         dailyPlans: dailyPlans,
-        exportedAt: new Date().toISOString(),
+        exportedAt: getLocalDate(),
         appName: APP_NAME,
         version: window.APP_VERSION
     };
@@ -1111,6 +1130,3 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
-
-
-
