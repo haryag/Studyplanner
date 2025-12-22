@@ -195,15 +195,14 @@ function sortObjectKeys(obj) {
 
 async function saveAll() {
     // materials のクリーンアップとソート
-    // 不要な ongoing, checked を除外し、キーを整列させる
     const cleanedMaterials = materials.map(m => {
         const { ongoing, checked, ...rest } = m;
         return sortObjectKeys(rest);
     });
+    materials.splice(0, materials.length, ...cleanedMaterials);
 
     // dailyPlans のクリーンアップとソート
     const cleanedPlans = {};
-    // 日付キーをソートし、空の配列を除外
     const sortedDates = Object.keys(dailyPlans).sort();
     
     sortedDates.forEach(date => {
@@ -212,6 +211,9 @@ async function saveAll() {
             cleanedPlans[date] = dailyPlans[date].map(task => sortObjectKeys(task));
         }
     });
+    
+    for (const key in dailyPlans) delete dailyPlans[key];
+    Object.assign(dailyPlans, cleanedPlans);
 
     try {
         // 整頓されたデータをIndexedDBへ保存
@@ -222,7 +224,6 @@ async function saveAll() {
     }
 }
 
-// 124行目付近
 async function loadAll() {
     try {
         const savedMaterials = await loadLocalData("materials");
@@ -1130,3 +1131,4 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
+
