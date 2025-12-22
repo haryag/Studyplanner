@@ -2,7 +2,7 @@ import { initFirebase, currentUser } from './login.js';
 
 // ----- 定数 -----
 const APP_NAME = 'Studyplanner';
-const LAST_UPDATED = '2025/12/21';
+const LAST_UPDATED = '2025/12/23';
 const BASE_PATH = '/Studyplanner/';
 
 // ----- 日付 -----
@@ -177,10 +177,46 @@ async function loadLocalData(key) {
 }
 
 // ----- 保存・読み込み -----
+// オブジェクトのキーを再帰的にアルファベット順にソートする補助関数
+function sortObjectKeys(obj) {
+    if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) {
+        if (Array.isArray(obj)) {
+            return obj.map(sortObjectKeys);
+        }
+        return obj;
+    }
+    const sortedKeys = Object.keys(obj).sort();
+    const result = {};
+    sortedKeys.forEach(key => {
+        result[key] = sortObjectKeys(obj[key]);
+    });
+    return result;
+}
+
 async function saveAll() {
+    // materials のクリーンアップとソート
+    // 不要な ongoing, checked を除外し、キーを整列させる
+    const cleanedMaterials = materials.map(m => {
+        const { ongoing, checked, ...rest } = m;
+        return sortObjectKeys(rest);
+    });
+
+    // dailyPlans のクリーンアップとソート
+    const cleanedPlans = {};
+    // 日付キーをソートし、空の配列を除外
+    const sortedDates = Object.keys(dailyPlans).sort();
+    
+    sortedDates.forEach(date => {
+        if (Array.isArray(dailyPlans[date]) && dailyPlans[date].length > 0) {
+            // 各予定の中身のキーもソートする
+            cleanedPlans[date] = dailyPlans[date].map(task => sortObjectKeys(task));
+        }
+    });
+
     try {
-        await saveLocalData("materials", materials);
-        await saveLocalData("dailyPlans", dailyPlans);
+        // 整頓されたデータをIndexedDBへ保存
+        await saveLocalData("materials", cleanedMaterials);
+        await saveLocalData("dailyPlans", cleanedPlans);
     } catch (e) {
         console.error("端末への保存に失敗しました", e);
     }
@@ -771,8 +807,7 @@ confirmMaterialBtn.addEventListener("click", () => {
             subject, 
             category, 
             progress: 0, 
-            status: "waiting",
-            checked: false 
+            status: "waiting"
         });
     }
     
@@ -1076,5 +1111,6 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
+
 
 
