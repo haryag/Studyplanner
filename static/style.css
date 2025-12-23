@@ -1,4 +1,4 @@
-/* --- 変数定義 --- */
+/* ----- 1. 変数定義 ----- */
 :root {
     --main-color-math: #00008b;
     --main-color-english: #ff69b4;
@@ -12,7 +12,8 @@
     --modal-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 }
 
-/* --- リセット & 全体設定 --- */
+
+/* ----- 2. リセット & 全体設定 ----- */
 * {
     font-family: "Noto Sans JP", sans-serif;
     -webkit-tap-highlight-color: transparent;
@@ -24,15 +25,26 @@ body {
     -webkit-text-size-adjust: 100%;
 }
 
-.invisible { visibility: hidden; }
 
-/* --- メインレイアウト --- */
+/* ----- 3. ユーティリティ（汎用クラス） ----- */
+.invisible { visibility: hidden; }
+.underlined { text-decoration: underline; }
+.no-data {
+    text-align: center;
+    color: #999;
+    font-size: 12px;
+    padding: 20px;
+}
+
+
+/* ----- 4. メインレイアウト ----- */
 .main-wrapper.full-height {
     height: 100dvh !important;
     overflow: hidden;
 }
 
-/* コンテンツ表示領域 */
+
+/* ----- 5. スクロール・表示制御 ----- */
 .display-container {
     padding-bottom: 100px;
     scrollbar-width: thin;
@@ -43,7 +55,8 @@ body {
 .display-container::-webkit-scrollbar { width: 6px; }
 .display-container::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; }
 
-/* --- 検索・オプションエリア --- */
+
+/* ----- 6. 検索・オプションエリア ----- */
 .operate-wrapper {
     background: #fff;
     padding: 16px;
@@ -79,7 +92,6 @@ body {
     border-color: #006ce0;
 }
 
-/* フィルタボタン群 */
 .filter-group {
     display: flex;
     gap: 4px;
@@ -89,7 +101,6 @@ body {
     scrollbar-width: none;
 }
 .filter-group::-webkit-scrollbar { display: none; }
-
 .filter-btn-wrapper {
     position: relative;
     background: #fff;
@@ -129,7 +140,8 @@ body {
     outline: none;
 }
 
-/* --- カード内アイテム（予定・教材共通） --- */
+
+/* ----- 7. カード共通（予定・教材） ----- */
 .plan-item, .material-item {
     background: #fff;
     border-radius: var(--border-radius-size);
@@ -142,7 +154,8 @@ body {
     cursor: pointer;
 }
 
-/* --- 予定アイテム --- */
+
+/* ----- 8. 予定アイテム ----- */
 .plan-item {
     padding: 14px 14px;
     display: flex;
@@ -173,7 +186,9 @@ body {
 .plan-info i { width: 14px; margin-right: 2px; }
 .plan-item.checked .plan-icon i, .plan-item.checked .plan-info i { color: #808080; }
 
-/* --- 教材アイテム --- */
+
+/* ----- 9. 教材アイテム ----- */
+/* 9-1. 基本構造 */
 .material-item {
     padding: 12px 14px;
     display: flex;
@@ -184,7 +199,7 @@ body {
     min-height: 64px;
 }
 
-/* 教材カード（拡大時） */
+/* 9-2. tapped （展開状態）*/
 .material-item.tapped {
     height: 85dvh;
     padding: 0;
@@ -206,7 +221,7 @@ body {
 }
 .material-item.tapped .material-name-input::-webkit-scrollbar { width: 6px; }
 
-/* 進捗バー */
+/* 9-3. 進捗バー */
 .material-item::after {
     content: "";
     position: absolute;
@@ -219,6 +234,7 @@ body {
 }
 .material-item::before { display: none; }
 
+/* 9-4. 展開テキスト */
 .material-name-title {
     font-weight: 700;
     font-size: 16px;
@@ -261,7 +277,7 @@ body {
     color: #888;
 }
 
-/* --- 教科ごとの色定義 --- */
+/* ----- 10. 教科別カラー定義 ----- */
 .plan-item.math, .material-item.math { border-left-color: var(--main-color-math); }
 .math .plan-icon, .math i { color: var(--main-color-math); }
 
@@ -284,7 +300,7 @@ body {
 .others .plan-icon, .others i { color: var(--main-color-others); }
 
 
-/* --- 編集・削除ボタン群 (アニメーション) --- */
+/* ----- 11. 編集・削除ボタン（アニメーション含む） ----- */
 @keyframes popIn {
     from { opacity: 0; transform: scale(0.8); }
     to { opacity: 1; transform: scale(1); }
@@ -342,7 +358,8 @@ body {
 .buttons button:active { background-color: #f0f0f0; }
 .buttons button i { font-size: 1.0rem !important; vertical-align: middle; }
 
-/* --- 汎用ボタン (upload等) --- */
+
+/* ----- 12. 汎用ボタン・操作ボタン ----- */
 .option-button-wrapper {
     margin-left: 4px;
     margin-bottom: 20px;
@@ -373,7 +390,8 @@ body {
     border-bottom: 1px solid #ddd;
 }
 
-/* --- フッター --- */
+
+/* ----- 13. フッター ----- */
 .button-group {
     width: 100%;
     max-width: var(--main-max-width);
@@ -410,7 +428,8 @@ body {
 .footer-btn i { font-size: 18px; }
 .footer-btn:hover { color: #00008b; background: rgba(0,0,0,0.02); }
 
-/* --- フォーム共通設定 (select・input) --- */
+
+/* ----- 14. フォーム共通（input / select / textarea） ----- */
 input[type="text"], input[type="number"], input[type="time"], input[type="datetime-local"], select, textarea {
     width: 100%;
     padding: 8px 10px;
@@ -431,7 +450,8 @@ select {
     padding-right: 25px;
 }
 
-/* --- モーダル --- */
+
+/* ----- 15. モーダル共通 ----- */
 .modal {
     position: fixed;
     top: 0;
@@ -449,7 +469,7 @@ select {
     padding: 24px 16px;
     border-radius: 8px;
     width: 90%;
-    max-width: 400px;
+    max-width: 450px;
     max-height: 85vh;
     overflow-y: auto;
     box-shadow: var(--modal-shadow);
@@ -495,6 +515,8 @@ select {
 .modal-btns .cancel { background: #eee; color: #333; }
 .modal-btns .ok { background: #006ce0; color: white; }
 
+
+/* ----- 16. まとめて追加モーダル ----- */
 /* まとめて追加モーダルのリスト */
 #bulk-material-list {
     max-height: 300px;
@@ -522,32 +544,8 @@ select {
     color: #333;
 }
 
-/* --- このアプリについて --- */
-.about-wrapper {
-    text-align: center;
-    margin: 24px 0;
-}
-.about-btn {
-    background: none;
-    border: none;
-    padding: 0;
-    font-size: 13px;
-    color: #777;
-    cursor: pointer;
-}
-.about-btn:hover { color: #555; }
-.underlined { text-decoration: underline; }
 
-/* --- ボタンの無効化 --- */
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background-color: #ccc !important;
-    border-color: #bbb !important;
-    color: #666 !important;
-}
-
-/* --- 教材ステータスバッジ --- */
+/* ----- 17. 教材ステータスバッジ ----- */
 .status-badge {
     position: absolute;
     top: 12px;
@@ -562,3 +560,139 @@ button:disabled {
 .status-badge.learning { background-color: #515de1; }
 .status-badge.waiting { background-color: #bbb; }
 .status-badge.completed { background-color: #3cd651; }
+
+
+/* ----- 18. 履歴・統計モーダル ----- */
+/* 1. 総実施数・最終更新日 */
+.stats-summary-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.stats-summary-card {
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px;
+    min-height: auto;
+    border: 1px solid #eee;
+    box-shadow: none;
+    cursor: default;
+    background: #fafafa;
+}
+
+.stats-label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 2px;
+}
+
+.stats-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* 3. 学習バランス（統計バー） */
+.balance-list-wrapper {
+    margin-bottom: 20px;
+    border-bottom: 1px dashed #ddd;
+    padding-bottom: 12px;
+}
+.balance-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 8px;
+}
+.balance-bar-container {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: #eee;
+    overflow: hidden;
+}
+.balance-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease-out;
+}
+
+/* 教科別カラー（既存変数を流用） */
+.balance-bar.math      { background-color: var(--main-color-math); }
+.balance-bar.english   { background-color: var(--main-color-english); }
+.balance-bar.modernjp  { background-color: var(--main-color-modernjp); }
+.balance-bar.classicjp { background-color: var(--main-color-classicjp); }
+.balance-bar.science   { background-color: var(--main-color-science); }
+.balance-bar.social    { background-color: var(--main-color-social); }
+.balance-bar.others    { background-color: var(--main-color-others); }
+
+.subject-name {
+    width: 50px;
+    font-size: 12px;
+    color: #666;
+    text-align: right;
+}
+.subject-percent {
+    width: 35px;
+    font-size: 12px;
+    color: #333;
+    font-weight: bold;
+}
+
+/* 現在の教材の教科を強調 */
+.current-subject .subject-name {
+    color: #000;
+    font-weight: bold;
+}
+
+/* 4. 詳細履歴リスト */
+.history-card {
+    min-height: auto !important;
+    padding: 10px 14px !important;
+    margin-bottom: 8px;
+    cursor: default !important;
+}
+.history-date {
+    font-size: 12px;
+    color: #000;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.history-range {
+    font-size: 13px;
+}
+.history-time-badge {
+    font-size: 12px;
+    color: #666;
+    margin-left: auto;
+}
+
+
+/* ----- 19. このアプリについて ----- */
+.about-wrapper {
+    text-align: center;
+    margin: 24px 0;
+}
+.about-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #777;
+    cursor: pointer;
+}
+.about-btn:hover { color: #555; }
+
+
+/* ----- 20. 無効化・状態系 ----- */
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #ccc !important;
+    border-color: #bbb !important;
+    color: #666 !important;
+}
