@@ -33,7 +33,7 @@
             <div class="operate-wrapper">
                 <!-- 検索バー -->
                 <div class="search-box">
-                    <input type="text" id="search-material-input" placeholder="教材名を検索..." aria-label="教材名を検索">
+                    <input type="text" id="search-material-input" placeholder="教材名を検索...">
                 </div>
             
                 <!-- フィルタボタン群（横並び） -->
@@ -250,6 +250,45 @@
             <div class="modal-btns">
                 <button id="cancel-bulk-btn" class="cancel">キャンセル</button>
                 <button id="confirm-bulk-btn" class="ok">追加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 履歴・統計モーダル -->
+    <div id="history-modal" class="modal hidden">
+        <div class="modal-container">
+            <h2 id="history-material-name">教材名</h2>
+            
+            <!-- 実績サマリー -->
+            <div class="stats-summary-container">
+                <div class="plan-item stats-summary-card">
+                    <div class="stats-label">累計完了</div>
+                    <div id="stat-total-completed" class="stats-value">0 <small>回</small></div>
+                </div>
+                <div class="plan-item stats-summary-card">
+                    <div class="stats-label">最新実績</div>
+                    <div id="stat-last-date" class="stats-value">---</div>
+                </div>
+            </div>
+
+            <!-- 学習バランス -->
+            <div class="balance-list-section">
+                <p>総学習時間の割合</p>
+                <div id="balance-list" class="balance-list-wrapper">
+                    <!-- JSで .balance-row 等が挿入される -->
+                </div>
+            </div>
+
+            <!-- 履歴リスト -->
+            <div class="history-list-section">
+                <p>学習の全記録（新しい順）</p>
+                <div id="history-container">
+                    <!-- JSで .plan-item.history-card が挿入される -->
+                </div>
+            </div>
+
+            <div class="modal-btns">
+                <button id="close-history-btn" class="cancel">閉じる</button>
             </div>
         </div>
     </div>
