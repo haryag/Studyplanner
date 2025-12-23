@@ -78,11 +78,20 @@ const bulkMaterialList = document.getElementById("bulk-material-list");
 const cancelBulkBtn = document.getElementById("cancel-bulk-btn");
 const confirmBulkBtn = document.getElementById("confirm-bulk-btn");
 
+// 履歴モーダル要素
+const historyModal = document.getElementById("history-modal");
+const historyContainer = document.getElementById("history-container");
+const balanceList = document.getElementById("balance-list");
+const historyMaterialName = document.getElementById("history-material-name");
+const statTotalCompleted = document.getElementById("stat-total-completed");
+const statLastDate = document.getElementById("stat-last-date");
+const closeHistoryBtn = document.getElementById("close-history-btn");
+
 // ----- Firebase / Firestore -----
 let db = null;
 
 // ----- 起動時状態 -----
-const todayDateKey = getLocalDate();
+let todayDateKey = getLocalDate();  // 再代入の可能性があるため
 const todayDateLabel = new Date().toLocaleDateString('ja-JP');
 
 // ----- データ初期化 -----
@@ -177,46 +186,36 @@ async function loadLocalData(key) {
 }
 
 // ----- 保存・読み込み -----
-// オブジェクトのキーを再帰的にアルファベット順にソートする補助関数
-function sortObjectKeys(obj) {
-    if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) {
-        if (Array.isArray(obj)) {
-            return obj.map(sortObjectKeys);
-        }
-        return obj;
-    }
-    const sortedKeys = Object.keys(obj).sort();
-    const result = {};
-    sortedKeys.forEach(key => {
-        result[key] = sortObjectKeys(obj[key]);
-    });
-    return result;
-}
-
 async function saveAll() {
-    // materials のクリーンアップとソート
-    const cleanedMaterials = materials.map(m => {
-        const { ongoing, checked, ...rest } = m;
-        return sortObjectKeys(rest);
-    });
+    // 保存前にデータを整理
+    const cleanedMaterials = materials.map(m => ({
+        id: Number(m.id),
+        name: m.name,
+        subject: m.subject,
+        category: m.category || "",
+        progress: Number(m.progress) || 0,
+        status: m.status || "waiting",
+        date: m.date || "",
+        detail: m.detail || ""
+    }));
     materials.splice(0, materials.length, ...cleanedMaterials);
 
-    // dailyPlans のクリーンアップとソート
+    // dailyPlansの整理
     const cleanedPlans = {};
-    const sortedDates = Object.keys(dailyPlans).sort();
-    
-    sortedDates.forEach(date => {
-        if (Array.isArray(dailyPlans[date]) && dailyPlans[date].length > 0) {
-            // 各予定の中身のキーもソートする
-            cleanedPlans[date] = dailyPlans[date].map(task => sortObjectKeys(task));
+    Object.keys(dailyPlans).sort().forEach(date => {
+        if (Array.isArray(dailyPlans[date])) {
+            cleanedPlans[date] = dailyPlans[date].map(p => ({
+                materialId: Number(p.materialId),
+                range: p.range,
+                time: p.time || "",
+                checked: !!p.checked
+            }));
         }
     });
-    
     for (const key in dailyPlans) delete dailyPlans[key];
     Object.assign(dailyPlans, cleanedPlans);
 
     try {
-        // 整頓されたデータをIndexedDBへ保存
         await saveLocalData("materials", cleanedMaterials);
         await saveLocalData("dailyPlans", cleanedPlans);
     } catch (e) {
@@ -229,29 +228,31 @@ async function loadAll() {
         const savedMaterials = await loadLocalData("materials");
         const savedPlans = await loadLocalData("dailyPlans");
 
-        if (savedMaterials) {
-            // 読み込み時にプロパティを掃除
-            const cleaned = savedMaterials.map(m => {
-                const { ongoing, checked, ...rest } = m;
-                return sortObjectKeys(rest);
-            });
-            materials.splice(0, materials.length, ...cleaned);
+        // 教材データの読み込み
+        if (savedMaterials && Array.isArray(savedMaterials)) {
+            materials.splice(0, materials.length, ...savedMaterials);
+        } else {
+            materials.splice(0, materials.length);
         }
         
-        if (savedPlans) {
-            // 予定の中身もソートして反映
-            const cleanedPlans = {};
-            for (const key in savedPlans) {
-                if (savedPlans[key] && savedPlans[key].length > 0) {
-                    cleanedPlans[key] = savedPlans[key].map(task => sortObjectKeys(task));
-                }
-            }
-            Object.assign(dailyPlans, cleanedPlans);
+        // 予定データの読み込み
+        if (savedPlans && typeof savedPlans === 'object') {
+            // dailyPlansを一度空にしてから反映
+            for (const key in dailyPlans) delete dailyPlans[key];
+            Object.assign(dailyPlans, savedPlans);
+        } else {
+            // データが空ならリセット
+            for (const key in dailyPlans) delete dailyPlans[key];
         }
 
+        // カテゴリを再構築する
         updateCategoryOptions();
+
     } catch (e) {
         console.error("データの読み込みに失敗しました", e);
+        // 失敗した場合は安全のために空の状態を保証する
+        materials.splice(0, materials.length);
+        for (const key in dailyPlans) delete dailyPlans[key];
     }
 }
 
@@ -346,7 +347,7 @@ function toggleModal(modal, show = true) {
 
 // モーダル一括制御
 function closeAllModals() {
-    [addPlanModal, addMaterialModal, infoMaterialModal, sortMaterialModal].forEach(modal => {
+    [addPlanModal, addMaterialModal, infoMaterialModal, sortMaterialModal, bulkAddModal, historyModal].forEach(modal => {
         if (!modal.classList.contains("hidden")) toggleModal(modal, false);
     });
 }
@@ -384,6 +385,106 @@ function populateMaterialSelect(selectedId = null) {
     });
 }
 
+// 履歴モーダルを開く
+function openHistoryModal(materialId) {
+    const material = materials.find(m => m.id === materialId);
+    if (!material) return;
+
+    let totalCompletedTasks = 0;
+    const subjectCounts = {};
+    let materialCompletedCount = 0;
+    let lastDate = null;
+    const historyData = [];
+
+    const subjectLabels = {
+        math: "数学",
+        english: "英語",
+        modernjp: "現代文",
+        classicjp: "古典",
+        science: "理科",
+        social: "社会",
+        others: "その他"
+    };
+
+    // データの集計
+    Object.keys(dailyPlans).forEach(date => {
+        dailyPlans[date].forEach(plan => {
+            if (plan.checked) {
+                totalCompletedTasks++;
+                const targetMaterial = materials.find(m => m.id === plan.materialId);
+                const subject = targetMaterial ? targetMaterial.subject : 'others';
+                subjectCounts[subject] = (subjectCounts[subject] || 0) + 1;
+
+                if (plan.materialId === materialId) {
+                    materialCompletedCount++;
+                    if (!lastDate || date > lastDate) lastDate = date;
+                }
+            }
+            if (plan.materialId === materialId) {
+                historyData.push({ date, ...plan });
+            }
+        });
+    });
+
+    // 表示の更新
+    historyMaterialName.textContent = material.name;
+    statTotalCompleted.innerHTML = `${materialCompletedCount} <small>回</small>`;
+    statLastDate.textContent = lastDate ? lastDate.replace(/-/g, '/') : '---';
+
+    // バランスバーの描画
+    balanceList.innerHTML = "";
+    if (totalCompletedTasks === 0) {
+        balanceList.innerHTML += "<p class='no-data'>完了した実績がまだありません</p>";
+    } else {
+        const sortedSubjects = Object.keys(subjectCounts).sort((a, b) => subjectCounts[b] - subjectCounts[a]);
+        sortedSubjects.forEach(sub => {
+            const count = subjectCounts[sub];
+            const percent = Math.round((count / totalCompletedTasks) * 100);
+            const isCurrent = (sub === material.subject);
+            
+            const row = document.createElement("div");
+            row.className = `balance-row ${isCurrent ? 'current-subject' : ''}`;
+            row.innerHTML = `
+                <span class="subject-name">${subjectLabels[sub] || sub}</span>
+                <div class="balance-bar-container">
+                    <div class="balance-bar ${sub}" style="width: ${percent}%"></div>
+                </div>
+                <span class="subject-percent">${percent}%</span>
+            `;
+            balanceList.appendChild(row);
+        });
+    }
+
+    // 履歴リストの描画
+    historyContainer.innerHTML = "";
+    if (historyData.length === 0) {
+        historyContainer.innerHTML = "<p class='no-data'>学習記録がありません</p>";
+    } else {
+        historyData.sort((a, b) => b.date.localeCompare(a.date));
+        historyData.forEach(item => {
+            const card = document.createElement("div");
+            card.className = `plan-item ${material.subject} history-card ${item.checked ? 'checked' : ''}`;
+            
+            card.innerHTML = `
+                <div class="plan-info">
+                    <div class="history-date">
+                        ${item.date.replace(/-/g, '/')}
+                        ${item.checked ? '<i class="fa-solid fa-check"></i>' : ''}
+                    </div>
+                    <div class="history-range">${item.range || '内容未設定'}</div>
+                </div>
+                ${item.time ? `<div class="history-time-badge">${item.time}</div>` : ''}
+            `;
+            historyContainer.appendChild(card);
+        });
+    }
+
+    toggleModal(historyModal, true);
+}
+
+// 閉じるイベント
+closeHistoryBtn.addEventListener("click", () => toggleModal(historyModal, false));
+
 // アイコン付きボタンを生成
 function createIconButton(className, iconHtml, onClick) {
     const btn = document.createElement("button");
@@ -407,6 +508,7 @@ function saveAndRender() {
 // ----- 描画関数 -----
 // 予定描画
 function renderTodayPlans() {
+    todayDateKey = getLocalDate();
     todayDatePanel.textContent = todayDateLabel;
     planItems.innerHTML = "";
     const todayPlans = dailyPlans[todayDateKey] || [];
@@ -598,8 +700,12 @@ function renderMaterialList() {
             toggleModal(infoMaterialModal, true);
         });
 
+        const historyBtn = createIconButton("history", '<i class="fa-solid fa-clock-rotate-left"></i>', () => {
+            openHistoryModal(material.id);
+        });
+
         const delBtn = createIconButton("delete", '<i class="fa-solid fa-trash-can"></i>', () => {
-            if (confirm(`教材「${material.name}」を削除しますか？`)) {
+            if (confirm(`教材「${material.name}」を削除しますか？教材を削除すると、この教材に関連する全ての予定も削除されます。`)) {
                 const idx = materials.findIndex(item => item.id === material.id);
                 if (idx !== -1) materials.splice(idx, 1);
                 Object.keys(dailyPlans).forEach(date => {
@@ -610,7 +716,7 @@ function renderMaterialList() {
             }
         });
 
-        btnDiv.append(addPlanBtn, editBtn, infoBtn, delBtn);
+        btnDiv.append(addPlanBtn, editBtn, infoBtn, historyBtn, delBtn);
         itemDiv.appendChild(btnDiv);
         addTapToggle(itemDiv, "material");
         materialItems.appendChild(itemDiv);
@@ -940,12 +1046,16 @@ confirmBulkBtn.addEventListener("click", () => {
 });
 
 // --- フィルタ・検索・状態保存 ---
+let searchTimeout;
+searchMaterialInput.addEventListener("input", () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        localStorage.setItem("sp_searchQuery", searchMaterialInput.value);
+        renderMaterialList();
+    }, 100); // 0.1秒待機
+});
 toggleSectionBtn.addEventListener("click", () => {
     toggleSections();
-});
-searchMaterialInput.addEventListener("input", () => {
-    localStorage.setItem("sp_searchQuery", searchMaterialInput.value);
-    renderMaterialList();
 });
 filterSubjectSelect.addEventListener("change", () => {
     localStorage.setItem("sp_filterSubject", filterSubjectSelect.value);
@@ -962,10 +1072,11 @@ filterCategorySelect.addEventListener("change", () => {
 
 // --- JSON エクスポート/インポート機能 ---
 exportJsonBtn.addEventListener("click", async () => {
-    if (!confirm("現在のデータをファイルとして保存（ダウンロード）しますか？")) return;
+    if (!confirm("データをファイルとして保存しますか？")) return;
+    
+    // saveAllの中で既にデータは綺麗に整頓されている
     await saveAll();
     
-    // 保存するデータを作成
     const data = {
         materials: materials,
         dailyPlans: dailyPlans,
@@ -974,23 +1085,20 @@ exportJsonBtn.addEventListener("click", async () => {
         version: window.APP_VERSION
     };
 
-    // JSON文字列に変換
     const jsonStr = JSON.stringify(data, null, 2);
-    
-    // Blobオブジェクトを作成 (データをファイル化)
     const blob = new Blob([jsonStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     
-    // ダウンロード用リンクを生成してクリックさせる
     const a = document.createElement("a");
     a.href = url;
-    a.download = `studyplanner_backup_${getLocalDate()}.json`; // ファイル名
+    a.download = `studyplanner_${getLocalDate()}.json`;
     document.body.appendChild(a);
     a.click();
-    
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 });
+
+
 importJsonBtn.addEventListener("click", () => {
     importFileInput.value = ""; // 同じファイルを再度選べるようにリセット
     importFileInput.click();
@@ -1131,4 +1239,3 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
-
