@@ -1182,6 +1182,12 @@ function offerUpdate(worker) {
 
 if ('serviceWorker' in navigator) {
     let newWorker = null;
+    
+    // controllerが変更されたらリロード
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (isUpdateProcessed) window.location.reload();
+    });
+    
     navigator.serviceWorker.register(`${BASE_PATH}sw.js`)
         .then(reg => {
             // すでに待機中のSWがある場合（再訪問時など）
@@ -1196,10 +1202,7 @@ if ('serviceWorker' in navigator) {
                 if (!newWorker) return;
 
                 newWorker.addEventListener('statechange', () => {
-                    if (
-                        newWorker.state === 'installed' &&
-                        navigator.serviceWorker.controller
-                    ) {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                         offerUpdate(newWorker);
                     }
                 });
@@ -1239,3 +1242,4 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
+
