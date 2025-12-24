@@ -7,7 +7,7 @@ export let db = null;
 export async function initFirebase() {
     try {
         const { initializeApp } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js');
-        const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-sys-auth.js');
+        const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js');
         const { getFirestore } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js');
 
         const app = initializeApp(window.FIREBASE_CONFIG);
@@ -39,7 +39,7 @@ loginBtn.addEventListener("click", async () => {
     loginBtn.disabled = true;
 
     try {
-        const { signInWithPopup, GoogleAuthProvider } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-sys-auth.js');
+        const { signInWithPopup, GoogleAuthProvider } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js');
         const provider = new GoogleAuthProvider();
         
         // currentUser = result.user は onAuthStateChanged側で自動反映されるので代入不要です
@@ -64,7 +64,7 @@ logoutBtn.addEventListener("click", async () => {
     logoutBtn.disabled = true;
 
     try {
-        const { signOut } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-sys-auth.js');
+        const { signOut } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js');
         await signOut(auth);
         
         alert("ログアウトしました。");
