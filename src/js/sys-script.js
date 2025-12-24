@@ -1182,6 +1182,9 @@ function offerUpdate(worker) {
         if (confirm("新しいバージョンがあります。更新（再起動）しますか？")) {
             isUpdateProcessed = true;
             sessionStorage.setItem('sw_update_processed', 'true');
+            // リロード後にアラートを出すためのフラグ
+            sessionStorage.setItem('show_update_success', 'true');
+
             worker.postMessage('skipWaiting');
         }
     }, 1000); 
@@ -1222,6 +1225,11 @@ if ('serviceWorker' in navigator) {
 
 // ----- 初期化フロー -----
 window.addEventListener('DOMContentLoaded', () => {
+    if (sessionStorage.getItem('show_update_success') === 'true') {
+        alert("アプリの更新が完了しました！");
+        sessionStorage.removeItem('show_update_success'); // 二度出ないように消す
+    }
+    
     restoreUIState();
     loadAll().then(() => {
         const savedCat = localStorage.getItem("sp_filterCategory");
