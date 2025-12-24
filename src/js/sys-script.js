@@ -1,4 +1,4 @@
-import { initFirebase, currentUser } from './login.js';
+import { initFirebase, currentUser } from './sys-auth.js';
 
 // ----- 定数 -----
 const APP_NAME = 'Studyplanner';

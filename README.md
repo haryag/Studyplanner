@@ -57,25 +57,20 @@ https://haryag.github.io/Studyplanner/ にアクセスします。
 ```text
 Studyplanner/
 ├─ index.html
-├─ sw.js                   # オフライン動作・更新管理（Service Worker）
-├─ pwa/
-│  ├─ manifest.json        # PWA 設定ファイル
-│  └─ icons/               # アイコン用画像フォルダ
-└─ static/
-   ├─ basic-style.css      # 基本スタイル
-   ├─ style.css            # 後から読み込むスタイル
-   ├─ version.js           # バージョンを一元管理
-   ├─ script.js            # アプリの主要ロジック
-   ├─ login.js             # Firebase 認証処理
-   └─ firebase-config.js   # Firebase 設定（APIキー等）
+├─ sw.js                    # オフライン動作・更新管理（Service Worker）
+├─ meta/
+│  ├─ manifest.json         # PWA 設定ファイル
+│  └─ icons/                # アイコン用画像フォルダ
+└─ src/
+   ├─ css/
+   │  ├─ style-basic.css    # 基本スタイル
+   │  └─ style.css          # 後から読み込むスタイル
+   └─ js/
+      ├─ app-version.js     # バージョンを一元管理
+      ├─ sys-script.js      # アプリの主要ロジック
+      ├─ sys-auth.js        # Firebase 認証処理
+      └─ fb.js              # Firebase 設定（APIキー等）
 ```
-
----
-
-## 自分との約束
-
-- 毎月**日にちが4日のときだけ**改善してもよいとします。終わらなかった場合は、**次の日まではOK**とします。
-- それ以外は勉強に専念します。
 
 ---
 
@@ -92,3 +87,10 @@ python3 -m http.server 8000
 ## ライセンス
 MIT License  
 Created by haryag
+
+---
+
+## 自分との約束
+
+- 毎月**日にちが4日のときだけ**改善してもよいとします。終わらなかった場合は、**次の日まではOK**とします。
+- それ以外は勉強に専念します。
