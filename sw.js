@@ -11,11 +11,12 @@ const FILES_TO_CACHE = [
     `${BASE_PATH}src/js/sys-script.js`,
     `${BASE_PATH}src/js/sys-auth.js`,
     `${BASE_PATH}src/js/fb.js`,
+    `${BASE_PATH}src/js/app-version.js`,
     // Font Awesome
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
     // Firebase
     'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js',
-    'https://www.gstatic.com/firebasejs/11.0.1/firebase-sys-auth.js',
+    'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js',
     'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js'
 ];
 
