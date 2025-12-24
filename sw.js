@@ -54,7 +54,7 @@ self.addEventListener('fetch', event => {
         'https://fonts.googleapis.com', 
         'https://fonts.gstatic.com',
         'https://cdnjs.cloudflare.com',
-        'https://www.gstatic.com' // Firebase用
+        'https://www.gstatic.com'  // Firebase用
     ];
     if (!allowedOrigins.some(origin => url.href.startsWith(origin))) {
         return;
@@ -72,8 +72,10 @@ self.addEventListener('fetch', event => {
         // 2. ネットワーク取得をバックグラウンドで実行
         const networkPromise = fetch(event.request)
             .then(async response => {
-                // 正常応答ならキャッシュ更新
-                if (response && response.ok) {
+                const isAllowedOrigin = allowedOrigins.some(origin => event.request.url.startsWith(origin));
+                const isOpaque = response.status === 0;
+
+                if (response && (response.ok || (isAllowedOrigin && isOpaque))) {
                     await cache.put(event.request, response.clone());
                 }
                 return response;
