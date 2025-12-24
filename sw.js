@@ -11,7 +11,9 @@ const FILES_TO_CACHE = [
     `${BASE_PATH}static/script.js`,
     `${BASE_PATH}static/login.js`,
     `${BASE_PATH}static/firebase-config.js`,
-    // Firebaseのライブラリ
+    // Font Awesome
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
+    // Firebase
     'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js',
     'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js',
     'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js'
