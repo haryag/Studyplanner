@@ -147,6 +147,13 @@ function updateSyncButtons() {
             if (statusPanel) statusPanel.textContent = isLoaded ? "未ログイン" : "接続準備中...";
         }
     }
+
+    // リロードボタンも無効化（リロードするとアイコンが表示されなくなってしまう）
+    const reloadBtn = document.getElementById("reload-btn");
+    if (reloadBtn) {
+        reloadBtn.disabled = !isOnline;
+        reloadBtn.style.opacity = isOnline ? "1" : "0.5";
+    }
 }
 
 // ----- IndexedDB 関連 -----
@@ -1242,4 +1249,3 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
-
