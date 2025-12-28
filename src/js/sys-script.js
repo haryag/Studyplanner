@@ -92,7 +92,6 @@ let db = null;
 
 // ----- 起動時状態 -----
 let todayDateKey = getLocalDate();  // 再代入の可能性があるため
-const todayDateLabel = new Date().toLocaleDateString('ja-JP');
 
 // ----- データ初期化 -----
 const dailyPlans = {};
@@ -515,7 +514,7 @@ function saveAndRender() {
 // 予定描画
 function renderTodayPlans() {
     todayDateKey = getLocalDate();
-    todayDatePanel.textContent = todayDateLabel;
+    todayDatePanel.textContent = new Date().toLocaleDateString('ja-JP');
     planItems.innerHTML = "";
     const todayPlans = dailyPlans[todayDateKey] || [];
     const sortedPlans = [...todayPlans].sort((a, b) => {

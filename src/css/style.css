@@ -18,7 +18,6 @@
     font-family: "Noto Sans JP", sans-serif;
     -webkit-tap-highlight-color: transparent;
 }
-
 body {
     color: #333;
     line-height: 1.5;
@@ -29,11 +28,18 @@ body {
 /* ----- 3. ユーティリティ（汎用クラス） ----- */
 .invisible { visibility: hidden; }
 .underlined { text-decoration: underline; }
-.no-data {
+.no-data p {
     text-align: center;
     color: #999;
     font-size: 12px;
     padding: 20px;
+}
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #ccc !important;
+    border-color: #bbb !important;
+    color: #666 !important;
 }
 
 
@@ -686,13 +692,3 @@ select {
     cursor: pointer;
 }
 .about-btn:hover { color: #555; }
-
-
-/* ----- 20. 無効化・状態系 ----- */
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background-color: #ccc !important;
-    border-color: #bbb !important;
-    color: #666 !important;
-}

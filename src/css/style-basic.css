@@ -7,7 +7,7 @@
     --border-radius-size: 5px;
 }
 
-/* --- リセット & 全体設定 --- */
+/* ----- 2. リセット & 全体設定 ----- */
 * {
     box-sizing: border-box !important;
     font-family: sans-serif;
@@ -19,9 +19,12 @@ html, body {
     padding: 0;
     background-color: var(--app-bg-color);
 }
+
+/* ----- 3. ユーティリティ（汎用クラス） ----- */
 .hidden { display: none !important; }
 
-/* --- メインレイアウト --- */
+/* ----- 4. メインレイアウト ----- */
+/* メインコンテナ */
 .main-wrapper {
     width: 100%;
     max-width: var(--main-max-width);
@@ -32,7 +35,7 @@ html, body {
     box-shadow: 0 0 15px rgba(0,0,0,0.05);
 }
 
-/* コンテンツ表示領域 */
+/* 画面表示コンテナ */
 .display-container {
     width: 100%;
     height: calc(100% - 60px - env(safe-area-inset-bottom));
@@ -40,7 +43,7 @@ html, body {
     padding: 16px;
 }
 
-/* --- ヘッダー --- */
+/* ----- 5. 見出し --- */
 .header {
     margin: 24px 0 32px 0;
     text-align: center;
