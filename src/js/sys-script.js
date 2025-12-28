@@ -2,7 +2,7 @@ import { initFirebase, currentUser } from './sys-auth.js';
 
 // ----- 定数 -----
 const APP_NAME = 'Studyplanner';
-const LAST_UPDATED = '2025/12/24';
+const LAST_UPDATED = '2025/12/28';
 const BASE_PATH = '/Studyplanner/';
 
 // ----- 日付 -----
@@ -1254,4 +1254,5 @@ window.showVersion = function() {
 window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
+
 window.addEventListener('auth-changed', updateSyncButtons);
