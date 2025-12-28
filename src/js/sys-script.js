@@ -2,7 +2,7 @@ import { initFirebase, currentUser } from './sys-auth.js';
 
 // ----- 定数 -----
 const APP_NAME = 'Studyplanner';
-const LAST_UPDATED = '2025/12/23';
+const LAST_UPDATED = '2025/12/24';
 const BASE_PATH = '/Studyplanner/';
 
 // ----- 日付 -----
@@ -226,7 +226,7 @@ async function saveAll() {
         await saveLocalData("materials", cleanedMaterials);
         await saveLocalData("dailyPlans", cleanedPlans);
     } catch (e) {
-        console.error("端末への保存に失敗しました", e);
+        console.error("端末への保存に失敗しました。", e);
     }
 }
 
@@ -256,7 +256,7 @@ async function loadAll() {
         updateCategoryOptions();
 
     } catch (e) {
-        console.error("データの読み込みに失敗しました", e);
+        console.error("データの読み込みに失敗しました。", e);
         // 失敗した場合は安全のために空の状態を保証する
         materials.splice(0, materials.length);
         for (const key in dailyPlans) delete dailyPlans[key];
@@ -379,11 +379,10 @@ function addTapToggle(itemDiv, type = "material") {
 }
 
 // ----- UI生成・補助 -----
-// 予定追加時に使用する教材一覧を更新
+// 予定追加・編集モーダルでの教材選択
 function populateMaterialSelect(selectedId = null) {
     planMaterialInput.innerHTML = "";
     materials.forEach(material => {
-        // 復習の可能性を考慮し、完了教材も表示する
         const option = document.createElement("option");
         option.value = material.id;
         option.textContent = material.name;
@@ -622,9 +621,9 @@ function renderMaterialList() {
         itemDiv.className = `material-item ${material.subject}`;
         itemDiv.style.setProperty('--material-bg-width', `${material.progress || 0}%`);
 
+        // ツールチップ設定（ホバー時に出てくるヒントのこと）
         const badge = document.createElement("div");
         badge.className = `status-badge ${status}`;
-        // ツールチップ設定（ホバー時に出てくるヒントのこと）
         if (status === "learning") badge.title = "学習中";
         else if (status === "waiting") badge.title = "未着手";
         else if (status === "completed") badge.title = "完了";
@@ -881,7 +880,7 @@ confirmPlanBtn.addEventListener("click", () => {
     const materialId = parseInt(planMaterialInput.value, 10);
     const range = planContentInput.value.trim();
     const time = planTimeInput.value;
-    if (!range) return alert("範囲を入力してください");
+    if (!range) return alert("学習内容を入力してください。");
     
     if (editingPlanIndex !== null) {
         dailyPlans[todayDateKey][editingPlanIndex] = { ...dailyPlans[todayDateKey][editingPlanIndex], materialId, range, time };
@@ -960,7 +959,7 @@ confirmInfoBtn.addEventListener("click", () => {
     const progress = parseInt(materialProgressInput.value, 10);
     const detail = materialDetailInput.value.replace(/^\s+|\s+$/g, '');
     
-    if (isNaN(progress) || progress < 0 || progress > 100) return alert("進度は0～100の整数値で入力してください");
+    if (isNaN(progress) || progress < 0 || progress > 100) return alert("進度は0～100の整数値で入力してください。");
     if (progress === 100 && status !== "completed") {
         if (confirm("進捗が100%になりました。\nステータスを「完了」に変更しますか？")) {
             status = "completed";
@@ -1004,7 +1003,7 @@ bulkAddBtn.addEventListener("click", () => {
     const activeMaterials = materials.filter(material => material.status !== "completed");
     
     if (activeMaterials.length === 0) {
-        bulkMaterialList.innerHTML = "<p style='text-align:center; font-size:12px;'>学習中・未着手の教材がありません</p>";
+        bulkMaterialList.innerHTML = "<p style='text-align:center; font-size:12px;'>学習中・未着手の教材がありません。</p>";
     } else {
         activeMaterials.forEach(material => {
             const label = document.createElement("label");
@@ -1032,7 +1031,7 @@ confirmBulkBtn.addEventListener("click", () => {
     const checkboxes = bulkMaterialList.querySelectorAll("input[type='checkbox']:checked");
     
     if (checkboxes.length === 0) {
-        return alert("教材が選択されていません");
+        return alert("教材が選択されていません。");
     }
     
     if (!dailyPlans[todayDateKey]) dailyPlans[todayDateKey] = [];
@@ -1049,7 +1048,7 @@ confirmBulkBtn.addEventListener("click", () => {
     
     toggleModal(bulkAddModal, false);
     saveAndRender();
-    alert(`${checkboxes.length}件の予定を追加しました`);
+    alert(`${checkboxes.length}件の予定を追加しました。`);
 });
 
 // --- フィルタ・検索・状態保存 ---
@@ -1059,7 +1058,7 @@ searchMaterialInput.addEventListener("input", () => {
     searchTimeout = setTimeout(() => {
         localStorage.setItem("sp_searchQuery", searchMaterialInput.value);
         renderMaterialList();
-    }, 100); // 0.1秒待機
+    }, 100);  // 描画がカクつく可能性を考慮して、0.1秒待機
 });
 toggleSectionBtn.addEventListener("click", () => {
     toggleSections();
@@ -1107,7 +1106,7 @@ exportJsonBtn.addEventListener("click", async () => {
 
 
 importJsonBtn.addEventListener("click", () => {
-    importFileInput.value = ""; // 同じファイルを再度選べるようにリセット
+    importFileInput.value = "";
     importFileInput.click();
 });
 importFileInput.addEventListener("change", (e) => {
@@ -1171,7 +1170,7 @@ document.addEventListener("keydown", (e) => {
     }
 });
 
-// ----- Service Worker登録と更新感知 -----
+// ----- Service Worker登録と更新検知 -----
 let isUpdateProcessed = (sessionStorage.getItem('sw_update_processed') === 'true');
 
 function offerUpdate(worker) {
@@ -1227,7 +1226,7 @@ if ('serviceWorker' in navigator) {
 window.addEventListener('DOMContentLoaded', () => {
     if (sessionStorage.getItem('show_update_success') === 'true') {
         alert("アプリの更新が完了しました！");
-        sessionStorage.removeItem('show_update_success'); // 二度出ないように消す
+        sessionStorage.removeItem('show_update_success');  // 二度出ないように消す
     }
     
     restoreUIState();
