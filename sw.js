@@ -12,6 +12,7 @@ const FILES_TO_CACHE = [
     `${BASE_PATH}src/js/sys-auth.js`,
     `${BASE_PATH}src/js/fb.js`,
     `${BASE_PATH}src/js/app-version.js`,
+
     // Font Awesome
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
     // Firebase
@@ -25,7 +26,8 @@ self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
     );
-    // self.skipWaiting();  // 有効にしない方がよい
+    // ユーザーの許可なしにSWを入れ替えるとクラッシュの可能性あり
+    // self.skipWaiting();
 });
 
 // 古いキャッシュ削除
@@ -93,7 +95,7 @@ self.addEventListener('fetch', event => {
             return networkResponse;
         }
     
-        // 5. ネットワーク失敗時、ナビゲーションなら index.html に fallback
+        // 5. ネットワーク失敗時、ナビゲーションなら index.html に fallback（代替手段）
         if (event.request.mode === 'navigate') {
             return cache.match(`${BASE_PATH}index.html`);
         }

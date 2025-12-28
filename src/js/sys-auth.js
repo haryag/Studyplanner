@@ -1,9 +1,9 @@
-// --- グローバル変数とエクスポート ---
+// ----- 認証用 グローバル変数 -----
 export let currentUser = null;
 export let auth = null;
 export let db = null;
 
-// Firebaseをバックグラウンドで非同期初期化する関数
+// ----- Firebaseの初期化（バックグラウンドで行われる） -----
 export async function initFirebase() {
     try {
         const { initializeApp } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js');
@@ -17,7 +17,7 @@ export async function initFirebase() {
         // ログイン状態の監視を開始
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
-            // ★追加: ログイン/ログアウトした瞬間に sys-script.js に通知してボタンを切り替えさせる
+            // ログイン/ログアウトした瞬間に sys-script.js に通知してボタンを切り替えさせる
             window.dispatchEvent(new Event('auth-changed'));
         });
 
@@ -30,22 +30,19 @@ export async function initFirebase() {
     }
 }
 
-// --- ログイン処理 ---
+// ----- ログイン処理 -----
 const loginBtn = document.getElementById("login-btn");
 loginBtn.addEventListener("click", async () => {
-    // 準備（ガード）
     if (!auth || !navigator.onLine) return; 
-
     loginBtn.disabled = true;
 
     try {
         const { signInWithPopup, GoogleAuthProvider } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js');
         const provider = new GoogleAuthProvider();
         
-        // currentUser = result.user は onAuthStateChanged側で自動反映されるので代入不要です
+        // currentUser = result.user は onAuthStateChanged側で自動的に反映される
         await signInWithPopup(auth, provider);
         
-        // ログインに成功しても、ここにはcurrentUser名などは出さずシンプルな通知にします（安定のため）
         alert(`ようこそ！ログインに成功しました。`);
     } catch (e) {
         console.error("Login error:", e);
@@ -55,18 +52,16 @@ loginBtn.addEventListener("click", async () => {
     }
 });
 
-// --- ログアウト処理 ---
+// ----- ログアウト処理 -----
 const logoutBtn = document.getElementById("logout-btn");
 logoutBtn.addEventListener("click", async () => {
-    if (!auth) return; 
-    if (!window.confirm("ログアウトしますか？")) return;
-
+    if (!auth || !confirm("ログアウトしますか？")) return;
     logoutBtn.disabled = true;
 
     try {
         const { signOut } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js');
         await signOut(auth);
-        
+
         alert("ログアウトしました。");
     } catch (e) {
         console.error("Logout error:", e);

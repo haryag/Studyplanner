@@ -32,13 +32,13 @@ const exportJsonBtn = document.getElementById("export-json-btn");
 const importJsonBtn = document.getElementById("import-json-btn");
 const importFileInput = document.getElementById("import-file-input");
 
-// フィルタ・検索系入力要素
+// 検索・フィルタ入力要素
 const searchMaterialInput = document.getElementById("search-material-input");
 const filterSubjectSelect = document.getElementById("filter-subject-select");
 const filterStatusSelect = document.getElementById("filter-status-select");
 const filterCategorySelect = document.getElementById("filter-category-select");
 
-// 予定追加モーダル要素
+// 予定追加・編集モーダル要素
 const addPlanModal = document.getElementById("add-plan-modal");
 const planMaterialInput = document.getElementById("plan-material-select");
 const planContentInput = document.getElementById("plan-content-input");
@@ -46,7 +46,7 @@ const planTimeInput = document.getElementById("plan-time-input");
 const cancelPlanBtn = document.getElementById("cancel-plan-btn");
 const confirmPlanBtn = document.getElementById("confirm-plan-btn");
 
-// 教材追加モーダル要素
+// 教材追加・編集モーダル要素
 const addMaterialModal = document.getElementById("add-material-modal");
 const materialNameInput = document.getElementById("material-name-input");
 const materialSubjectSelect = document.getElementById("material-subject-select");
@@ -55,7 +55,7 @@ const newCategoryInput = document.getElementById("new-category-input");
 const cancelMaterialBtn = document.getElementById("cancel-material-btn");
 const confirmMaterialBtn = document.getElementById("confirm-material-btn");
 
-// 教材情報モーダル要素
+// 教材情報表示モーダル要素
 const infoMaterialModal = document.getElementById("info-material-modal");
 const materialNamePanel = document.getElementById("material-name-panel");
 const materialDateInput = document.getElementById("material-date-input");
@@ -134,7 +134,7 @@ function updateSyncButtons() {
     // ここから追加：ログイン・ログアウトボタンの出し分け
     const loginBtn = document.getElementById("login-btn");
     const logoutBtn = document.getElementById("logout-btn");
-    const statusPanel = document.getElementById("login-status-panel");
+    const statusPanel = document.getElementById("auth-status-panel");
 
     if (loginBtn && logoutBtn) {
         if (isLoggedIn) {
@@ -568,7 +568,7 @@ function renderTodayPlans() {
         });
 
         const btnContainer = document.createElement("div");
-        btnContainer.className = "buttons";
+        btnContainer.className = "item-buttons";
         btnContainer.append(checkBtn, editBtn, delBtn);
 
         infoDiv.append(nameDiv, rangeDiv);
@@ -597,7 +597,7 @@ function renderMaterialList() {
         if (subjectFilter !== "all" && material.subject !== subjectFilter) return;
         if (!material.name.toLowerCase().includes(query)) return;
         
-        // カテゴリフィルタ
+        // カテゴリーフィルタ
         if (categoryFilter !== "all") {
             if (categoryFilter === "none") {
                 if (material.category) return;
@@ -606,7 +606,7 @@ function renderMaterialList() {
             }
         }
 
-        // ステータスフィルタ
+        // 状態フィルタ
         if (statusFilter !== "all") {
             if (statusFilter === "planning") {
                 // planning = 未完了（waiting + learning）扱い
@@ -662,7 +662,7 @@ function renderMaterialList() {
         itemDiv.appendChild(nameDiv);
 
         const btnDiv = document.createElement("div");
-        btnDiv.className = "buttons";
+        btnDiv.className = "item-buttons";
 
         const addPlanBtn = createIconButton("add-plan", '<i class="fa-solid fa-plus"></i>', () => {
             populateMaterialSelect(material.id);
@@ -773,7 +773,7 @@ function renderSortMaterialModal() {
             itemDiv.style.zIndex = "10";
 
             const btnDiv = document.createElement("div");
-            btnDiv.className = "buttons";
+            btnDiv.className = "item-buttons";
             
             btnDiv.style.display = "flex";
             btnDiv.style.position = "absolute";
@@ -872,7 +872,7 @@ downloadBtn.addEventListener("click", async () => {
 });
 
 // --- モーダル操作 ---
-// 予定追加モーダル
+// 予定追加・編集モーダル
 cancelPlanBtn.addEventListener("click", () => {
     toggleModal(addPlanModal, false);
 });
@@ -893,7 +893,7 @@ confirmPlanBtn.addEventListener("click", () => {
     saveAndRender();
 });
 
-// 教材追加モーダル
+// 教材追加・編集モーダル
 openMaterialModalBtn.addEventListener("click", () => {
     updateCategoryOptions();
     
@@ -948,7 +948,7 @@ confirmMaterialBtn.addEventListener("click", () => {
     updateCategoryOptions();
 });
 
-// 教材詳細モーダル
+// 教材情報表示モーダル
 cancelInfoBtn.addEventListener("click", () => {
     toggleModal(infoMaterialModal, false);
 });
@@ -1051,7 +1051,7 @@ confirmBulkBtn.addEventListener("click", () => {
     alert(`${checkboxes.length}件の予定を追加しました。`);
 });
 
-// --- フィルタ・検索・状態保存 ---
+// --- 検索・フィルタ・状態保存 ---
 let searchTimeout;
 searchMaterialInput.addEventListener("input", () => {
     clearTimeout(searchTimeout);

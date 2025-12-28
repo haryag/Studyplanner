@@ -1,3 +1,4 @@
+// ----- Firebaseの設定情報 -----
 self.FIREBASE_CONFIG = {
     apiKey: "AIzaSyCgDtdyFtxtLEMZ6Gt0_haDlpLFg5UYkBQ",
     authDomain: "studyplanner-12345.firebaseapp.com",

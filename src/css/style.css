@@ -56,8 +56,8 @@ body {
 .display-container::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; }
 
 
-/* ----- 6. 検索・オプションエリア ----- */
-.operate-wrapper {
+/* ----- 6. ツールバー（検索・フィルタエリア） ----- */
+.filter-toolbar {
     background: #fff;
     padding: 16px;
     border-radius: var(--border-radius-size);
@@ -189,6 +189,13 @@ body {
 
 /* ----- 9. 教材アイテム ----- */
 /* 9-1. 基本構造 */
+.material-wrapper {
+    margin: 20px 0;
+    padding: 8px 0;
+    border-top: 1px dashed #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
 .material-item {
     padding: 12px 14px;
     display: flex;
@@ -306,9 +313,9 @@ body {
     to { opacity: 1; transform: scale(1); }
 }
 
-.plan-item .buttons, .material-item .buttons { display: none; }
+.plan-item .item-buttons, .material-item .item-buttons { display: none; }
 
-.plan-item .buttons {
+.plan-item .item-buttons {
     position: absolute;
     bottom: 10px;
     right: 10px;
@@ -321,9 +328,9 @@ body {
     z-index: 100;
     animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.plan-item.tapped .buttons { display: flex; }
+.plan-item.tapped .item-buttons { display: flex; }
 
-.material-item.tapped .buttons {
+.material-item.tapped .item-buttons {
     display: flex;
     position: absolute;
     bottom: 20px;
@@ -343,7 +350,7 @@ body {
     animation: popIn 0.3s ease;
 }
 
-.buttons button {
+.item-buttons button {
     background: transparent;
     border: none;
     width: 30px;
@@ -355,16 +362,16 @@ body {
     align-items: center;
     margin: 0 2px;
 }
-.buttons button:active { background-color: #f0f0f0; }
-.buttons button i { font-size: 1.0rem !important; vertical-align: middle; }
+.item-buttons button:active { background-color: #f0f0f0; }
+.item-buttons button i { font-size: 1.0rem !important; vertical-align: middle; }
 
 
-/* ----- 12. 汎用ボタン・操作ボタン ----- */
-.option-button-wrapper {
+/* ----- 12. ユーティリティボタン・操作ボタン ----- */
+.util-btn-wrapper {
     margin-left: 4px;
     margin-bottom: 20px;
 }
-.bottom-btn {
+.util-btn {
     align-items: center;
     width: fit-content;
     background: #fff;
@@ -377,18 +384,11 @@ body {
     margin-bottom: 8px;
     text-decoration: none;
 }
-.bottom-btn:hover {
+.util-btn:hover {
     background-color: #f5f5f5;
     border-color: #006ce0;
 }
-.bottom-btn i { margin-right: 8px; }
-
-.material-wrapper {
-    margin: 20px 0;
-    padding: 8px 0;
-    border-top: 1px dashed #ddd;
-    border-bottom: 1px solid #ddd;
-}
+.util-btn i { margin-right: 8px; }
 
 
 /* ----- 13. フッター ----- */
@@ -562,7 +562,7 @@ select {
 .status-badge.completed { background-color: #3cd651; }
 
 
-/* ----- 18. 履歴・統計モーダル ----- */
+/* ----- 18. 履歴・統計表示モーダル ----- */
 /* 1. 総実施数・最終更新日 */
 .stats-summary-container {
     display: flex;
@@ -673,7 +673,7 @@ select {
 
 
 /* ----- 19. このアプリについて ----- */
-.about-wrapper {
+.about-info-wrapper {
     text-align: center;
     margin: 24px 0;
 }
