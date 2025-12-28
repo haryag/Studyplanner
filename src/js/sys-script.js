@@ -959,9 +959,18 @@ confirmInfoBtn.addEventListener("click", () => {
     const detail = materialDetailInput.value.replace(/^\s+|\s+$/g, '');
     
     if (isNaN(progress) || progress < 0 || progress > 100) return alert("進度は0～100の整数値で入力してください。");
-    if (progress === 100 && status !== "completed") {
+    
+    if (status === "waiting" && progress > 0 && progress < 100) {
+        if (confirm("進捗が0%でなくなりました。\nステータスを「学習中」に変更しますか？")) {
+            status = "learning";  // 未着手 → 学習中
+        }
+    } else if (status !== "completed" && progress === 100) {
         if (confirm("進捗が100%になりました。\nステータスを「完了」に変更しますか？")) {
-            status = "completed";
+            status = "completed";  // 学習中 → 完了
+        }
+    } else if (status === "completed" && progress < 100) {
+        if (confirm("進捗が100%ではありません。\nステータスを「学習中」に変更しますか？")) {
+            status = "learning";  // 完了 → 学習中
         }
     }
     
