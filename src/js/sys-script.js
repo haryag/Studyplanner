@@ -1237,7 +1237,10 @@ window.addEventListener('DOMContentLoaded', () => {
         
         // 画面が出た後、裏でFirebaseを読み込み開始
         initFirebase().then((res) => {
-            db = res.db;
+            if(res && res.db) db = res.db;
+            updateSyncButtons(); // 成功しても失敗してもボタン表示を更新する
+        }).catch(err => {
+            console.error(err);
             updateSyncButtons();
         });
     });
@@ -1254,5 +1257,4 @@ window.showVersion = function() {
 window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
-
 window.addEventListener('auth-changed', updateSyncButtons);
