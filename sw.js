@@ -88,7 +88,7 @@ self.addEventListener('fetch', event => {
     
         // 4. キャッシュが無い場合はネットワーク結果を返す
         const networkResponse = await networkPromise;
-        if (networkResponse) 
+        if networkResponse) {
             return networkResponse;
         }
     
