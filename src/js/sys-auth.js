@@ -39,6 +39,9 @@ loginBtn.addEventListener("click", async () => {
     try {
         const { signInWithPopup, GoogleAuthProvider } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js');
         const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({
+            prompt: 'select_account'
+        });
         
         // currentUser = result.user は onAuthStateChanged側で自動的に反映される
         await signInWithPopup(auth, provider);
@@ -71,4 +74,5 @@ logoutBtn.addEventListener("click", async () => {
     } finally {
         logoutBtn.disabled = false;
     }
+
 });
