@@ -3,6 +3,7 @@ importScripts('src/js/app-version.js');
 const CACHE_NAME = 'static-' + self.APP_VERSION;
 const BASE_PATH = '/Studyplanner/';
 
+// ----- キャッシュするファイル -----
 const FILES_TO_CACHE = [
     BASE_PATH,
     `${BASE_PATH}index.html`,
@@ -12,16 +13,15 @@ const FILES_TO_CACHE = [
     `${BASE_PATH}src/js/sys-auth.js`,
     `${BASE_PATH}src/js/fb.js`,
     `${BASE_PATH}src/js/app-version.js`,
-
-    // Font Awesome
+    
+    // Font Awesome・Firebase
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
-    // Firebase
     'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js',
     'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js',
     'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js'
 ];
 
-// 初回プリキャッシュ
+// ----- 初回プリキャッシュ -----
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
@@ -30,7 +30,7 @@ self.addEventListener('install', event => {
     // self.skipWaiting();
 });
 
-// 古いキャッシュ削除
+// ----- 古いキャッシュを削除 -----
 self.addEventListener('activate', event => {
     event.waitUntil(
         caches.keys().then(keys =>
@@ -40,16 +40,15 @@ self.addEventListener('activate', event => {
     self.clients.claim();
 });
 
-// メッセージを受け取って即座に入れ替える
+// ----- メッセージを受け取って即座に入れ替える -----
 self.addEventListener('message', (event) => {
     if (event.data === 'skipWaiting') {
         self.skipWaiting();
     }
 });
 
-// Stale-While-Revalidate
+// ----- Stale-While-Revalidate -----
 self.addEventListener('fetch', event => {
-    // 自分のオリジン以外（chrome-extension:// 等）は無視する
     const url = new URL(event.request.url);
     const allowedOrigins = [
         self.location.origin, 
@@ -68,7 +67,7 @@ self.addEventListener('fetch', event => {
     event.respondWith((async () => {
         const cache = await caches.open(CACHE_NAME);
     
-        // 1. まずキャッシュを探す（存在すれば即使う）
+        // 1. まずキャッシュを探す
         const cached = await cache.match(event.request);
     
         // 2. ネットワーク取得をバックグラウンドで実行
@@ -84,14 +83,12 @@ self.addEventListener('fetch', event => {
             })
             .catch(() => null);
     
-        // 3. キャッシュがあれば即返して高速化
-        if (cached) {
-            return cached;
-        }
+        // 3. キャッシュがあればすぐ返す
+        if (cached) return cached;
     
         // 4. キャッシュが無い場合はネットワーク結果を返す
         const networkResponse = await networkPromise;
-        if (networkResponse) {
+        if (networkResponse) 
             return networkResponse;
         }
     
