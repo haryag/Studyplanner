@@ -39,6 +39,8 @@ loginBtn.addEventListener("click", async () => {
     try {
         const { signInWithPopup, GoogleAuthProvider } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js');
         const provider = new GoogleAuthProvider();
+
+        // 毎回アカウントを選択させる
         provider.setCustomParameters({
             prompt: 'select_account'
         });
