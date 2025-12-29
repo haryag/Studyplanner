@@ -2,7 +2,7 @@ import { initFirebase, currentUser } from './sys-auth.js';
 
 // ----- 1. 定数 -----
 const APP_NAME = 'Studyplanner';
-const LAST_UPDATED = '2025/12/28';
+const LAST_UPDATED = '2025/12/29';
 const BASE_PATH = '/Studyplanner/';
 
 // ----- 2. 日付 -----
