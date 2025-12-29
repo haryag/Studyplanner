@@ -726,11 +726,11 @@ function renderMaterialList() {
 
         const nameCommentDiv = document.createElement("div");
         nameCommentDiv.className = "material-name-comment";
-        if(material.detail) nameCommentDiv.innerHTML = material.detail.replace(/\n/g, "<br>");
+        if(material.detail) nameCommentDiv.textContent = material.detail;
 
+        nameDiv.append(nameTitleDiv, nameProgressDiv, nameDateDiv, nameCommentDiv);
         // 完了状態なら文字色を薄くする
         nameDiv.style.color = (status === "completed") ? "#a0a0a0" : "#333";
-        nameDiv.append(nameTitleDiv, nameProgressDiv, nameDateDiv, nameCommentDiv);
 
         const btnDiv = document.createElement("div");
         btnDiv.className = "item-buttons";
@@ -1275,3 +1275,4 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
+
