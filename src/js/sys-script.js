@@ -526,6 +526,20 @@ function openHistoryModal(materialId) {
                 ${item.time ? `<div class="history-time-badge">${item.time}</div>` : ''}
             `;
             historyContainer.appendChild(card);
+
+            // XSS対策
+            const rangeDiv = document.createElement("div");
+            rangeDiv.className = "history-range";
+            rangeDiv.textContent = item.range || '';
+            card.innerHTML = `
+                <div class="plan-info">
+                    <div class="history-date">
+                        ${item.date.replace(/-/g, '/')}
+                        ${item.checked ? '<i class="fa-solid fa-check"></i>' : ''}
+                    </div>
+                </div>
+            `;
+            card.querySelector(".plan-info").appendChild(rangeDiv);
         });
     }
 
@@ -625,8 +639,12 @@ function renderTodayPlans() {
 
         const nameDiv = document.createElement("div");
         nameDiv.textContent = material.name;
+
+        // XSS対策
         const rangeDiv = document.createElement("div");
-        rangeDiv.innerHTML = `<i class="fa-regular fa-pen-to-square"></i> ${plan.range}`;
+        rangeDiv.innerHTML = '<i class="fa-regular fa-pen-to-square"></i> ';
+        rangeDiv.append(plan.range); // 変数部分はテキストとして安全に結合
+        
         const timeDiv = document.createElement("div");
         if (plan.time) timeDiv.innerHTML = `<i class="fa-regular fa-clock"></i> ${plan.time}`;
 
@@ -1275,4 +1293,3 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
-
