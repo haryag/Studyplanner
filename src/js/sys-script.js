@@ -187,6 +187,7 @@ async function loadLocalData(key) {
 }
 
 // ----- 10. 保存・読み込み -----
+// -- 保存 --
 async function saveAll() {
     // 保存前にデータを整理
     const cleanedMaterials = materials.map(m => ({
@@ -224,6 +225,7 @@ async function saveAll() {
     }
 }
 
+// -- 読み込み --
 async function loadAll() {
     try {
         const savedMaterials = await loadLocalData("materials");
@@ -255,7 +257,7 @@ async function loadAll() {
     }
 }
 
-// データの所有者とログイン中のアカウントが異なるか検出
+// -- データの所有者とログイン中のアカウントが異なるか検出 --
 async function checkDataOwner() {
     const savedUid = await loadLocalData("ownerUid");
     
@@ -314,10 +316,10 @@ function updateCategoryOptions() {
     filterCategorySelect.appendChild(optNoneFilter);
     
     Array.from(categories).sort().forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c;
-      opt.textContent = c;
-      filterCategorySelect.appendChild(opt);
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        filterCategorySelect.appendChild(opt);
     });
     
     filterCategorySelect.value = currentFilter;
@@ -718,7 +720,6 @@ function renderMaterialList() {
 
         const nameProgressDiv = document.createElement("div");
         nameProgressDiv.className = "material-name-progress";
-        
         if (material.progress !== undefined && material.progress !== null) {
             nameProgressDiv.textContent = `進度：${material.progress}%`;
         }
@@ -728,34 +729,16 @@ function renderMaterialList() {
         if(material.detail) nameCommentDiv.innerHTML = material.detail.replace(/\n/g, "<br>");
 
         // 完了状態なら文字色を薄くする
-        if (status === "completed") {
-            nameDiv.style.color = "#a0a0a0"; 
-        } else {
-            nameDiv.style.color = "#333"; 
-        }
-
+        nameDiv.style.color = (status === "completed") ? "#a0a0a0" : "#333";
         nameDiv.append(nameTitleDiv, nameProgressDiv, nameDateDiv, nameCommentDiv);
-        itemDiv.appendChild(nameDiv);
 
         const btnDiv = document.createElement("div");
         btnDiv.className = "item-buttons";
 
-        const addPlanBtn = createIconButton("add-plan", '<i class="fa-solid fa-plus"></i>', () => {
-            openPlanModal(material.id);
-        });
-
-        const editBtn = createIconButton("edit", '<i class="fa-solid fa-pen"></i>', () => {
-            openMaterialModal(material.id);
-        });
-
-        const infoBtn = createIconButton("info", '<i class="fa-solid fa-info"></i>', () => {
-            openInfoModal(material.id);
-        });
-
-        const historyBtn = createIconButton("history", '<i class="fa-solid fa-clock-rotate-left"></i>', () => {
-            openHistoryModal(material.id);
-        });
-
+        const addPlanBtn = createIconButton("add-plan", '<i class="fa-solid fa-plus"></i>', () => openPlanModal(material.id));
+        const editBtn = createIconButton("edit", '<i class="fa-solid fa-pen"></i>', () => openMaterialModal(material.id));
+        const infoBtn = createIconButton("info", '<i class="fa-solid fa-info"></i>', () => openInfoModal(material.id));
+        const historyBtn = createIconButton("history", '<i class="fa-solid fa-clock-rotate-left"></i>', () => openHistoryModal(material.id));
         const delBtn = createIconButton("delete", '<i class="fa-solid fa-trash-can"></i>', () => {
             if (confirm(`教材「${material.name}」を削除しますか？教材を削除すると、この教材に関連する全ての予定も削除されます。`)) {
                 const idx = materials.findIndex(item => item.id === material.id);
@@ -767,9 +750,9 @@ function renderMaterialList() {
                 updateCategoryOptions();
             }
         });
-
         btnDiv.append(addPlanBtn, editBtn, infoBtn, historyBtn, delBtn);
-        itemDiv.appendChild(btnDiv);
+
+        itemDiv.append(nameDiv, btnDiv);
         addTapToggle(itemDiv, "material");
         materialItems.appendChild(itemDiv);
     });
