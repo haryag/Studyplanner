@@ -224,6 +224,12 @@ async function saveAll() {
     try {
         await saveLocalData("materials", cleanedMaterials);
         await saveLocalData("dailyPlans", cleanedPlans);
+
+        // ユーザーを記録（認証時のデータの整合性を取るため）
+        const currentUid = currentUser ? currentUser.uid : "guest";
+        const currentName = currentUser ? (currentUser.displayName || currentUser.email) : "未ログイン";
+        await saveLocalData("ownerUid", currentUid);
+        await saveLocalData("ownerName", currentName);
     } catch (e) {
         console.error("端末への保存に失敗しました。", e);
     }
@@ -260,6 +266,35 @@ async function loadAll() {
         materials.splice(0, materials.length);
         for (const key in dailyPlans) delete dailyPlans[key];
     }
+}
+
+async function checkDataOwnership(actionType) {
+    const savedUid = await loadLocalData("ownerUid");
+    const savedName = await loadLocalData("ownerName") || "不明なユーザー"; // 保存されている名前
+    
+    // 今ログインしている人の名前
+    const currentName = currentUser.displayName || currentUser.email;
+
+    // 端末のデータとログインユーザーが一致しない場合
+    if (savedUid && savedUid !== currentUser.uid) {
+        let message = "";
+        if (savedUid === "guest") {
+            message = "現在端末にあるのは【未ログイン状態】のデータです。";
+        } else {
+            message = `現在端末にあるのは【${savedName}】さんのデータです。`;
+        }
+
+        if (actionType === "upload") {
+            return confirm(
+                `${message}\n\nこれを現在ログイン中の【${currentName}】さんのアカウントにアップロードして、クラウド上のデータを上書きしますか？`
+            );
+        } else if (actionType === "download") {
+            return confirm(
+                `${message}\n\n端末のデータを破棄して、クラウドから【${currentName}】さん自身のデータを読み込み直しますか？`
+            );
+        }
+    }
+    return true;
 }
 
 // ----- カテゴリ関連 -----
@@ -815,7 +850,7 @@ function renderSortMaterialModal() {
 // アップロード処理
 uploadBtn.addEventListener("click", async () => {
     if (!db || !currentUser) return;
-    if (!window.confirm("データをクラウドへアップロードします。よろしいですか？")) return;
+    if (!(await checkDataOwnership("upload"))) return;
     
     uploadBtn.disabled = true;
 
@@ -840,7 +875,7 @@ uploadBtn.addEventListener("click", async () => {
 // ダウンロード処理
 downloadBtn.addEventListener("click", async () => {
     if (!db || !currentUser) return;
-    if (!window.confirm("データをクラウドからダウンロードして上書きします。よろしいですか？")) return;
+    if (!(await checkDataOwnership("download"))) return;
     
     downloadBtn.disabled = true;
 

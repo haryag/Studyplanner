@@ -44,6 +44,7 @@ loginBtn.addEventListener("click", async () => {
         await signInWithPopup(auth, provider);
         
         alert(`ようこそ！ログインに成功しました。`);
+        window.location.reload();
     } catch (e) {
         console.error("Login error:", e);
         alert("ログインに失敗しました。");
@@ -55,7 +56,7 @@ loginBtn.addEventListener("click", async () => {
 // ----- ログアウト処理 -----
 const logoutBtn = document.getElementById("logout-btn");
 logoutBtn.addEventListener("click", async () => {
-    if (!auth || !confirm("ログアウトしますか？")) return;
+    if (!auth || !confirm("ログアウトしますか？\nログアウト前にデータのバックアップを取っておくことを推奨します。")) return;
     logoutBtn.disabled = true;
 
     try {
@@ -63,6 +64,7 @@ logoutBtn.addEventListener("click", async () => {
         await signOut(auth);
 
         alert("ログアウトしました。");
+        window.location.reload();
     } catch (e) {
         console.error("Logout error:", e);
         alert("ログアウトに失敗しました。");
