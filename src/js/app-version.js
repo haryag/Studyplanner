@@ -1,2 +1,2 @@
 // ----- バージョン管理 -----
-self.APP_VERSION = 'v4.5.1';
+self.APP_VERSION = 'v4.5.2';

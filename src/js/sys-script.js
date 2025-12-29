@@ -224,12 +224,6 @@ async function saveAll() {
     try {
         await saveLocalData("materials", cleanedMaterials);
         await saveLocalData("dailyPlans", cleanedPlans);
-
-        // ユーザーを記録（認証時のデータの整合性を取るため）
-        const currentUid = currentUser ? currentUser.uid : "guest";
-        const currentName = currentUser ? (currentUser.displayName || currentUser.email) : "未ログイン";
-        await saveLocalData("ownerUid", currentUid);
-        await saveLocalData("ownerName", currentName);
     } catch (e) {
         console.error("端末への保存に失敗しました。", e);
     }
@@ -268,31 +262,13 @@ async function loadAll() {
     }
 }
 
-async function checkDataOwnership(actionType) {
+// データの所有者とログイン中のアカウントが異なるか検出
+async function checkDataOwner() {
     const savedUid = await loadLocalData("ownerUid");
-    const savedName = await loadLocalData("ownerName") || "不明なユーザー"; // 保存されている名前
     
-    // 今ログインしている人の名前
-    const currentName = currentUser.displayName || currentUser.email;
-
-    // 端末のデータとログインユーザーが一致しない場合
-    if (savedUid && savedUid !== currentUser.uid) {
-        let message = "";
-        if (savedUid === "guest") {
-            message = "現在端末にあるのは【未ログイン状態】のデータです。";
-        } else {
-            message = `現在端末にあるのは【${savedName}】さんのデータです。`;
-        }
-
-        if (actionType === "upload") {
-            return confirm(
-                `${message}\n\nこれを現在ログイン中の【${currentName}】さんのアカウントにアップロードして、クラウド上のデータを上書きしますか？`
-            );
-        } else if (actionType === "download") {
-            return confirm(
-                `${message}\n\n端末のデータを破棄して、クラウドから【${currentName}】さん自身のデータを読み込み直しますか？`
-            );
-        }
+    // ログイン済みで、データの所有者が「ゲスト」でなく「自分」でもない場合
+    if (currentUser && savedUid && savedUid !== "guest" && savedUid !== currentUser.uid) {
+        return false;
     }
     return true;
 }
@@ -850,8 +826,14 @@ function renderSortMaterialModal() {
 // アップロード処理
 uploadBtn.addEventListener("click", async () => {
     if (!db || !currentUser) return;
-    if (!(await checkDataOwnership("upload"))) return;
-    
+
+    const isSafe = await checkDataOwner();
+    const msg = isSafe 
+        ? "データをクラウドへアップロードします。よろしいですか？"
+        : "⚠ アカウントが異なる可能性があります。このままアップロード（上書き）しますか？";
+
+    if (!confirm(msg)) return;
+
     uploadBtn.disabled = true;
 
     try {
@@ -863,6 +845,7 @@ uploadBtn.addEventListener("click", async () => {
             updatedAt: new Date().toISOString(),
         });
         
+        await saveLocalData("ownerUid", currentUser.uid);
         alert("アップロードが完了しました。");
     } catch (e) {
         console.error("Upload error:", e);
@@ -875,7 +858,13 @@ uploadBtn.addEventListener("click", async () => {
 // ダウンロード処理
 downloadBtn.addEventListener("click", async () => {
     if (!db || !currentUser) return;
-    if (!(await checkDataOwnership("download"))) return;
+
+    const isSafe = await checkDataOwner();
+    const msg = isSafe 
+        ? "データをクラウドからダウンロードします。よろしいですか？"
+        : "⚠ アカウントが異なる可能性があります。このままダウンロードしますか？";
+
+    if (!confirm(msg + "（現在の端末のデータは上書きされます）")) return;
     
     downloadBtn.disabled = true;
 
@@ -896,6 +885,8 @@ downloadBtn.addEventListener("click", async () => {
         Object.assign(dailyPlans, data.dailyPlans || {});
         
         saveAndRender();
+        await saveLocalData("ownerUid", currentUser.uid);
+
         alert("ダウンロードが完了しました。");
     } catch (e) {
         console.error("Download error:", e);
@@ -1273,7 +1264,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     
     restoreUIState();
-    loadAll().then(() => {
+    loadAll().then(async () => {
         const savedCat = localStorage.getItem("sp_filterCategory");
         if (savedCat !== null) filterCategorySelect.value = savedCat;
         renderMaterialList();
@@ -1287,6 +1278,14 @@ window.addEventListener('DOMContentLoaded', () => {
             console.error(err);
             updateSyncButtons();
         });
+
+        if (currentUser) {
+            const savedUid = await loadLocalData("ownerUid");
+            // ゲスト時以外でUIDが違う場合のみ警告
+            if (savedUid && savedUid !== "guest" && savedUid !== currentUser.uid) {
+                alert("ログイン中のアカウントと端末のデータが異なる可能性があります。");
+            }
+        }
     });
 
     // 初期状態のボタン更新
