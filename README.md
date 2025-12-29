@@ -41,6 +41,12 @@ https://haryag.github.io/Studyplanner/ にアクセスします。
 
 ---
 
+## 想定ユーザー
+
+受験生・資格勉強など、日々の学習量を自分で管理したい人向けです。
+
+---
+
 ## 技術スタック
 
 - フロントエンド: HTML5, CSS3, Vanilla JavaScript (ES Modules)
