@@ -1294,5 +1294,3 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
-
-

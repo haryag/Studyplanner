@@ -194,7 +194,7 @@ button:disabled {
 
 
 /* ----- 9. 教材アイテム ----- */
-/* 9-1. 基本構造 */
+/* -- 9-1. 基本構造 -- */
 .material-wrapper {
     margin: 20px 0;
     padding: 8px 0;
@@ -212,7 +212,7 @@ button:disabled {
     min-height: 64px;
 }
 
-/* 9-2. tapped （展開状態）*/
+/* -- 9-2. tapped （展開状態） -- */
 .material-item.tapped {
     height: 85dvh;
     padding: 0;
@@ -234,7 +234,7 @@ button:disabled {
 }
 .material-item.tapped .material-name-input::-webkit-scrollbar { width: 6px; }
 
-/* 9-3. 進捗バー */
+/* -- 9-3. 進捗バー -- */
 .material-item::after {
     content: "";
     position: absolute;
@@ -247,7 +247,7 @@ button:disabled {
 }
 .material-item::before { display: none; }
 
-/* 9-4. 展開テキスト */
+/* -- 9-4. 展開テキスト -- */
 .material-name-title {
     font-weight: 700;
     font-size: 16px;
@@ -368,6 +368,7 @@ button:disabled {
     align-items: center;
     margin: 0 2px;
 }
+.item-buttons button:hover { transform: scale(1.5); }
 .item-buttons button:active { background-color: #f0f0f0; }
 .item-buttons button i { font-size: 1.0rem !important; vertical-align: middle; }
 
@@ -569,7 +570,7 @@ select {
 
 
 /* ----- 18. 履歴・統計表示モーダル ----- */
-/* 18-1. 総実施数・最終更新日 */
+/* -- 18-1. 総実施数・最終更新日 -- */
 /* stats = statistics（統計） */
 .stats-summary-container {
     display: flex;
@@ -598,7 +599,7 @@ select {
     color: #333;
 }
 
-/* 18-2. 学習バランス（統計バー） */
+/* -- 18-2. 学習バランス（統計バー） -- */
 .balance-list-wrapper {
     margin-bottom: 20px;
     border-bottom: 1px dashed #ddd;
@@ -651,7 +652,7 @@ select {
     font-weight: bold;
 }
 
-/* 18-3. 詳細履歴リスト */
+/* -- 18-3. 詳細履歴リスト -- */
 .history-card {
     min-height: auto !important;
     padding: 10px 14px !important;
