@@ -368,7 +368,7 @@ button:disabled {
     align-items: center;
     margin: 0 2px;
 }
-.item-buttons button:active { background-color: #f0f0f0; }
+.item-buttons button:active, .item-buttons button:hover { background-color: #f0f0f0; }
 .item-buttons button i { font-size: 1.0rem !important; vertical-align: middle; }
 
 
@@ -455,6 +455,12 @@ select {
     background-position: right 10px center;
     padding-right: 25px;
 }
+textarea {
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+}
+textarea::-webkit-scrollbar { width: 6px; }
+textarea::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; }
 
 
 /* ----- 15. モーダル共通 ----- */
@@ -475,7 +481,7 @@ select {
     padding: 24px 16px;
     border-radius: 8px;
     width: 90%;
-    max-width: 450px;
+    max-width: 540px;
     max-height: 85vh;
     overflow-y: auto;
     box-shadow: var(--modal-shadow);
