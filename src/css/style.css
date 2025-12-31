@@ -368,7 +368,7 @@ button:disabled {
     align-items: center;
     margin: 0 2px;
 }
-.item-buttons button:hover { transform: scale(1.5); }
+.item-buttons button:hover { transform: scale(1.5); transition: all 0.3s linear; }
 .item-buttons button:active { background-color: #f0f0f0; }
 .item-buttons button i { font-size: 1.0rem !important; vertical-align: middle; }
 
