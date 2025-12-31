@@ -232,17 +232,17 @@
                 <input type="number" id="material-progress-input" min="0" max="100" placeholder="0～100の値を入力">
             </label>
             <label>
-                コメント：
-                <textarea id="material-detail-input" placeholder="入力してください（改行できます）" rows="3"></textarea>
-            </label>
-            <div style="margin-bottom: 12px;">
-                <label style="font-size:14px; color:#333; font-weight:bold;">状態</label>
-                <select id="material-status-select" style="width:100%; margin-top:4px;">
+                状態：
+                <select id="material-status-select">
                     <option value="waiting">未着手</option>
                     <option value="learning">学習中</option>
                     <option value="completed">完了</option>
                 </select>
-            </div>
+            </label>
+            <label>
+                コメント：
+                <textarea id="material-detail-input" placeholder="入力してください（改行できます）" rows="6"></textarea>
+            </label>
             <div class="modal-btns">
                 <button id="cancel-info-btn" class="cancel">キャンセル</button>
                 <button id="confirm-info-btn" class="ok">登録</button>
