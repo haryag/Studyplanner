@@ -548,7 +548,7 @@ function openHistoryModal(materialId) {
 
 // ----- 12-3. モーダルを閉じる関数 -----
 function closeAllModals() {
-    alert("現在の内容は保存されません。キャンセルしてもよろしいですか？");
+    if(alert("現在の内容は保存されません。キャンセルしてもよろしいですか？")) return;
     [addPlanModal, addMaterialModal, infoMaterialModal, sortMaterialModal, bulkAddModal, historyModal].forEach(modal => {
         if (!modal.classList.contains("hidden")) toggleModal(modal, false);
     });
@@ -1294,4 +1294,5 @@ window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
 window.addEventListener('auth-changed', updateSyncButtons);
+
 
