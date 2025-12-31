@@ -548,10 +548,11 @@ function openHistoryModal(materialId) {
 
 // ----- 12-3. モーダルを閉じる関数 -----
 function closeAllModals() {
-    if(confirm("現在の内容は保存されません。キャンセルしてもよろしいですか？")) return;
-    [addPlanModal, addMaterialModal, infoMaterialModal, sortMaterialModal, bulkAddModal, historyModal].forEach(modal => {
-        if (!modal.classList.contains("hidden")) toggleModal(modal, false);
-    });
+    if (confirm("現在の内容は保存されません。キャンセルしてもよろしいですか？")) {
+        [addPlanModal, addMaterialModal, infoMaterialModal, sortMaterialModal, bulkAddModal, historyModal].forEach(modal => {
+            if (!modal.classList.contains("hidden")) toggleModal(modal, false);
+        });
+    }
 }
 
 // ----- 12-4. 個別要素の操作 -----
