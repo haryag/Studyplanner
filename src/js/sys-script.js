@@ -2,7 +2,7 @@ import { initFirebase, currentUser } from './sys-auth.js';
 
 // ----- 1. 定数 -----
 const APP_NAME = 'Studyplanner';
-const LAST_UPDATED = '2025/12/31';
+const LAST_UPDATED = '2026/1/1';
 const BASE_PATH = '/Studyplanner/';
 
 // ----- 2. 日付 -----
@@ -428,7 +428,8 @@ function openBulkAddModal() {
         activeMaterials.forEach(material => {
             const label = document.createElement("label");
             label.className = "bulk-item-label";
-            label.innerHTML = `<input type="checkbox" value="${material.id}"> <span>${material.name}</span>`;
+            label.innerHTML = `<input type="checkbox" value="${material.id}"> <span></span>`;
+            label.querySelector("span").textContent = material.name;
             bulkMaterialList.appendChild(label);
         });
     }
