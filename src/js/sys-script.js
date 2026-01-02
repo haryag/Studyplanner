@@ -461,11 +461,12 @@ function openInfoModal(materialId) {
 function openBulkAddModal() {
     bulkMaterialList.innerHTML = "";
     const activeMaterials = materials.filter(m => m.status !== "completed");
+    const displayMaterials = getSortedMaterials(activeMaterials);
     
-    if (activeMaterials.length === 0) {
+    if (displayMaterials.length === 0) {
         bulkMaterialList.innerHTML = "<p style='text-align:center; font-size:12px;'>学習中・未着手の教材がありません。</p>";
     } else {
-        activeMaterials.forEach(material => {
+        displayMaterials.forEach(material => {
             const label = document.createElement("label");
             label.className = "bulk-item-label";
             label.innerHTML = `<input type="checkbox" value="${material.id}"> <span></span>`;
@@ -656,6 +657,19 @@ function moveInGlobalArray(item, direction) {
 }
 
 // ----- 13. UI生成・補助 -----
+// -- 教材をカテゴリごとに並べ替える関数 --
+function getSortedMaterials(targetArray = materials) {
+    return [...targetArray].sort((a, b) => {
+        const catA = a.category || "zzz_なし";
+        const catB = b.category || "zzz_なし";
+        
+        if (catA !== catB) {
+            return catA.localeCompare(catB, 'ja');
+        }
+        return materials.indexOf(a) - materials.indexOf(b);
+    });
+}
+
 // -- 予定追加・編集モーダルでの教材選択 --
 function populateMaterialSelect(selectedId = null) {
     planMaterialInput.innerHTML = "";
@@ -768,12 +782,7 @@ function renderMaterialList() {
 
     materialItems.innerHTML = "";
 
-    const displayMaterials = [...materials].sort((a, b) => {
-        const catA = a.category || "zzz_なし";
-        const catB = b.category || "zzz_なし";
-        if (catA !== catB) return catA.localeCompare(catB, 'ja');
-        return materials.indexOf(a) - materials.indexOf(b);
-    });
+    const displayMaterials = getSortedMaterials();
 
     displayMaterials.forEach(material => {
         // 基本プロパティチェック (statusがない場合はwaitingとみなす)
