@@ -209,6 +209,7 @@ button:disabled {
     justify-content: center;
     align-items: stretch;
     min-height: 64px;
+    transition: height 0.1s ease;
 }
 
 /* -- 9-2. tapped （展開状態） -- */
@@ -251,6 +252,7 @@ button:disabled {
     font-size: 16px;
     margin-bottom: 4px;
     color: #333;
+    transition: font-size 0.1s ease;
 }
 .material-item.tapped .material-name-title {
     font-size: 20px;
@@ -266,7 +268,6 @@ button:disabled {
     max-height: 0;
     opacity: 0;
     overflow: hidden;
-    transition: opacity 0.2s ease;
     font-size: 12px;
     color: #666;
     margin: 0;
@@ -622,10 +623,13 @@ textarea::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; 
     background: #eee;
     overflow: hidden;
 }
+@keyframes growBar {
+    from { width: 0; }    /* to は不要 */
+}
 .balance-bar {
     height: 100%;
     border-radius: 4px;
-    transition: width 0.5s ease-out;
+    animation: growBar 0.6s ease forwards;
 }
 
 /* 教科別カラー（既存変数を流用） */

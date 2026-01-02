@@ -574,7 +574,7 @@ function addTapToggle(itemDiv, type = "material") {
         if (isOpened && type === "material") {
             setTimeout(() => {
                 itemDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 10);
+            }, 120);
         }
     });
 }
