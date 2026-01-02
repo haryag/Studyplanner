@@ -319,19 +319,21 @@ button:disabled {
 
 .plan-item .item-buttons, .material-item .item-buttons { display: none; }
 
-.plan-item .item-buttons, #so {
+.plan-item .item-buttons, #modal-sort-list .item-buttons {
     position: absolute;
-    bottom: 10px;
     right: 10px;
-    background: rgba(255, 255, 255, 0.95);
+    height: fit-content;
+    margin: auto 0;
     padding: 4px 8px;
     border-radius: 30px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    align-items: center;
+    background: rgba(255, 255, 255, 0.95);
     gap: 0;
     z-index: 100;
     animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+.plan-item .item-buttons { bottom: 10px; }
+#modal-sort-list .item-buttons { top: 0; bottom: 0;}
 .plan-item.tapped .item-buttons { display: flex; }
 
 .material-item.tapped .item-buttons {

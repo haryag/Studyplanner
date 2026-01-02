@@ -918,21 +918,21 @@ function renderSortMaterialModal() {
             const btnDiv = document.createElement("div");
             btnDiv.className = "item-buttons";
             
-            btnDiv.style.display = "flex";
-            btnDiv.style.position = "absolute";
-            btnDiv.style.right = "10px";
-            btnDiv.style.top = "0";
-            btnDiv.style.bottom = "0";
-            btnDiv.style.margin = "auto 0";
-            btnDiv.style.height = "fit-content";
-            btnDiv.style.transform = "none";
+            // btnDiv.style.display = "flex";
+            // btnDiv.style.position = "absolute";
+            // btnDiv.style.right = "10px";
+            // btnDiv.style.top = "0";
+            // btnDiv.style.bottom = "0";
+            // btnDiv.style.margin = "auto 0";
+            // btnDiv.style.height = "fit-content";
+            // btnDiv.style.transform = "none";
             
-            btnDiv.style.background = "rgba(255, 255, 255, 0.95)";
-            btnDiv.style.padding = "4px 8px";
-            btnDiv.style.borderRadius = "30px";
-            btnDiv.style.boxShadow = "0 4px 10px rgba(0,0,0,0.2)";
-            btnDiv.style.gap = "0";
-            btnDiv.style.animation = "popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+            // btnDiv.style.background = "rgba(255, 255, 255, 0.95)";
+            // btnDiv.style.padding = "4px 8px";
+            // btnDiv.style.borderRadius = "30px";
+            // btnDiv.style.boxShadow = "0 4px 10px rgba(0,0,0,0.2)";
+            // btnDiv.style.gap = "0";
+            // btnDiv.style.animation = "popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
 
             // 上移動ボタン
             const upBtn = createIconButton("sort-up", '<i class="fa-solid fa-arrow-up"></i>', () => {
