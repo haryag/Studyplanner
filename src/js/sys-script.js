@@ -1201,6 +1201,14 @@ importFileInput.addEventListener("change", (e) => {
         }
     });
 });
+// -- Ctrl + Enter --
+materialDetailInput.addEventListener("keydown", (e) => {
+    if (e.ctrlKey && e.key === "Enter") {
+        e.preventDefault();
+        confirmInfoBtn.click();
+    }
+});
+
 // -- escape --
 document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
