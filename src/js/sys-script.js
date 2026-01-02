@@ -408,9 +408,36 @@ function openPlanModal(materialId = null, planIndex = null) {
 // -- 教材並び替えモーダル --
 function openSortModal() {
     isModalEdited = false;
-
     sortBackupMaterials = JSON.parse(JSON.stringify(materials));
     editingSortMaterialId = null;
+
+    // メイン画面の現在のカテゴリフィルタ値を初期値として取得
+    let currentCat = filterCategorySelect.value;
+    if (currentCat === "all") currentCat = "none";
+
+    // モーダル上部にセレクトボックスを配置（メインと同じデザインを流用）
+    sortItems.innerHTML = `
+        <div class="filter-btn-wrapper" style="margin-bottom: 16px; width: 100%; box-sizing: border-box;">
+            <i class="fa-solid fa-tag"></i>
+            <select id="modal-sort-category-select" style="width: 100%;"></select>
+        </div>
+        <div id="modal-sort-list"></div>
+    `;
+
+    const modalSelect = document.getElementById("modal-sort-category-select");
+    // 既存のフィルタ用セレクトボックスから選択肢をコピー（新規作成などの不要なものは除外）
+    modalSelect.innerHTML = filterCategorySelect.innerHTML;
+    const allOpt = modalSelect.querySelector('option[value="all"]');
+    if (allOpt) allOpt.remove();
+
+    modalSelect.value = currentCat;
+
+    // カテゴリを切り替えたらリストを再描画
+    modalSelect.onchange = () => {
+        editingSortMaterialId = null;
+        renderSortMaterialModal();
+    };
+
     renderSortMaterialModal();
     toggleModal(sortMaterialModal, true);
 }
@@ -602,6 +629,32 @@ function addTapToggle(itemDiv, type = "material") {
     });
 }
 
+// ----- 12-5. 同じカテゴリーに属する直前/直後のアイテムと位置を入れ替える関数 -----
+function moveInGlobalArray(item, direction) {
+    const globalIdx = materials.indexOf(item);
+    const cat = item.category || "";
+    let targetIdx = -1;
+
+    if (direction === -1) {
+        // 上方向に同じカテゴリーの教材を探す
+        for (let i = globalIdx - 1; i >= 0; i--) {
+            if ((materials[i].category || "") === cat) { targetIdx = i; break; }
+        }
+    } else {
+        // 下方向に同じカテゴリーの教材を探す
+        for (let i = globalIdx + 1; i < materials.length; i++) {
+            if ((materials[i].category || "") === cat) { targetIdx = i; break; }
+        }
+    }
+
+    if (targetIdx !== -1) {
+        // 配列内での入れ替えを実行
+        [materials[globalIdx], materials[targetIdx]] = [materials[targetIdx], materials[globalIdx]];
+        isModalEdited = true;
+        renderSortMaterialModal();
+    }
+}
+
 // ----- 13. UI生成・補助 -----
 // -- 予定追加・編集モーダルでの教材選択 --
 function populateMaterialSelect(selectedId = null) {
@@ -715,7 +768,14 @@ function renderMaterialList() {
 
     materialItems.innerHTML = "";
 
-    materials.forEach(material => {
+    const displayMaterials = [...materials].sort((a, b) => {
+        const catA = a.category || "zzz_なし";
+        const catB = b.category || "zzz_なし";
+        if (catA !== catB) return catA.localeCompare(catB, 'ja');
+        return materials.indexOf(a) - materials.indexOf(b);
+    });
+
+    displayMaterials.forEach(material => {
         // 基本プロパティチェック (statusがない場合はwaitingとみなす)
         const status = material.status || "waiting";
 
@@ -821,77 +881,56 @@ function renderMaterialList() {
 
 // -- 教材並び替えモーダル描画 --
 function renderSortMaterialModal() {
-    sortItems.innerHTML = "";
+    const listContainer = document.getElementById("modal-sort-list");
+    const targetCat = document.getElementById("modal-sort-category-select").value;
+    const catValue = (targetCat === "none") ? "" : targetCat;
     
-    materials.forEach(material => {
+    listContainer.innerHTML = "";
+
+    // 選択されたカテゴリーに一致する教材だけを表示
+    const catMaterials = materials.filter(m => (m.category || "") === catValue);
+
+    catMaterials.forEach(material => {
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${material.subject}`;
-        itemDiv.dataset.id = material.id;
-
         itemDiv.style.flexDirection = "row";
         itemDiv.style.alignItems = "center";
         itemDiv.style.padding = "8px 12px";
         itemDiv.style.minHeight = "60px";
-        itemDiv.style.cursor = "pointer";
-        itemDiv.style.position = "relative";
         itemDiv.style.setProperty('--material-bg-width', '0%');
-
-        itemDiv.addEventListener("click", (e) => {
-            if (e.target.closest("button")) return;
-            editingSortMaterialId = (editingSortMaterialId === material.id) ? null : material.id;
-            renderSortMaterialModal();
-        });
 
         const nameDiv = document.createElement("div");
         nameDiv.textContent = material.name;
         nameDiv.style.flex = "1";
         nameDiv.style.fontWeight = "bold";
-        nameDiv.style.marginRight = "8px";
         itemDiv.appendChild(nameDiv);
 
         if (material.id === editingSortMaterialId) {
-            itemDiv.style.backgroundColor = "#fff";
-            itemDiv.style.zIndex = "10";
-
             const btnDiv = document.createElement("div");
             btnDiv.className = "item-buttons";
-            
             btnDiv.style.display = "flex";
             btnDiv.style.position = "absolute";
             btnDiv.style.right = "10px";
-            btnDiv.style.top = "0";
-            btnDiv.style.bottom = "0";
-            btnDiv.style.margin = "auto 0";
-            btnDiv.style.height = "fit-content";
-            btnDiv.style.transform = "none";
-            
-            btnDiv.style.background = "rgba(255, 255, 255, 0.95)";
-            btnDiv.style.padding = "4px 8px";
-            btnDiv.style.borderRadius = "30px";
-            btnDiv.style.boxShadow = "0 4px 10px rgba(0,0,0,0.2)";
-            btnDiv.style.gap = "0";
-            btnDiv.style.animation = "popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-            
-            const upBtn = createIconButton("sort-up", '<i class="fa-solid fa-arrow-up"></i>', () => {
-                const idx = materials.indexOf(material);
-                if (idx <= 0) return;
-                [materials[idx - 1], materials[idx]] = [materials[idx], materials[idx - 1]];
-                isModalEdited = true;  // 入れ替えを検知
-                renderSortMaterialModal();
-            });
 
+            // 上移動ボタン
+            const upBtn = createIconButton("sort-up", '<i class="fa-solid fa-arrow-up"></i>', () => {
+                moveInGlobalArray(material, -1);
+            });
+            // 下移動ボタン
             const downBtn = createIconButton("sort-down", '<i class="fa-solid fa-arrow-down"></i>', () => {
-                const idx = materials.indexOf(material);
-                if (idx >= materials.length - 1) return;
-                [materials[idx], materials[idx + 1]] = [materials[idx + 1], materials[idx]];
-                isModalEdited = true;  // 入れ替えを検知
-                renderSortMaterialModal();
+                moveInGlobalArray(material, 1);
             });
 
             btnDiv.append(upBtn, downBtn);
             itemDiv.appendChild(btnDiv);
         }
-        sortItems.appendChild(itemDiv);
+
+        itemDiv.onclick = (e) => {
+            if (e.target.closest("button")) return;
+            editingSortMaterialId = (editingSortMaterialId === material.id) ? null : material.id;
+            renderSortMaterialModal();
+        };
+        listContainer.appendChild(itemDiv);
     });
 }
 
