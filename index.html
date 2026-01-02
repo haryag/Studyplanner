@@ -39,13 +39,7 @@
                     <input type="text" id="search-material-input" placeholder="教材名またはキーワードを検索...">
                 </div>
                 <div class="filter-group">
-                    <div class="filter-btn-wrapper">
-                        <i class="fa-solid fa-tag"></i>
-                        <select id="filter-category-select">
-                            <!-- カテゴリが挿入される -->
-                        </select>
-                    </div>
-                    
+                    <!-- 教科フィルタ -->
                     <div class="filter-btn-wrapper">
                         <i class="fa-solid fa-book"></i>
                         <select id="filter-subject-select">
@@ -60,6 +54,7 @@
                         </select>
                     </div>
 
+                    <!-- 状態フィルタ -->
                     <div class="filter-btn-wrapper">
                         <i class="fa-solid fa-bars-progress"></i>
                         <select id="filter-status-select">
@@ -68,6 +63,14 @@
                             <option value="planning">進行中</option>
                             <option value="learning">学習中</option>
                             <option value="completed">完了</option>
+                        </select>
+                    </div>
+
+                    <!-- カテゴリフィルタ -->
+                    <div class="filter-btn-wrapper">
+                        <i class="fa-solid fa-tag"></i>
+                        <select id="filter-category-select">
+                            <!-- カテゴリが挿入される -->
                         </select>
                     </div>
                 </div>
