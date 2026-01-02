@@ -535,7 +535,11 @@ textarea::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; 
     border: 1px solid #eee;
     padding: 8px;
     border-radius: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
 }
+#bulk-material-list::-webkit-scrollbar { width: 6px; }
+#bulk-material-list::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; }
 .bulk-item-label {
     display: flex;
     align-items: center;
