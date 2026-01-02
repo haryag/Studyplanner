@@ -319,7 +319,7 @@ button:disabled {
 
 .plan-item .item-buttons, .material-item .item-buttons { display: none; }
 
-.plan-item .item-buttons {
+.plan-item .item-buttons, #so {
     position: absolute;
     bottom: 10px;
     right: 10px;
