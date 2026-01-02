@@ -696,19 +696,14 @@ function renderMaterialList() {
         // 基本プロパティチェック (statusがない場合はwaitingとみなす)
         const status = material.status || "waiting";
 
-        // フィルタ処理
-        if (subjectFilter !== "all" && material.subject !== subjectFilter) return;
-        if (!material.name.toLowerCase().includes(query)) return;
-        
-        // カテゴリーフィルタ
-        if (categoryFilter !== "all") {
-            if (categoryFilter === "none") {
-                if (material.category) return;
-            } else {
-                if (material.category !== categoryFilter) return;
-            }
-        }
+        // 検索ボックス
+        const nameMatch = material.name.toLowerCase().includes(query);
+        const detailMatch = (material.detail || "").toLowerCase().includes(query);
+        if (!nameMatch && !detailMatch) return;
 
+        // 教科フィルタ
+        if (subjectFilter !== "all" && material.subject !== subjectFilter) return;
+        
         // 状態フィルタ
         if (statusFilter !== "all") {
             if (statusFilter === "planning") {
@@ -716,6 +711,15 @@ function renderMaterialList() {
                 if (status === "completed") return;
             } else {
                 if (status !== statusFilter) return;
+            }
+        }
+        
+        // カテゴリーフィルタ
+        if (categoryFilter !== "all") {
+            if (categoryFilter === "none") {
+                if (material.category) return;
+            } else {
+                if (material.category !== categoryFilter) return;
             }
         }
 
