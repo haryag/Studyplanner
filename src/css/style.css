@@ -209,7 +209,7 @@ button:disabled {
     justify-content: center;
     align-items: stretch;
     min-height: 64px;
-    transition: height 0.1s ease;
+    /* transition: height 0.1s ease; */
 }
 
 /* -- 9-2. tapped （展開状態） -- */
@@ -252,7 +252,7 @@ button:disabled {
     font-size: 16px;
     margin-bottom: 4px;
     color: #333;
-    transition: font-size 0.2s ease;
+    transition: font-size 0.3s ease;
 }
 .material-item.tapped .material-name-title {
     font-size: 20px;
