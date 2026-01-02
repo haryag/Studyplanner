@@ -561,6 +561,10 @@ function addTapToggle(itemDiv, type = "material") {
     itemDiv.addEventListener("click", (e) => {
         if (e.target.closest("button")) return;
 
+        // テキストを選択中（ドラッグ中）ならカードを閉じない
+        const selection = window.getSelection();
+        if (selection && selection.toString().length > 0) return; 
+
         document.querySelectorAll('.material-item.tapped, .plan-item.tapped').forEach(div => {
             if (div !== itemDiv) div.classList.remove('tapped');
         });
