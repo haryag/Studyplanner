@@ -106,6 +106,7 @@ let categories = new Set();
 let editingPlanIndex = null;          // 予定（配列基準）
 let editingMaterialId = null;         // 教材（id基準）
 let editingSortMaterialId = null;     // 並び替え中の教材（id基準）
+let isModalEdited = false;            // モーダル内で何らかの編集がされたか
 
 // ----- 7. UI初期化・状態復元 -----
 function restoreUIState() {
@@ -358,6 +359,14 @@ function toggleModal(modal, show = true) {
     if (wrapper) wrapper.classList.toggle("full-height", show);
     modal.classList.toggle("hidden", !show);
     document.body.style.overflow = show ? "hidden" : "";
+
+    // モーダルを開くとき、中身のスクロールを一番上に戻す
+    if (show) {
+        const container = modal.querySelector(".modal-container");
+        if (container) {
+            container.scrollTop = 0;
+        }
+    }
 }
 
 // ----- 12-2. モーダルを開く関数 -----
@@ -398,6 +407,8 @@ function openPlanModal(materialId = null, planIndex = null) {
 
 // -- 教材並び替えモーダル --
 function openSortModal() {
+    isModalEdited = false;
+
     sortBackupMaterials = JSON.parse(JSON.stringify(materials));
     editingSortMaterialId = null;
     renderSortMaterialModal();
@@ -408,6 +419,8 @@ function openSortModal() {
 function openInfoModal(materialId) {
     const material = materials.find(m => m.id === materialId);
     if (!material) return;
+    
+    isModalEdited = false;
     materialNamePanel.textContent = material.name;
     materialStatusSelect.value = material.status || "waiting";
     materialDateInput.value = material.date || "";
@@ -549,11 +562,21 @@ function openHistoryModal(materialId) {
 
 // ----- 12-3. モーダルを閉じる関数 -----
 function closeAllModals() {
-    if (confirm("現在の内容は保存されません。キャンセルしてもよろしいですか？")) {
-        [addPlanModal, addMaterialModal, infoMaterialModal, sortMaterialModal, bulkAddModal, historyModal].forEach(modal => {
-            if (!modal.classList.contains("hidden")) toggleModal(modal, false);
-        });
+    const isInfoOpen = !infoMaterialModal.classList.contains("hidden");
+    const isSortOpen = !sortMaterialModal.classList.contains("hidden");
+
+    if ((isInfoOpen || isSortOpen) && isModalEdited) {
+        if (!confirm("変更内容は保存されません！キャンセルしてもよろしいですか？")) {
+            return;
+        }
     }
+
+    // 全てのモーダルを閉じる
+    [addPlanModal, addMaterialModal, infoMaterialModal, sortMaterialModal, bulkAddModal, historyModal].forEach(modal => {
+        if (!modal.classList.contains("hidden")) toggleModal(modal, false);
+    });
+    
+    isModalEdited = false; // 閉じた後にフラグを戻す
 }
 
 // ----- 12-4. 個別要素の操作 -----
@@ -853,6 +876,7 @@ function renderSortMaterialModal() {
                 const idx = materials.indexOf(material);
                 if (idx <= 0) return;
                 [materials[idx - 1], materials[idx]] = [materials[idx], materials[idx - 1]];
+                isModalEdited = true;  // 入れ替えを検知
                 renderSortMaterialModal();
             });
 
@@ -860,6 +884,7 @@ function renderSortMaterialModal() {
                 const idx = materials.indexOf(material);
                 if (idx >= materials.length - 1) return;
                 [materials[idx], materials[idx + 1]] = [materials[idx + 1], materials[idx]];
+                isModalEdited = true;  // 入れ替えを検知
                 renderSortMaterialModal();
             });
 
@@ -1186,7 +1211,7 @@ importFileInput.addEventListener("change", (e) => {
     reader.readAsText(file);
 });
 
-// ----- 20. Enterキー・Escキー操作 -----
+// ----- 20. モーダル関連のイベントを検知 -----
 // -- Enter --
 [addMaterialModal, addPlanModal].forEach(modal => {
     modal.addEventListener("keydown", e => {
@@ -1218,6 +1243,11 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
         closeAllModals();
     }
+});
+
+// -- モーダル内の input / textarea で変更を検知 --
+infoMaterialModal.addEventListener('input', () => {
+    isModalEdited = true;
 });
 
 // ----- 21. Service Worker登録と更新検知 -----

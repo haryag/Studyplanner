@@ -252,7 +252,7 @@ button:disabled {
     font-size: 16px;
     margin-bottom: 4px;
     color: #333;
-    transition: font-size 0.1s ease;
+    transition: font-size 0.2s ease;
 }
 .material-item.tapped .material-name-title {
     font-size: 20px;
