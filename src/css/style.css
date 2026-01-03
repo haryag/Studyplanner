@@ -378,7 +378,7 @@ button:disabled {
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     align-items: center;
     z-index: 100;
-    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: popIn 0.2s ease;
 }
 
 /* 表示条件 */
@@ -413,6 +413,7 @@ button:disabled {
     left: auto;
     top: 50%;
     transform: translateY(-50%);
+    height: fit-content;
 }
 
 /* ボタン本体 */
