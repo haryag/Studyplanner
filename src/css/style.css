@@ -387,7 +387,7 @@ button:disabled {
     display: flex;
 }
 
-/* --- 位置指定 --- */
+/* 位置指定 */
 .material-item.tapped .item-buttons {
     right: 16px;
     bottom: 20px;
@@ -405,11 +405,13 @@ button:disabled {
     padding: 8px 12px;
     overflow: visible;
     display: flex;
-    box-shadow: none;
 }
 #sort-container .material-item.tapped .item-buttons {
     right: 10px;
     left: auto;
+    margin: auto;
+    top: 0;
+    bottom: 0;
 }
 
 /* ボタン本体 */
