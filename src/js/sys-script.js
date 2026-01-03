@@ -791,20 +791,15 @@ function renderMaterialList() {
     const subjectFilter = filterSubjectSelect.value;
     const statusFilter = filterStatusSelect.value;
     const categoryFilter = filterCategorySelect.value;
-
-    materialItems.innerHTML = "";
-
     const displayMaterials = getSortedMaterials();
+    
+    materialItems.innerHTML = "";
+    const fragment = document.createDocumentFragment();
 
     displayMaterials.forEach(material => {
         // 検索・フィルタ処理
         const status = material.status || "waiting";
         const category = material.category;
-
-        // 検索
-        const nameMatch = material.name.toLowerCase().includes(query);
-        const detailMatch = (material.detail || "").toLowerCase().includes(query);
-        if (!nameMatch && !detailMatch) return;
 
         // 教科フィルタ
         if (subjectFilter !== "all" && material.subject !== subjectFilter) return;
@@ -822,6 +817,11 @@ function renderMaterialList() {
                 if (category !== categoryFilter) return;
             }
         }
+
+        // 検索（重めなので後回し）
+        const nameMatch = material.name.toLowerCase().includes(query);
+        const detailMatch = (material.detail || "").toLowerCase().includes(query);
+        if (!nameMatch && !detailMatch) return;
 
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${material.subject}`;
@@ -874,6 +874,7 @@ function renderMaterialList() {
                 Object.keys(dailyPlans).forEach(date => {
                     dailyPlans[date] = dailyPlans[date].filter(p => p.materialId !== material.id);
                 });
+                rebuildMaterialMap();
                 saveAndRender();
                 updateCategoryOptions();
             }
@@ -883,17 +884,19 @@ function renderMaterialList() {
         // 親要素（itemDiv）への追加
         itemDiv.append(badgeDiv, infoContainer, btnContainer);
         addTapToggle(itemDiv, "material");
-        materialItems.appendChild(itemDiv);
+        fragment.appendChild(itemDiv);
     });
 
-    if (materialItems.children.length === 0) {
-        const empty = document.createElement("p");
-        empty.textContent = "教材なし";
-        empty.style.textAlign = "center";
-        empty.style.color = "#000";
-        empty.style.marginTop = "16px";
-        materialItems.appendChild(empty);
+    if (!fragment.hasChildNodes()) {
+        const emptyText = document.createElement("p");
+        emptyText.textContent = "教材なし";
+        emptyText.style.textAlign = "center";
+        emptyText.style.color = "#000";
+        emptyText.style.marginTop = "16px";
+        fragment.appendChild(emptyText);
     }
+
+    materialItems.appendChild(fragment);
 }
 
 // -- 教材並び替えモーダル描画 --
