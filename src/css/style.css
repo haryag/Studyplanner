@@ -409,9 +409,9 @@ button:disabled {
     box-shadow: var(--card-shadow);
 }
 #sort-container .material-item.tapped .item-buttons {
+    position: fixed;
     right: 10px;
     left: auto;
-    /* margin: auto; */
     top: auto;
     bottom: auto;
 }
