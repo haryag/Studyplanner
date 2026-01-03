@@ -387,7 +387,7 @@ button:disabled {
     bottom: 20px;
 }
 #modal-sort-list.tapped .item-buttons {
-    display: flex;
+    display: flex !important;
     top: 0;
     bottom: 0;
     left: auto;
@@ -746,4 +746,3 @@ input:focus, select:focus, textarea:focus {
 }
 
 .about-btn:hover { color: var(--text-main); }
-
