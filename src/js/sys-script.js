@@ -2,7 +2,7 @@ import { initFirebase, currentUser } from './sys-auth.js';
 
 // ----- 1. 定数 -----
 const APP_NAME = 'Studyplanner';
-const LAST_UPDATED = '2026/1/2';
+const LAST_UPDATED = '2026/1/3';
 const BASE_PATH = '/Studyplanner/';
 
 // ----- 2. 日付 -----
@@ -52,7 +52,7 @@ const confirmPlanBtn = document.getElementById("confirm-plan-btn");
 
 // -- 教材追加・編集モーダル要素 --
 const addMaterialModal = document.getElementById("add-material-modal");
-const materialNameInput = document.getElementById("material-name-input");
+const materialNameInput = document.getElementById("material-info");
 const materialSubjectSelect = document.getElementById("material-subject-select");
 const materialCategorySelect = document.getElementById("material-category-select");
 const newCategoryInput = document.getElementById("new-category-input");
@@ -503,7 +503,7 @@ function openHistoryModal(materialId) {
         dailyPlans[date].forEach(plan => {
             if (plan.checked) {
                 totalCompletedTasks++;
-                const targetMaterial = materials.find(m => m.id === plan.materialId);
+                const targetMaterial = materials.find(item => item.id === plan.materialId);
                 const subject = targetMaterial ? targetMaterial.subject : 'others';
                 subjectCounts[subject] = (subjectCounts[subject] || 0) + 1;
 
@@ -554,37 +554,37 @@ function openHistoryModal(materialId) {
     } else {
         historyData.sort((a, b) => b.date.localeCompare(a.date));
         historyData.forEach(item => {
-            const card = document.createElement("div");
-            card.className = `plan-item ${material.subject} history-card ${item.checked ? 'checked' : ''}`;
-            
-            card.innerHTML = `
-                <div class="plan-info">
-                    <div class="history-date">
-                        ${item.date.replace(/-/g, '/')}
-                        ${item.checked ? '<i class="fa-solid fa-check"></i>' : ''}
-                    </div>
-                    <div class="history-range">${item.range || '内容未設定'}</div>
-                </div>
-                ${item.time ? `<div class="history-time-badge">${item.time}</div>` : ''}
-            `;
-            historyContainer.appendChild(card);
+            const itemDiv = document.createElement("div");
+            itemDiv.className = `plan-item ${material.subject} history-card ${item.checked ? 'checked' : ''}`;
 
-            // XSS対策
+            // infoContainerの要素
+            const infoContainer = document.createElement("div");
+            infoContainer.className = "plan-info";
+
+            const dateDiv = document.createElement("div");
+            dateDiv.className = "history-date";
+            dateDiv.textContent = item.date.replace(/-/g, '/');
+            if (item.checked) {
+                dateDiv.innerHTML += ' <i class="fa-solid fa-check"></i>';
+            }
+
             const rangeDiv = document.createElement("div");
             rangeDiv.className = "history-range";
             rangeDiv.textContent = item.range || '';
-            card.innerHTML = `
-                <div class="plan-info">
-                    <div class="history-date">
-                        ${item.date.replace(/-/g, '/')}
-                        ${item.checked ? '<i class="fa-solid fa-check"></i>' : ''}
-                    </div>
-                </div>
-            `;
-            card.querySelector(".plan-info").appendChild(rangeDiv);
+
+            // infoContainerの組み立て
+            infoContainer.append(dateDiv, rangeDiv);
+            itemDiv.append(infoContainer);
+
+            if (item.time) {
+                const timeBadgeDiv = document.createElement("div"); // 変数名微調整
+                timeBadgeDiv.className = "history-time-badge";
+                timeBadgeDiv.textContent = item.time;
+                itemDiv.append(timeBadgeDiv);
+            }
+            historyContainer.appendChild(itemDiv);
         });
     }
-
     toggleModal(historyModal, true);
 }
 
@@ -723,27 +723,35 @@ function renderTodayPlans() {
         const material = materials.find(item => item.id === plan.materialId);
         if (!material) return;
 
-        const item = document.createElement("div");
-        item.className = `plan-item ${material.subject}`;
-        item.classList.toggle("checked", plan.checked);
+        const itemDiv = document.createElement("div");
+        itemDiv.className = `plan-item ${material.subject} ${plan.checked ? 'checked' : ''}`;
 
         const iconDiv = document.createElement("div");
         iconDiv.className = "plan-icon";
         iconDiv.innerHTML = '<i class="fa-solid fa-bookmark"></i>';
-
-        const infoDiv = document.createElement("div");
-        infoDiv.className = "plan-info";
+        
+        // infoContainerの要素
+        const infoContainer = document.createElement("div");
+        infoContainer.className = "plan-info";
 
         const nameDiv = document.createElement("div");
         nameDiv.textContent = material.name;
 
-        // XSS対策
         const rangeDiv = document.createElement("div");
         rangeDiv.innerHTML = '<i class="fa-regular fa-pen-to-square"></i> ';
-        rangeDiv.append(plan.range); // 変数部分はテキストとして安全に結合
+        rangeDiv.append(plan.range);
+
+        // infoContainerの組み立て
+        infoContainer.append(nameDiv, rangeDiv);
+        if (plan.time) {
+            const timeDiv = document.createElement("div");
+            timeDiv.innerHTML = `<i class="fa-regular fa-clock"></i> ${plan.time}`;
+            infoContainer.append(timeDiv);
+        }
         
-        const timeDiv = document.createElement("div");
-        if (plan.time) timeDiv.innerHTML = `<i class="fa-regular fa-clock"></i> ${plan.time}`;
+        // ボタン類の組み立て
+        const btnContainer = document.createElement("div");
+        btnContainer.className = "item-buttons";
 
         const checkBtn = createIconButton("check", '<i class="fa-solid fa-check"></i>', () => {
             plan.checked = !plan.checked;
@@ -759,17 +767,12 @@ function renderTodayPlans() {
                 saveAndRender();
             }
         });
-
-        const btnContainer = document.createElement("div");
-        btnContainer.className = "item-buttons";
         btnContainer.append(checkBtn, editBtn, delBtn);
 
-        infoDiv.append(nameDiv, rangeDiv);
-        if (plan.time) infoDiv.appendChild(timeDiv);
-
-        item.append(iconDiv, infoDiv, btnContainer);
-        addTapToggle(item, "plan");
-        planItems.appendChild(item);
+        // 親要素（itemDiv）への追加
+        itemDiv.append(iconDiv, infoContainer, btnContainer);
+        addTapToggle(itemDiv, "plan");
+        planItems.appendChild(itemDiv);
     });
 }
 
@@ -785,76 +788,71 @@ function renderMaterialList() {
     const displayMaterials = getSortedMaterials();
 
     displayMaterials.forEach(material => {
-        // 基本プロパティチェック (statusがない場合はwaitingとみなす)
+        // 検索・フィルタ処理
         const status = material.status || "waiting";
+        const category = material.category;
 
-        // 検索ボックス
+        // 検索
         const nameMatch = material.name.toLowerCase().includes(query);
         const detailMatch = (material.detail || "").toLowerCase().includes(query);
         if (!nameMatch && !detailMatch) return;
 
         // 教科フィルタ
         if (subjectFilter !== "all" && material.subject !== subjectFilter) return;
-        
-        // 状態フィルタ
         if (statusFilter !== "all") {
             if (statusFilter === "planning") {
-                // planning = 未完了（waiting + learning）扱い
-                if (status === "completed") return;
+                if (status === "completed") return;    // planning = 未完了（waiting + learning）扱い
             } else {
                 if (status !== statusFilter) return;
             }
         }
-        
-        // カテゴリーフィルタ
         if (categoryFilter !== "all") {
             if (categoryFilter === "none") {
-                if (material.category) return;
+                if (category) return;
             } else {
-                if (material.category !== categoryFilter) return;
+                if (category !== categoryFilter) return;
             }
         }
 
-        // DOM生成
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${material.subject}`;
         itemDiv.style.setProperty('--material-bg-width', `${material.progress || 0}%`);
 
-        // ツールチップ設定（ホバー時に出てくるヒントのこと）
-        const badge = document.createElement("div");
-        badge.className = `status-badge ${status}`;
-        if (status === "learning") badge.title = "学習中";
-        else if (status === "waiting") badge.title = "未着手";
-        else if (status === "completed") badge.title = "完了";
-        itemDiv.appendChild(badge);
+        // 教材ステータスバッジの組み立て
+        const badgeDiv = document.createElement("div");
+        badgeDiv.className = `status-badge ${status}`;
+        if (status === "learning") badgeDiv.title = "学習中";
+        else if (status === "waiting") badgeDiv.title = "未着手";
+        else if (status === "completed") badgeDiv.title = "完了";
+
+        // infoContainerの組み立て
+        const infoContainer = document.createElement("div");
+        infoContainer.className = "material-info";
 
         const nameDiv = document.createElement("div");
-        nameDiv.className = "material-name-input";
+        nameDiv.className = "material-name";
+        nameDiv.textContent = material.name;
 
-        const nameTitleDiv = document.createElement("div");
-        nameTitleDiv.className = "material-name-title";
-        nameTitleDiv.textContent = material.name;
+        const dateDiv = document.createElement("div");
+        dateDiv.className = "material-date";
+        if(material.date) dateDiv.textContent = `期間：${material.date}`;
 
-        const nameDateDiv = document.createElement("div");
-        nameDateDiv.className = "material-name-date";
-        if(material.date) nameDateDiv.textContent = `期間：${material.date}`;
-
-        const nameProgressDiv = document.createElement("div");
-        nameProgressDiv.className = "material-name-progress";
+        const progressDiv = document.createElement("div");
+        progressDiv.className = "material-progress";
         if (material.progress !== undefined && material.progress !== null) {
-            nameProgressDiv.textContent = `進度：${material.progress}%`;
+            progressDiv.textContent = `進度：${material.progress}%`;
         }
 
-        const nameCommentDiv = document.createElement("div");
-        nameCommentDiv.className = "material-name-comment";
-        if(material.detail) nameCommentDiv.textContent = material.detail;
+        const detailDiv = document.createElement("div");
+        detailDiv.className = "material-detail";
+        if(material.detail) detailDiv.textContent = material.detail;
 
-        nameDiv.append(nameTitleDiv, nameProgressDiv, nameDateDiv, nameCommentDiv);
-        // 完了状態なら文字色を薄くする
-        nameDiv.style.color = (status === "completed") ? "#a0a0a0" : "#333";
+        // infoContainerの組み立て
+        infoContainer.append(nameDiv, progressDiv, dateDiv, detailDiv);
 
-        const btnDiv = document.createElement("div");
-        btnDiv.className = "item-buttons";
+        // ボタン類の組み立て
+        const btnContainer = document.createElement("div");
+        btnContainer.className = "item-buttons";
 
         const addPlanBtn = createIconButton("add-plan", '<i class="fa-solid fa-plus"></i>', () => openPlanModal(material.id));
         const editBtn = createIconButton("edit", '<i class="fa-solid fa-pen"></i>', () => openMaterialModal(material.id));
@@ -871,9 +869,10 @@ function renderMaterialList() {
                 updateCategoryOptions();
             }
         });
-        btnDiv.append(addPlanBtn, editBtn, infoBtn, historyBtn, delBtn);
+        btnContainer.append(addPlanBtn, editBtn, infoBtn, historyBtn, delBtn);
 
-        itemDiv.append(nameDiv, btnDiv);
+        // 親要素（itemDiv）への追加
+        itemDiv.append(badgeDiv, infoContainer, btnContainer);
         addTapToggle(itemDiv, "material");
         materialItems.appendChild(itemDiv);
     });
@@ -1379,7 +1378,7 @@ window.addEventListener('DOMContentLoaded', () => {
     updateSyncButtons();
 });
 
-// ----- 23. バージョン表示 -----
+// ----- 23. バージョン表示・ボタン同期 -----
 window.showVersion = function() {
     alert(`${APP_NAME}\n\nバージョン：${window.APP_VERSION}\n最終更新日：${LAST_UPDATED}`);
 };
