@@ -393,24 +393,23 @@ button:disabled {
     bottom: 20px;
     top: auto;
     left: auto;
-    /* transform: none; */
 }
 .plan-item.tapped .item-buttons {
     right: 10px;
     bottom: 10px;
     top: auto;
     left: auto;
-    /* transform: none; */
+}
+#sort-container .material-item.tapped {
+    height: auto;
+    padding: 8px 12px;
+    overflow: visible;
+    display: flex;
+    box-shadow: none;
 }
 #sort-container .material-item.tapped .item-buttons {
     right: 10px;
     left: auto;
-    /* top: auto;
-    bottom: auto; */
-    /* margin: auto; */
-    /* top: 50%;
-    bottom: auto;
-    transform: translateY(-50%); */
 }
 
 /* ボタン本体 */
