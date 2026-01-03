@@ -392,7 +392,6 @@ button:disabled {
     bottom: 0;
     left: auto;
     right: 10px;
-    margin: auto;
 }
 
 .item-buttons button {
@@ -746,3 +745,4 @@ input:focus, select:focus, textarea:focus {
 }
 
 .about-btn:hover { color: var(--text-main); }
+
