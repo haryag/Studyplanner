@@ -320,22 +320,31 @@ button:disabled {
 .material-item .item-buttons {
     display: none;
     position: absolute;
-    right: 10px;
     background: rgba(255, 255, 255, 0.95);
-    padding: 4px 8px;
+    padding: 4px 6px;
     border-radius: 30px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     align-items: center;
     gap: 0;
     z-index: 100;
     height: fit-content;
-    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: popIn 0.3s ease;
 }
 .plan-item.tapped .item-buttons {
     display: flex;
+    right: 10px;
     bottom: 10px;
 }
 .material-item.tapped .item-buttons {
+    display: flex;
+    right: 16px;
+    bottom: 20px;
+    /* top: auto;
+    left: auto;
+    width: auto;
+    margin: 0; */
+}
+#modal-sort-list.tapped .item-buttons {
     display: flex;
     top: 0;
     bottom: 0;
