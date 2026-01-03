@@ -102,6 +102,13 @@ const materials = [];
 let sortBackupMaterials = [];
 let categories = new Set();
 
+// -- 教材のmap --
+let materialMap = new Map();
+function rebuildMaterialMap() {
+    materialMap.clear();
+    materials.forEach(m => materialMap.set(m.id, m));
+}
+
 // -- 編集用変数 --
 let editingPlanIndex = null;          // 予定（配列基準）
 let editingMaterialId = null;         // 教材（id基準）
@@ -374,7 +381,7 @@ function toggleModal(modal, show = true) {
 function openMaterialModal(materialId = null) {
     updateCategoryOptions();
     if (materialId !== null) {
-        const material = materials.find(m => m.id === materialId);
+        const material = materialMap.get(materialId);
         materialSubjectSelect.value = material.subject;
         materialNameInput.value = material.name;
         materialCategorySelect.value = material.category || "";
@@ -444,7 +451,7 @@ function openSortModal() {
 
 // -- 教材情報表示モーダル --
 function openInfoModal(materialId) {
-    const material = materials.find(m => m.id === materialId);
+    const material = materialMap.get(materialId);
     if (!material) return;
     
     isModalEdited = false;
@@ -479,7 +486,7 @@ function openBulkAddModal() {
 
 // -- 履歴・統計表示モーダル --
 function openHistoryModal(materialId) {
-    const material = materials.find(m => m.id === materialId);
+    const material = materialMap.get(materialId);
     if (!material) return;
 
     let totalCompletedTasks = 0;
@@ -503,7 +510,7 @@ function openHistoryModal(materialId) {
         dailyPlans[date].forEach(plan => {
             if (plan.checked) {
                 totalCompletedTasks++;
-                const targetMaterial = materials.find(item => item.id === plan.materialId);
+                const targetMaterial = materialMap.get(plan.materialId);
                 const subject = targetMaterial ? targetMaterial.subject : 'others';
                 subjectCounts[subject] = (subjectCounts[subject] || 0) + 1;
 
@@ -720,7 +727,7 @@ function renderTodayPlans() {
     });
 
     sortedPlans.forEach(plan => {
-        const material = materials.find(item => item.id === plan.materialId);
+        const material = materialMap.get(plan.materialId);
         if (!material) return;
 
         const itemDiv = document.createElement("div");
@@ -755,7 +762,8 @@ function renderTodayPlans() {
 
         const checkBtn = createIconButton("check", '<i class="fa-solid fa-check"></i>', () => {
             plan.checked = !plan.checked;
-            saveAndRender();
+            saveAll();
+            renderTodayPlans();
         });
         const editBtn = createIconButton("edit", '<i class="fa-solid fa-pen"></i>', () => {
             openPlanModal(plan.materialId, todayPlans.indexOf(plan));
@@ -764,7 +772,8 @@ function renderTodayPlans() {
             if (confirm("この予定を削除しますか？")) {
                 const idx = todayPlans.indexOf(plan);
                 todayPlans.splice(idx, 1);
-                saveAndRender();
+                saveAll();
+                renderTodayPlans();
             }
         });
         btnContainer.append(checkBtn, editBtn, delBtn);
@@ -999,6 +1008,8 @@ downloadBtn.addEventListener("click", async () => {
         
         // データ反映
         materials.splice(0, materials.length, ...(data.materials || []));
+        rebuildMaterialMap();
+
         for (const key in dailyPlans) delete dailyPlans[key];
         Object.assign(dailyPlans, data.dailyPlans || {});
         
@@ -1053,6 +1064,7 @@ confirmMaterialBtn.addEventListener("click", () => {
     // 新規作成時はデフォルトで waiting（未着手）にする
     if (editingMaterialId !== null) {
         const material = materials.find(item => item.id === editingMaterialId);
+        
         if (material) { material.name = name; material.subject = subject; material.category = category; }
     } else {
         const newId = materials.length ? Math.max(...materials.map(material => material.id)) + 1 : 1;
@@ -1068,6 +1080,7 @@ confirmMaterialBtn.addEventListener("click", () => {
     
     editingMaterialId = null;
     toggleModal(addMaterialModal, false);
+    rebuildMaterialMap();
     saveAndRender();
     updateCategoryOptions();
 });
@@ -1125,6 +1138,7 @@ confirmInfoBtn.addEventListener("click", () => {
         }
     }
     toggleModal(infoMaterialModal, false);
+    rebuildMaterialMap();
     saveAndRender();
 });
 
@@ -1156,7 +1170,8 @@ confirmBulkBtn.addEventListener("click", () => {
     });
     
     toggleModal(bulkAddModal, false);
-    saveAndRender();
+    saveAll();
+    renderTodayPlans();
     alert(`${checkboxes.length}件の予定を追加しました。`);
 });
 
@@ -1235,6 +1250,7 @@ importFileInput.addEventListener("change", (e) => {
 
             // データを変数に反映
             materials.splice(0, materials.length, ...data.materials);
+            rebuildMaterialMap();
             
             // dailyPlansをクリアして反映
             for (const key in dailyPlans) delete dailyPlans[key];
@@ -1358,6 +1374,7 @@ window.addEventListener('DOMContentLoaded', () => {
     loadAll().then(() => {
         const savedCat = localStorage.getItem("sp_filterCategory");
         if (savedCat !== null) filterCategorySelect.value = savedCat;
+        rebuildMaterialMap();
         renderMaterialList();
         renderTodayPlans();
         
