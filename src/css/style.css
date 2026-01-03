@@ -411,7 +411,9 @@ button:disabled {
 #sort-container .material-item.tapped .item-buttons {
     right: 10px;
     left: auto;
-    margin: auto;
+    /* margin: auto; */
+    top: auto;
+    bottom: auto;
 }
 
 /* ボタン本体 */
