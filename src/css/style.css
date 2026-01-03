@@ -1,6 +1,6 @@
 /* ----- 1. 変数定義 ----- */
 :root {
-    --color-transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    --color-transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 
     --app-bg-color: #f8f9fa;
     --card-bg-color: #ffffff;
@@ -259,7 +259,7 @@ button:disabled {
     flex-direction: column;
     justify-content: center;
     min-height: 64px;
-    transition: height 0.1s ease, var(--color-transition);
+    transition: var(--color-transition);
 }
 
 /* -- 9-2. tapped（展開状態） -- */
@@ -405,6 +405,7 @@ button:disabled {
     padding: 8px 12px;
     overflow: visible;
     display: flex;
+    align-items: center;
     box-shadow: var(--card-shadow);
 }
 #sort-container .material-item.tapped .item-buttons {
