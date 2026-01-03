@@ -40,19 +40,19 @@
         --checked-text: #666666;
         --btn-color: #7cb1fc;
         --item-btn-bg: rgba(45, 45, 45, 0.95);
-        --modal-overlay: rgba(0, 0, 0, 0.3);
+        --modal-overlay: rgba(0, 0, 0, 0.8);
         --hover-bg: #2c2c2c;
         --active-bg: #252525;
         
         --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         --modal-shadow: 0 12px 24px rgba(0, 0, 0, 0.6);
 
-        --main-color-math: #8fa8ff;
-        --main-color-english: #ff9ecf;
-        --main-color-modernjp: #ffbf6b;
-        --main-color-classicjp: #d2a679;
-        --main-color-science: #7fcf9b;
-        --main-color-social: #ffe680;
+        --main-color-math: #7d94e8;
+        --main-color-english: #d76ba1;
+        --main-color-modernjp: #f8a73d;
+        --main-color-classicjp: #a07b56;
+        --main-color-science: #5cb87c;
+        --main-color-social: #d2be6d;
         --main-color-others: #b0b0b0;
     }
 }
