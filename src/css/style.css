@@ -388,8 +388,6 @@ button:disabled {
 }
 #modal-sort-list .material-item.tapped .item-buttons {
     display: flex !important;
-    top: 0;
-    bottom: 0;
     left: auto;
     right: 10px;
 }
@@ -745,4 +743,3 @@ input:focus, select:focus, textarea:focus {
 }
 
 .about-btn:hover { color: var(--text-main); }
-
