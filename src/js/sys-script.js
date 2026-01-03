@@ -889,10 +889,8 @@ function renderMaterialList() {
 
     if (!fragment.hasChildNodes()) {
         const emptyText = document.createElement("p");
-        emptyText.textContent = "教材なし";
-        emptyText.style.textAlign = "center";
-        emptyText.style.color = "#000";
-        emptyText.style.marginTop = "16px";
+        emptyText.textContent = "該当する教材がありません。";
+        emptyText.classList.add("no-data");
         fragment.appendChild(emptyText);
     }
 
