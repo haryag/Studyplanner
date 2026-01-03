@@ -1,5 +1,27 @@
 /* ----- 1. 変数定義 ----- */
 :root {
+    /* 共通設定 */
+    --main-max-width: 700px;
+    --border-radius-size: 5px;
+    --color-transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+
+    /* ライトモード (Base) */
+    --app-bg-color: #f8f9fa;
+    --card-bg-color: #ffffff;
+    --text-main: #333333;
+    --text-sub: #666666;
+    --border-color: #dddddd;
+    --border-sub: #eeeeee;
+    --checked-bg: #f0f0f0;
+    --checked-text: #808080;
+    --item-btn-bg: rgba(255, 255, 255, 0.95);
+    --modal-overlay: rgba(0, 0, 0, 0.5);
+    --hover-bg: #f5f5f5;
+    --active-bg: #fafafa;
+    
+    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    --modal-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+
     --main-color-math: #00008b;
     --main-color-english: #ff69b4;
     --main-color-modernjp: #f49200;
@@ -7,19 +29,37 @@
     --main-color-science: #228b22;
     --main-color-social: #e6c700;
     --main-color-others: #808080;
-
-    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-    --modal-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 }
 
+@media (prefers-color-scheme: dark) {
+    :root {
+        --app-bg-color: #121212;
+        --card-bg-color: #1e1e1e;
+        --text-main: #e0e0e0;
+        --text-sub: #999999;
+        --border-color: #333333;
+        --border-sub: #2a2a2a;
+        --checked-bg: #252525;
+        --checked-text: #666666;
+        --item-btn-bg: rgba(45, 45, 45, 0.95);
+        --modal-overlay: rgba(0, 0, 0, 0.7);
+        --hover-bg: #2c2c2c;
+        --active-bg: #252525;
+        
+        --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        --modal-shadow: 0 12px 24px rgba(0, 0, 0, 0.6);
+    }
+}
 
 /* ----- 2. リセット & 全体設定 ----- */
 * {
     font-family: "Noto Sans JP", sans-serif;
     -webkit-tap-highlight-color: transparent;
+    transition: var(--color-transition);
 }
 body {
-    color: #333;
+    background-color: var(--app-bg-color);
+    color: var(--text-main);
     line-height: 1.5;
     -webkit-text-size-adjust: 100%;
 }
@@ -30,16 +70,16 @@ body {
 .underlined { text-decoration: underline; }
 .no-data p {
     text-align: center;
-    color: #999;
+    color: var(--text-sub);
     font-size: 12px;
     padding: 20px;
 }
 button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    background-color: #ccc !important;
-    border-color: #bbb !important;
-    color: #666 !important;
+    background-color: var(--border-color) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-sub) !important;
 }
 
 
@@ -54,17 +94,17 @@ button:disabled {
 .display-container {
     padding-bottom: 100px;
     scrollbar-width: thin;
-    scrollbar-color: #ccc transparent;
+    scrollbar-color: var(--border-color) transparent;
     scroll-behavior: smooth;
 }
 .display-container.hidden { display: none; }
 .display-container::-webkit-scrollbar { width: 6px; }
-.display-container::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; }
+.display-container::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 3px; }
 
 
 /* ----- 6. ツールバー（検索・フィルタエリア） ----- */
 .filter-toolbar {
-    background: #fff;
+    background: var(--card-bg-color);
     padding: 16px;
     border-radius: var(--border-radius-size);
     margin-bottom: 16px;
@@ -81,20 +121,21 @@ button:disabled {
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: #888;
+    color: var(--text-sub);
 }
 .search-box input {
     width: 100%;
     padding: 10px 10px 10px 36px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    background: #f8f9fa;
+    background: var(--app-bg-color);
+    color: var(--text-main);
     font-size: 15px;
     outline: none;
     margin: 0;
 }
 .search-box input:focus {
-    background: #fff;
+    background: var(--card-bg-color);
     border-color: #006ce0;
 }
 
@@ -109,18 +150,17 @@ button:disabled {
 .filter-group::-webkit-scrollbar { display: none; }
 .filter-btn-wrapper {
     position: relative;
-    background: #fff;
-    border: 1px solid #ddd;
+    background: var(--card-bg-color);
+    border: 1px solid var(--border-color);
     border-radius: 20px;
     color: #006ce0;
     min-width: fit-content;
     height: 36px;
     display: flex;
     align-items: center;
-    transition: background-color 0.2s;
 }
 .filter-btn-wrapper:hover {
-    background-color: #f5f5f5;
+    background-color: var(--hover-bg);
     border-color: #006ce0;
 }
 .filter-btn-wrapper i {
@@ -140,7 +180,7 @@ button:disabled {
     width: 100%;
     font-size: 13px;
     font-weight: bold;
-    color: #333;
+    color: var(--text-main);
     cursor: pointer;
     margin: 0;
     outline: none;
@@ -149,7 +189,7 @@ button:disabled {
 
 /* ----- 7. カード共通（予定・教材） ----- */
 .plan-item, .material-item {
-    background: #fff;
+    background: var(--card-bg-color);
     border-radius: var(--border-radius-size);
     box-shadow: var(--card-shadow);
     margin-bottom: 12px;
@@ -169,14 +209,14 @@ button:disabled {
     border-left: 5px solid transparent;
     min-height: 60px;
 }
-.plan-item:active { background-color: #fafafa; }
+.plan-item:active { background-color: var(--active-bg); }
 .plan-item.checked {
     opacity: 0.6;
-    background-color: #f0f0f0;
-    color: #808080;
+    background-color: var(--checked-bg);
+    color: var(--checked-text);
     box-shadow: none;
-    border-left: 5px solid #ccc !important;
-    border: 1px solid #ccc;
+    border-left: 5px solid var(--checked-text) !important;
+    border: 1px solid var(--border-color);
 }
 
 .plan-icon {
@@ -187,10 +227,10 @@ button:disabled {
     flex-shrink: 0;
 }
 .plan-info { flex: 1; font-size: 15px; z-index: 1; }
-.plan-info > div:first-child { font-weight: 700; font-size: 15px; margin-bottom: 2px; color: #333; padding-right: 4px; }
-.plan-info > div { font-size: 13px; color: #666; line-height: 1.4; }
+.plan-info > div:first-child { font-weight: 700; font-size: 15px; margin-bottom: 2px; color: var(--text-main); padding-right: 4px; }
+.plan-info > div { font-size: 13px; color: var(--text-sub); line-height: 1.4; }
 .plan-info i { width: 14px; margin-right: 2px; }
-.plan-item.checked .plan-icon i, .plan-item.checked .plan-info i { color: #808080; }
+.plan-item.checked .plan-icon i, .plan-item.checked .plan-info i { color: var(--checked-text); }
 
 
 /* ----- 9. 教材アイテム ----- */
@@ -198,8 +238,8 @@ button:disabled {
 .material-wrapper {
     margin: 20px 0;
     padding: 8px 0;
-    border-top: 1px dashed #ddd;
-    border-bottom: 1px solid #ddd;
+    border-top: 1px dashed var(--border-color);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .material-item {
@@ -209,6 +249,7 @@ button:disabled {
     justify-content: center;
     align-items: stretch;
     min-height: 64px;
+    transition: height 0.1s ease, var(--color-transition);
 }
 
 /* -- 9-2. tapped （展開状態） -- */
@@ -228,7 +269,7 @@ button:disabled {
     overflow-y: auto;
     padding: 32px 20px 70px 20px;
     scrollbar-width: thin;
-    scrollbar-color: #ccc transparent;
+    scrollbar-color: var(--border-color) transparent;
 }
 .material-item.tapped .material-info::-webkit-scrollbar { width: 6px; }
 
@@ -240,7 +281,7 @@ button:disabled {
     left: 0;
     height: 6px;
     width: var(--material-bg-width);
-    background-color: #f0f0f0;
+    background-color: var(--checked-bg);
     z-index: 5;
 }
 .material-item::before { display: none; }
@@ -250,13 +291,13 @@ button:disabled {
     font-weight: 700;
     font-size: 16px;
     margin-bottom: 4px;
-    color: #333;
-    transition: font-size 0.2s ease;
+    color: var(--text-main);
+    transition: font-size 0.2s ease, var(--color-transition);
 }
 .material-item.tapped .material-name {
     font-size: 20px;
     margin-bottom: 12px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-sub);
     padding-bottom: 8px;
     margin-top: 4px;
 }
@@ -268,7 +309,7 @@ button:disabled {
     opacity: 0;
     overflow: hidden;
     font-size: 12px;
-    color: #666;
+    color: var(--text-sub);
     margin: 0;
     line-height: 1.8;
 }
@@ -285,7 +326,7 @@ button:disabled {
 #material-items p {
     text-align: center;
     margin-top: 30px;
-    color: #888;
+    color: var(--checked-text);
 }
 
 /* ----- 10. 教科別カラー定義 ----- */
@@ -320,7 +361,7 @@ button:disabled {
 .material-item .item-buttons {
     display: none;
     position: absolute;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--item-btn-bg);
     padding: 4px 6px;
     border-radius: 30px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -328,7 +369,7 @@ button:disabled {
     gap: 0;
     z-index: 100;
     height: fit-content;
-    animation: popIn 0.3s ease;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 .plan-item.tapped .item-buttons {
     display: flex;
@@ -360,7 +401,7 @@ button:disabled {
     align-items: center;
     margin: 0 2px;
 }
-.item-buttons button:hover, .item-buttons button:active { background-color: #f0f0f0; }
+.item-buttons button:hover, .item-buttons button:active { background-color: var(--checked-bg); }
 .item-buttons button i { font-size: 16px !important; vertical-align: middle; }
 
 
@@ -372,8 +413,8 @@ button:disabled {
 .util-btn {
     align-items: center;
     width: fit-content;
-    background: #fff;
-    border: 1px solid #ddd;
+    background: var(--card-bg-color);
+    border: 1px solid var(--border-color);
     color: #006ce0;
     padding: 6px 16px;
     border-radius: 20px;
@@ -383,7 +424,7 @@ button:disabled {
     text-decoration: none;
 }
 .util-btn:hover {
-    background-color: #f5f5f5;
+    background-color: var(--hover-bg);
     border-color: #006ce0;
 }
 .util-btn i { margin-right: 8px; }
@@ -396,8 +437,8 @@ button:disabled {
     height: calc(60px + env(safe-area-inset-bottom));
     padding-bottom: env(safe-area-inset-bottom);
     
-    border-top: 1px solid #eee;
-    background: rgba(255, 255, 255, 0.95);
+    border-top: 1px solid var(--border-sub);
+    background: var(--item-btn-bg);
     box-shadow: 0 -2px 5px rgba(0,0,0,0.03);
     backdrop-filter: blur(5px);
     
@@ -414,7 +455,7 @@ button:disabled {
     flex: 1;
     border: none;
     background: none;
-    color: #666;
+    color: var(--text-sub);
     font-size: 11px;
     display: flex;
     flex-direction: column;
@@ -424,18 +465,18 @@ button:disabled {
     gap: 4px;
 }
 .footer-btn i { font-size: 18px; }
-.footer-btn:hover { color: #00008b; background: rgba(0,0,0,0.02); }
+.footer-btn:hover { color: var(--main-color-math); background: rgba(0,0,0,0.02); }
 
 
 /* ----- 14. フォーム共通（input / select / textarea） ----- */
 input[type="text"], input[type="number"], input[type="time"], input[type="datetime-local"], select, textarea {
     width: 100%;
     padding: 8px 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 16px;
-    background: #fff;
-    color: #333;
+    background: var(--card-bg-color);
+    color: var(--text-main);
     outline: none;
     margin-bottom: 8px;
     appearance: none;
@@ -449,11 +490,11 @@ select {
 }
 textarea {
     scrollbar-width: thin;
-    scrollbar-color: #ccc transparent;
+    scrollbar-color: var(--border-color) transparent;
     resize: vertical;
 }
 textarea::-webkit-scrollbar { width: 6px; }
-textarea::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; }
+textarea::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 3px; }
 
 
 /* ----- 15. モーダル共通 ----- */
@@ -463,14 +504,14 @@ textarea::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; 
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.5);
+    background-color: var(--modal-overlay);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
 }
 .modal-container {
-    background: #fff;
+    background: var(--card-bg-color);
     padding: 24px 16px;
     border-radius: 8px;
     width: 90%;
@@ -479,17 +520,17 @@ textarea::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; 
     overflow-y: auto;
     box-shadow: var(--modal-shadow);
     scrollbar-width: thin;
-    scrollbar-color: #ccc transparent;
+    scrollbar-color: var(--border-color) transparent;
     scroll-behavior: smooth;
 }
 .modal-container::-webkit-scrollbar { width: 6px; }
-.modal-container::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; }
+.modal-container::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 3px; }
 
 .modal-container h2 {
     text-align: center;
     margin: 0 0 20px 0;
     font-size: 18px;
-    color: #333;
+    color: var(--text-main);
 }
 .modal-container label {
     display: block;
@@ -517,7 +558,7 @@ textarea::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; 
     font-weight: bold;
     font-size: 14px;
 }
-.modal-btns .cancel { background: #eee; color: #333; }
+.modal-btns .cancel { background: var(--checked-bg); color: var(--text-main); }
 .modal-btns .ok { background: #006ce0; color: white; }
 
 
@@ -526,19 +567,19 @@ textarea::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; 
 #bulk-material-list {
     max-height: 300px;
     overflow-y: auto;
-    border: 1px solid #eee;
+    border: 1px solid var(--border-color);
     padding: 8px;
     border-radius: 4px;
     scrollbar-width: thin;
-    scrollbar-color: #ccc transparent;
+    scrollbar-color: var(--border-color) transparent;
 }
 #bulk-material-list::-webkit-scrollbar { width: 6px; }
-#bulk-material-list::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; }
+#bulk-material-list::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 3px; }
 .bulk-item-label {
     display: flex;
     align-items: center;
     padding: 8px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border-sub);
     cursor: pointer;
 }
 .bulk-item-label:last-child {
@@ -550,7 +591,7 @@ textarea::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; 
 }
 .bulk-item-label span {
     font-size: 14px;
-    color: #333;
+    color: var(--text-main);
 }
 
 
@@ -585,26 +626,26 @@ textarea::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; 
     justify-content: center;
     padding: 10px;
     min-height: auto;
-    border: 1px solid #eee;
+    border: 1px solid var(--border-color);
     box-shadow: none;
     cursor: default;
-    background: #fafafa;
+    background: var(--app-bg-color);
 }
 .stats-label {
     font-size: 12px;
-    color: #666;
+    color: var(--text-sub);
     margin-bottom: 2px;
 }
 .stats-value {
     font-size: 18px;
     font-weight: bold;
-    color: #333;
+    color: var(--text-main);
 }
 
 /* -- 18-2. 学習バランス（統計バー） -- */
 .balance-list-wrapper {
     margin-bottom: 20px;
-    border-bottom: 1px dashed #ddd;
+    border-bottom: 1px dashed var(--border-color);
     padding-bottom: 12px;
 }
 .balance-row {
@@ -617,7 +658,7 @@ textarea::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; 
     flex: 1;
     height: 6px;
     border-radius: 3px;
-    background: #eee;
+    background: var(--border-color);
     overflow: hidden;
 }
 @keyframes growBar {
@@ -641,19 +682,19 @@ textarea::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; 
 .subject-name {
     width: 50px;
     font-size: 12px;
-    color: #666;
+    color: var(--text-sub);
     text-align: right;
 }
 .subject-percent {
     width: 35px;
     font-size: 12px;
-    color: #333;
+    color: var(--text-main);
     font-weight: bold;
 }
 
 /* 現在の教材の教科を強調 */
 .current-subject .subject-name {
-    color: #000;
+    color: var(--text-main);
     font-weight: bold;
 }
 
@@ -666,7 +707,7 @@ textarea::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; 
 }
 .history-date {
     font-size: 12px;
-    color: #000;
+    color: var(--text-main);
     font-weight: bold;
     display: flex;
     align-items: center;
@@ -677,7 +718,7 @@ textarea::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; 
 }
 .history-time-badge {
     font-size: 12px;
-    color: #666;
+    color: var(--text-sub);
     margin-left: auto;
 }
 
@@ -692,7 +733,7 @@ textarea::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; 
     border: none;
     padding: 0;
     font-size: 13px;
-    color: #777;
+    color: var(--text-sub);
     cursor: pointer;
 }
-.about-btn:hover { color: #555; }
+.about-btn:hover { color: var(--text-main); }
