@@ -339,16 +339,12 @@ button:disabled {
     display: flex;
     right: 16px;
     bottom: 20px;
-    /* top: auto;
-    left: auto;
-    width: auto;
-    margin: 0; */
 }
 #modal-sort-list.tapped .item-buttons {
     display: flex;
     top: 0;
     bottom: 0;
-    margin: auto 0;
+    right: 10px;
 }
 
 .item-buttons button {
@@ -364,7 +360,7 @@ button:disabled {
     margin: 0 2px;
 }
 .item-buttons button:hover, .item-buttons button:active { background-color: #f0f0f0; }
-.item-buttons button i { font-size: 1.0rem !important; vertical-align: middle; }
+.item-buttons button i { font-size: 16px !important; vertical-align: middle; }
 
 
 /* ----- 12. ユーティリティボタン・操作ボタン ----- */
