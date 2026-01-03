@@ -390,8 +390,8 @@ button:disabled {
     display: flex;
     top: 0;
     bottom: 0;
+    left: auto;
     right: 10px;
-    margin: auto 0;
 }
 
 .item-buttons button {
