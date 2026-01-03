@@ -257,18 +257,21 @@ button:disabled {
     transition: height 0.1s ease, var(--color-transition);
 }
 
-/* -- 9-2. tapped （展開状態） -- */
+/* -- 9-2. tapped（展開状態）-- */
 .material-item.tapped {
     height: 85dvh;
     padding: 0;
     overflow: hidden;
-    display: block;
     z-index: 50;
     box-shadow: 0 15px 40px rgba(0,0,0,0.3);
     cursor: default;
 }
 
-.material-item .material-info { width: 100%; height: auto; }
+.material-item .material-info {
+    width: 100%;
+    height: auto;
+}
+
 .material-item.tapped .material-info {
     height: 100%;
     overflow-y: auto;
@@ -276,7 +279,10 @@ button:disabled {
     scrollbar-width: thin;
     scrollbar-color: var(--border-color) transparent;
 }
-.material-item.tapped .material-info::-webkit-scrollbar { width: 6px; }
+
+.material-item.tapped .material-info::-webkit-scrollbar {
+    width: 6px;
+}
 
 /* -- 9-3. 進捗バー -- */
 .material-item::after {
@@ -289,9 +295,12 @@ button:disabled {
     background-color: var(--checked-bg);
     z-index: 5;
 }
-.material-item::before { display: none; }
 
-/* -- 9-4. 展開テキスト -- */
+.material-item::before {
+    display: none;
+}
+
+/* -- 9-4. テキスト表示 -- */
 .material-name {
     font-weight: 700;
     font-size: 16px;
@@ -299,6 +308,7 @@ button:disabled {
     color: var(--text-main);
     transition: font-size 0.2s ease, var(--color-transition);
 }
+
 .material-item.tapped .material-name {
     font-size: 20px;
     margin-bottom: 12px;
@@ -307,8 +317,8 @@ button:disabled {
     margin-top: 4px;
 }
 
-.material-date, 
-.material-progress, 
+.material-date,
+.material-progress,
 .material-detail {
     max-height: 0;
     opacity: 0;
@@ -318,6 +328,7 @@ button:disabled {
     margin: 0;
     line-height: 1.8;
 }
+
 .material-item.tapped .material-date,
 .material-item.tapped .material-progress,
 .material-item.tapped .material-detail {
@@ -362,10 +373,20 @@ button:disabled {
     from { opacity: 0; transform: scale(0.8); }
     to { opacity: 1; transform: scale(1); }
 }
-.plan-item .item-buttons, 
+
+/* 親を基準にする */
+.plan-item, .material-item {
+    position: relative;
+}
+
+/* item-buttons 本体（位置と見た目はここで固定） */
+.plan-item .item-buttons,
 .material-item .item-buttons {
     display: none;
     position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
     background: var(--item-btn-bg);
     padding: 4px 6px;
     border-radius: 30px;
@@ -376,22 +397,14 @@ button:disabled {
     height: fit-content;
     animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.plan-item.tapped .item-buttons {
-    display: flex;
-    right: 10px;
-    bottom: 10px;
-}
+
+/* 表示制御は tapped のみ */
+.plan-item.tapped .item-buttons,
 .material-item.tapped .item-buttons {
     display: flex;
-    right: 16px;
-    bottom: 20px;
-}
-#modal-sort-list .material-item.tapped .item-buttons {
-    display: flex !important;
-    left: auto;
-    right: 10px;
 }
 
+/* ボタン中身 */
 .item-buttons button {
     background: transparent;
     border: none;
@@ -404,8 +417,16 @@ button:disabled {
     align-items: center;
     margin: 0 2px;
 }
-.item-buttons button:hover, .item-buttons button:active { background-color: var(--checked-bg); }
-.item-buttons button i { font-size: 16px !important; vertical-align: middle; }
+
+.item-buttons button:hover,
+.item-buttons button:active {
+    background-color: var(--checked-bg);
+}
+
+.item-buttons button i {
+    font-size: 16px !important;
+    vertical-align: middle;
+}
 
 
 /* ----- 12. ユーティリティボタン・操作ボタン ----- */
