@@ -415,31 +415,20 @@ function openPlanModal(materialId = null, planIndex = null) {
 // -- 教材並び替えモーダル --
 function openSortModal() {
     isModalEdited = false;
-    sortBackupMaterials = JSON.parse(JSON.stringify(materials));
     editingSortMaterialId = null;
+    sortBackupMaterials = JSON.parse(JSON.stringify(materials));
 
     // メイン画面の現在のカテゴリフィルタ値を初期値として取得
     let currentCat = filterCategorySelect.value;
     if (currentCat === "all") currentCat = "none";
 
-    // モーダル上部にセレクトボックスを配置（メインと同じデザインを流用）
-    sortItems.innerHTML = `
-        <div class="filter-btn-wrapper" style="margin-bottom: 16px; width: 100%; box-sizing: border-box;">
-            <i class="fa-solid fa-tag"></i>
-            <select id="modal-sort-category-select" style="width: 100%;"></select>
-        </div>
-        <div id="modal-sort-list"></div>
-    `;
-
-    const modalSelect = document.getElementById("modal-sort-category-select");
-    // 既存のフィルタ用セレクトボックスから選択肢をコピー（新規作成などの不要なものは除外）
+    const modalSelect = document.getElementById("sort-category-select");
     modalSelect.innerHTML = filterCategorySelect.innerHTML;
     const allOpt = modalSelect.querySelector('option[value="all"]');
     if (allOpt) allOpt.remove();
 
     modalSelect.value = currentCat;
 
-    // カテゴリを切り替えたらリストを再描画
     modalSelect.onchange = () => {
         editingSortMaterialId = null;
         renderSortMaterialModal();
@@ -584,7 +573,7 @@ function openHistoryModal(materialId) {
             itemDiv.append(infoContainer);
 
             if (item.time) {
-                const timeBadgeDiv = document.createElement("div"); // 変数名微調整
+                const timeBadgeDiv = document.createElement("div");
                 timeBadgeDiv.className = "history-time-badge";
                 timeBadgeDiv.textContent = item.time;
                 itemDiv.append(timeBadgeDiv);
@@ -899,8 +888,8 @@ function renderMaterialList() {
 
 // -- 教材並び替えモーダル描画 --
 function renderSortMaterialModal() {
-    const listContainer = document.getElementById("modal-sort-list");
-    const targetCat = document.getElementById("modal-sort-category-select").value;
+    const listContainer = document.getElementById("sort-container");
+    const targetCat = document.getElementById("sort-category-select").value;
     const catValue = (targetCat === "none") ? "" : targetCat;
     
     listContainer.innerHTML = "";
@@ -924,9 +913,9 @@ function renderSortMaterialModal() {
         itemDiv.appendChild(nameDiv);
 
         if (material.id === editingSortMaterialId) {
+            itemDiv.classList.add("tapped");
             const btnDiv = document.createElement("div");
             btnDiv.className = "item-buttons";
-            btnDiv.style.display = "flex";
 
             // 上移動ボタン
             const upBtn = createIconButton("sort-up", '<i class="fa-solid fa-arrow-up"></i>', () => {

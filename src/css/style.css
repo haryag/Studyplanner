@@ -190,6 +190,11 @@ button:disabled {
     margin: 0;
     outline: none;
 }
+#sort-items .filter-btn-wrapper {
+    margin-bottom: 16px;
+    width: 100%;
+}
+#sort-items .filter-btn-wrapper select { width: 100%; }
 
 
 /* ----- 7. カード共通（予定・教材） ----- */
@@ -397,7 +402,7 @@ button:disabled {
     left: auto;
     /* transform: none; */
 }
-#modal-sort-list .material-item.tapped .item-buttons {
+#sort-container .material-item.tapped .item-buttons {
     right: 10px;
     left: auto;
     /* top: auto;
