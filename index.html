@@ -20,7 +20,7 @@
 <body>
     <!----- メインコンテナ ----->
     <main id="wrapper" class="main-wrapper">
-        <div id="plan-container" class="display-container">
+        <div id="plan-container" class="display-container scrollable">
             <div class="header">
                 <h1>今日の学習計画</h1>
                 <p id="todaydate-panel"></p>
@@ -28,7 +28,7 @@
             <!-- 予定一覧 -->
             <div id="plan-items"></div>
         </div>
-        <div id="material-container" class="display-container hidden">
+        <div id="material-container" class="display-container scrollable hidden">
             <div class="header">
                 <h1>教材一覧</h1>
             </div>
@@ -153,7 +153,7 @@
 
     <!----- 教材追加・編集モーダル ----->
     <div id="add-material-modal" class="modal hidden">
-        <div class="modal-container">
+        <div class="modal-container scrollable">
             <h2>教材を追加 / 編集</h2>
             <label>
                 教科：
@@ -187,7 +187,7 @@
 
     <!----- 予定追加・編集モーダル ----->
     <div id="add-plan-modal" class="modal hidden">
-        <div class="modal-container">
+        <div class="modal-container scrollable">
             <h2>予定を追加 / 編集</h2>
             <label>
                 教材：
@@ -210,7 +210,7 @@
     
     <!----- 教材並び替えモーダル ----->
     <div id="sort-material-modal" class="modal hidden">
-        <div class="modal-container">
+        <div class="modal-container scrollable">
             <h2>教材の並び替え</h2>
             <div id="sort-items">
                 <div class="filter-btn-wrapper">
@@ -228,7 +228,7 @@
 
     <!----- 教材情報表示モーダル ----->
     <div id="info-material-modal" class="modal hidden">
-        <div class="modal-container">
+        <div class="modal-container scrollable">
             <h2>教材の詳細</h2>
             <p id="material-name-panel"></p>
             <label>
@@ -248,8 +248,8 @@
                 </select>
             </label>
             <label>
-                コメント：
-                <textarea id="material-detail-input" placeholder="入力してください（改行できます）" rows="6"></textarea>
+                教材に関するメモ：
+                <textarea id="material-detail-input" class="scrollable" placeholder="入力してください（改行できます）" rows="6"></textarea>
             </label>
             <div class="modal-btns">
                 <button id="cancel-info-btn" class="cancel">キャンセル</button>
@@ -260,13 +260,13 @@
 
     <!----- まとめて追加モーダル ----->
     <div id="bulk-add-modal" class="modal hidden">
-        <div class="modal-container">
+        <div class="modal-container scrollable">
             <h2>教材をまとめて追加</h2>
             <p style="font-size:12px; color:#666; margin-bottom:12px;">
                 今日やる教材を選択してください。<br>内容は「仮」として登録されます。
             </p>
             <!-- ここにチェックリストをJSで生成 -->
-            <div id="bulk-material-list"></div>
+            <div id="bulk-material-list" class="scrollable"></div>
             
             <div class="modal-btns">
                 <button id="cancel-bulk-btn" class="cancel">キャンセル</button>
@@ -277,7 +277,7 @@
 
     <!----- 履歴・統計表示モーダル ----->
     <div id="history-modal" class="modal hidden">
-        <div class="modal-container">
+        <div class="modal-container scrollable">
             <h2 id="history-material-name">教材名</h2>
             
             <!-- 実績サマリー -->

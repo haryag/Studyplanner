@@ -1,11 +1,11 @@
 import { initFirebase, currentUser } from './sys-auth.js';
 
-// ----- 1. 定数 -----
+// ----- 1. 初期設定 -----
 const APP_NAME = 'Studyplanner';
 const LAST_UPDATED = '2026/1/3';
 const BASE_PATH = '/Studyplanner/';
 
-// ----- 2. 日付 -----
+// ----- 2. ユーティリティ -----
 function getLocalDate() {
     const date = new Date();
     const year = date.getFullYear();
@@ -14,7 +14,356 @@ function getLocalDate() {
     return `${year}-${month}-${day}`;
 }
 
-// ----- 3. DOM要素 -----
+// ----- 3. アプリ状態管理 -----
+const materials = [];
+let sortBackupMaterials = [];
+let categories = new Set();
+let materialMap = new Map();
+const dailyPlans = {};
+let editingPlanIndex = null;          // 予定（配列基準）
+let editingMaterialId = null;         // 教材（id基準）
+let editingSortMaterialId = null;     // 並び替え中の教材（id基準）
+let isModalEdited = false;            // モーダル内で何らかの編集がされたか
+let todayDateKey = getLocalDate();  // 再代入の可能性があるため
+let db = null;
+let isUpdateProcessed = (sessionStorage.getItem('sw_update_processed') === 'true');   // Service Worker更新済みフラグ
+
+// ----- 4. ドメインロジック（UI非依存） -----
+// -- 教材のmapを再構築 --
+function rebuildMaterialMap() {
+    materialMap.clear();
+    materials.forEach(m => materialMap.set(m.id, m));
+}
+// -- 教材をカテゴリごとに並べ替える関数 --
+function getSortedMaterials(targetArray = materials) {
+    return [...targetArray].sort((a, b) => {
+        const catA = a.category || "zzz_なし";
+        const catB = b.category || "zzz_なし";
+        
+        if (catA !== catB) {
+            return catA.localeCompare(catB, 'ja');
+        }
+        return materials.indexOf(a) - materials.indexOf(b);
+    });
+}
+// -- 同じカテゴリーに属する直前/直後のアイテムと位置を入れ替える関数 --
+function moveInGlobalArray(item, direction) {
+    const globalIdx = materials.indexOf(item);
+    const cat = item.category || "";
+    let targetIdx = -1;
+
+    if (direction === -1) {
+        // 上方向に同じカテゴリーの教材を探す
+        for (let i = globalIdx - 1; i >= 0; i--) {
+            if ((materials[i].category || "") === cat) { targetIdx = i; break; }
+        }
+    } else {
+        // 下方向に同じカテゴリーの教材を探す
+        for (let i = globalIdx + 1; i < materials.length; i++) {
+            if ((materials[i].category || "") === cat) { targetIdx = i; break; }
+        }
+    }
+
+    if (targetIdx !== -1) {
+        // 配列内での入れ替えを実行
+        [materials[globalIdx], materials[targetIdx]] = [materials[targetIdx], materials[globalIdx]];
+        isModalEdited = true;
+        renderSortMaterialModal();
+    }
+}
+
+
+// ----- 5. 永続化（IndexedDB） -----
+// -- IndexedDBの初期化 --
+const dbPromise = new Promise((resolve, reject) => {
+    const request = indexedDB.open("Studyplanner", 1);
+    request.onupgradeneeded = (event) => {
+        const db = event.target.result;
+        if (!db.objectStoreNames.contains("data")) {
+            db.createObjectStore("data", { keyPath: "key" });
+        }
+    };
+    request.onsuccess = (event) => resolve(event.target.result);
+    request.onerror = (event) => reject(event.target.error);
+});
+// -- データ保存・読み込み関数 --
+async function saveLocalData(key, value) {
+    const db = await dbPromise;
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction("data", "readwrite");
+        const store = tx.objectStore("data");
+        store.put({ key, value });
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error);
+    });
+}
+async function loadLocalData(key) {
+    const db = await dbPromise;
+    const tx = db.transaction("data", "readonly");
+    const store = tx.objectStore("data");
+    return new Promise((resolve, reject) => {
+        const req = store.get(key);
+        req.onsuccess = () => resolve(req.result ? req.result.value : null);
+        req.onerror = () => reject(req.error);
+    });
+}
+// -- 全データ保存・読み込み関数 --
+async function saveAll() {
+    // 保存前にデータを整理
+    const cleanedMaterials = materials.map(m => ({
+        id: Number(m.id),
+        name: m.name,
+        subject: m.subject,
+        category: m.category || "",
+        progress: Number(m.progress) || 0,
+        status: m.status || "waiting",
+        date: m.date || "",
+        detail: m.detail || ""
+    }));
+    materials.splice(0, materials.length, ...cleanedMaterials);
+
+    // dailyPlansの整理
+    const cleanedPlans = {};
+    Object.keys(dailyPlans).sort().forEach(date => {
+        if (Array.isArray(dailyPlans[date])) {
+            cleanedPlans[date] = dailyPlans[date].map(p => ({
+                materialId: Number(p.materialId),
+                range: p.range,
+                time: p.time || "",
+                checked: !!p.checked
+            }));
+        }
+    });
+    for (const key in dailyPlans) delete dailyPlans[key];
+    Object.assign(dailyPlans, cleanedPlans);
+
+    try {
+        await saveLocalData("materials", cleanedMaterials);
+        await saveLocalData("dailyPlans", cleanedPlans);
+    } catch (e) {
+        console.error("端末への保存に失敗しました。", e);
+    }
+}
+async function loadAll() {
+    try {
+        const savedMaterials = await loadLocalData("materials");
+        const savedPlans = await loadLocalData("dailyPlans");
+
+        // 教材データの読み込み
+        if (savedMaterials && Array.isArray(savedMaterials)) {
+            materials.splice(0, materials.length, ...savedMaterials);
+        } else {
+            materials.splice(0, materials.length);
+        }
+        
+        // 予定データの読み込み
+        if (savedPlans && typeof savedPlans === 'object') {
+            // dailyPlansを一度空にしてから反映
+            for (const key in dailyPlans) delete dailyPlans[key];
+            Object.assign(dailyPlans, savedPlans);
+        } else {
+            // データが空ならリセット
+            for (const key in dailyPlans) delete dailyPlans[key];
+        }
+        updateCategoryOptions();
+
+    } catch (e) {
+        console.error("データの読み込みに失敗しました。", e);
+        // 失敗した場合は安全のために空の状態を保証する
+        materials.splice(0, materials.length);
+        for (const key in dailyPlans) delete dailyPlans[key];
+    }
+}
+// -- 保存・再描画 --
+function saveAndRender() {
+    // UIはすぐに反映され描画されるが、保存は非同期で裏で行われる
+    saveAll();
+    renderMaterialList();
+    renderTodayPlans();
+}
+// -- データ所有者チェック --
+async function checkDataOwner() {
+    const savedUid = await loadLocalData("ownerUid");
+    
+    // ログイン済みで、データの所有者が「ゲスト」でなく「自分」でもない場合
+    if (currentUser && savedUid && savedUid !== "guest" && savedUid !== currentUser.uid) {
+        return false;
+    }
+    return true;
+}
+
+// ----- 6. Firebase / Firestore 初期化 -----
+// -- ボタンの有効・無効管理 --
+function updateSyncButtons() {
+    const isOnline = navigator.onLine;
+    const isLoggedIn = (currentUser !== null);
+    const isLoaded = (db !== null);
+
+    // 同期ボタンの有効・無効（前回までのお揃い部分）
+    const isDisabled = !(isOnline && isLoggedIn && isLoaded);
+    if (uploadBtn) uploadBtn.disabled = isDisabled;
+    if (downloadBtn) downloadBtn.disabled = isDisabled;
+
+    if (loginBtn && logoutBtn) {
+        if (isLoggedIn) {
+            loginBtn.style.display = "none";
+            logoutBtn.style.display = "block";
+            if (statusPanel) statusPanel.textContent = `ログイン中： ${currentUser.displayName} さん`;
+        } else {
+            loginBtn.style.display = "block";
+            logoutBtn.style.display = "none";
+            if (statusPanel) statusPanel.textContent = isLoaded ? "未ログイン" : "接続準備中...";
+        }
+    }
+
+    // リロードボタンも無効化（リロードするとアイコンが表示されなくなってしまう）
+    const reloadBtn = document.getElementById("reload-btn");
+    if (reloadBtn) {
+        reloadBtn.disabled = !isOnline;
+        reloadBtn.style.opacity = isOnline ? "1" : "0.5";
+    }
+}
+// -- upload --
+async function upload() {
+    if (!db || !currentUser) return;
+
+    const isSafe = await checkDataOwner();
+    const msg = isSafe 
+        ? "データをクラウドへアップロードします。よろしいですか？"
+        : "⚠ アカウントが異なる可能性があります。このままアップロード（上書き）しますか？";
+
+    if (!confirm(msg)) return;
+
+    uploadBtn.disabled = true;
+
+    try {
+        const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js');
+        
+        await setDoc(doc(db, "backups", currentUser.uid), {
+            materials: materials,
+            dailyPlans: dailyPlans,
+            updatedAt: new Date().toISOString(),
+        });
+        
+        await saveLocalData("ownerUid", currentUser.uid);
+        alert("アップロードが完了しました。");
+    } catch (e) {
+        console.error("Upload error:", e);
+        alert("アップロードに失敗しました。");
+    } finally {
+        uploadBtn.disabled = false;
+    }
+}
+// -- download --
+async function download() {
+    if (!db || !currentUser) return;
+
+    const isSafe = await checkDataOwner();
+    const msg = isSafe 
+        ? "データをクラウドからダウンロードします。よろしいですか？"
+        : "⚠ アカウントが異なる可能性があります。このままダウンロードしますか？";
+
+    if (!confirm(msg + "（現在の端末のデータは上書きされます）")) return;
+    
+    downloadBtn.disabled = true;
+
+    try {
+        const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js');
+        
+        const snapshot = await getDoc(doc(db, "backups", currentUser.uid));
+        if (!snapshot.exists()) {
+            alert("バックアップデータが存在しませんでした。");
+            return;
+        }
+
+        const data = snapshot.data();
+        
+        // データ反映
+        materials.splice(0, materials.length, ...(data.materials || []));
+        rebuildMaterialMap();
+
+        for (const key in dailyPlans) delete dailyPlans[key];
+        Object.assign(dailyPlans, data.dailyPlans || {});
+        
+        saveAndRender();
+        await saveLocalData("ownerUid", currentUser.uid);
+
+        alert("ダウンロードが完了しました。");
+    } catch (e) {
+        console.error("Download error:", e);
+        alert("ダウンロードに失敗しました。");
+    } finally {
+        downloadBtn.disabled = false;
+    }
+}
+// -- export --
+async function exportDataAsJson() {
+    if (!confirm("データをファイルとして保存しますか？")) return;
+    
+    // saveAllの中で既にデータは綺麗に整頓されている
+    await saveAll();
+    
+    const data = {
+        materials: materials,
+        dailyPlans: dailyPlans,
+        exportedAt: getLocalDate(),
+        appName: APP_NAME,
+        version: window.APP_VERSION
+    };
+
+    const jsonStr = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `studyplanner_${getLocalDate()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+// -- import --
+async function importDataAsJson(file) {
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+        try {
+            const jsonStr = event.target.result;
+            const data = JSON.parse(jsonStr);
+
+            // 簡易的なデータ検証
+            if (!data.materials || !data.dailyPlans) return alert("エラー：正しいバックアップファイルではありません。");
+            if (!confirm(`データ（${data.exportedAt || '日付不明'} 作成）を読み込みますか？\n※現在のデータは上書きされます。`)) return;
+
+            // データを変数に反映
+            materials.splice(0, materials.length, ...data.materials);
+            rebuildMaterialMap();
+            
+            // dailyPlansをクリアして反映
+            for (const key in dailyPlans) delete dailyPlans[key];
+            Object.assign(dailyPlans, data.dailyPlans);
+
+            // カテゴリやIndexed DBも更新
+            await saveAll();
+            updateCategoryOptions();
+            renderMaterialList();
+            renderTodayPlans();
+
+            alert("インポートが完了しました！");
+
+        } catch (err) {
+            console.error(err);
+            alert("読み込みに失敗しました。ファイルが破損している可能性があります。");
+        }
+    };
+    reader.readAsText(file);
+}
+
+
+// ----- 7. DOM要素取得 -----
 const wrapper = document.getElementById("wrapper");
 const todayDatePanel = document.getElementById("todaydate-panel");
 const planContainer = document.getElementById("plan-container");
@@ -90,32 +439,10 @@ const statTotalCompleted = document.getElementById("stat-total-completed");
 const statLastDate = document.getElementById("stat-last-date");
 const closeHistoryBtn = document.getElementById("close-history-btn");
 
-// ----- 4. Firebase / Firestore -----
-let db = null;
 
-// ----- 5. 起動時状態 -----
-let todayDateKey = getLocalDate();  // 再代入の可能性があるため
-
-// ----- 6. データ初期化 -----
-const dailyPlans = {};
-const materials = [];
-let sortBackupMaterials = [];
-let categories = new Set();
-
-// -- 教材のmap --
-let materialMap = new Map();
-function rebuildMaterialMap() {
-    materialMap.clear();
-    materials.forEach(m => materialMap.set(m.id, m));
-}
-
-// -- 編集用変数 --
-let editingPlanIndex = null;          // 予定（配列基準）
-let editingMaterialId = null;         // 教材（id基準）
-let editingSortMaterialId = null;     // 並び替え中の教材（id基準）
-let isModalEdited = false;            // モーダル内で何らかの編集がされたか
-
-// ----- 7. UI初期化・状態復元 -----
+// ----- 8. UI制御（表示・操作） -----
+// ----- 8-1. UI操作関数群 -----
+// -- 保存されたUI状態の復元 --
 function restoreUIState() {
     const savedQuery = localStorage.getItem("sp_searchQuery");
     if (savedQuery !== null) searchMaterialInput.value = savedQuery;
@@ -126,158 +453,7 @@ function restoreUIState() {
     const savedStatus = localStorage.getItem("sp_filterStatus");
     if (savedStatus !== null) filterStatusSelect.value = savedStatus;
 }
-
-// ----- 8. 認証・同期UI制御 -----
-function updateSyncButtons() {
-    const isOnline = navigator.onLine;
-    const isLoggedIn = (currentUser !== null);
-    const isLoaded = (db !== null);
-
-    // 同期ボタンの有効・無効（前回までのお揃い部分）
-    const isDisabled = !(isOnline && isLoggedIn && isLoaded);
-    if (uploadBtn) uploadBtn.disabled = isDisabled;
-    if (downloadBtn) downloadBtn.disabled = isDisabled;
-
-    if (loginBtn && logoutBtn) {
-        if (isLoggedIn) {
-            loginBtn.style.display = "none";
-            logoutBtn.style.display = "block";
-            if (statusPanel) statusPanel.textContent = `ログイン中： ${currentUser.displayName} さん`;
-        } else {
-            loginBtn.style.display = "block";
-            logoutBtn.style.display = "none";
-            if (statusPanel) statusPanel.textContent = isLoaded ? "未ログイン" : "接続準備中...";
-        }
-    }
-
-    // リロードボタンも無効化（リロードするとアイコンが表示されなくなってしまう）
-    const reloadBtn = document.getElementById("reload-btn");
-    if (reloadBtn) {
-        reloadBtn.disabled = !isOnline;
-        reloadBtn.style.opacity = isOnline ? "1" : "0.5";
-    }
-}
-
-// ----- 9. IndexedDB 関連 -----
-const dbPromise = new Promise((resolve, reject) => {
-    const request = indexedDB.open("Studyplanner", 1);
-    request.onupgradeneeded = (event) => {
-        const db = event.target.result;
-        if (!db.objectStoreNames.contains("data")) {
-            db.createObjectStore("data", { keyPath: "key" });
-        }
-    };
-    request.onsuccess = (event) => resolve(event.target.result);
-    request.onerror = (event) => reject(event.target.error);
-});
-
-async function saveLocalData(key, value) {
-    const db = await dbPromise;
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction("data", "readwrite");
-        const store = tx.objectStore("data");
-        store.put({ key, value });
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
-        tx.onabort = () => reject(tx.error);
-    });
-}
-
-async function loadLocalData(key) {
-    const db = await dbPromise;
-    const tx = db.transaction("data", "readonly");
-    const store = tx.objectStore("data");
-    return new Promise((resolve, reject) => {
-        const req = store.get(key);
-        req.onsuccess = () => resolve(req.result ? req.result.value : null);
-        req.onerror = () => reject(req.error);
-    });
-}
-
-// ----- 10. 保存・読み込み -----
-// -- 保存 --
-async function saveAll() {
-    // 保存前にデータを整理
-    const cleanedMaterials = materials.map(m => ({
-        id: Number(m.id),
-        name: m.name,
-        subject: m.subject,
-        category: m.category || "",
-        progress: Number(m.progress) || 0,
-        status: m.status || "waiting",
-        date: m.date || "",
-        detail: m.detail || ""
-    }));
-    materials.splice(0, materials.length, ...cleanedMaterials);
-
-    // dailyPlansの整理
-    const cleanedPlans = {};
-    Object.keys(dailyPlans).sort().forEach(date => {
-        if (Array.isArray(dailyPlans[date])) {
-            cleanedPlans[date] = dailyPlans[date].map(p => ({
-                materialId: Number(p.materialId),
-                range: p.range,
-                time: p.time || "",
-                checked: !!p.checked
-            }));
-        }
-    });
-    for (const key in dailyPlans) delete dailyPlans[key];
-    Object.assign(dailyPlans, cleanedPlans);
-
-    try {
-        await saveLocalData("materials", cleanedMaterials);
-        await saveLocalData("dailyPlans", cleanedPlans);
-    } catch (e) {
-        console.error("端末への保存に失敗しました。", e);
-    }
-}
-
-// -- 読み込み --
-async function loadAll() {
-    try {
-        const savedMaterials = await loadLocalData("materials");
-        const savedPlans = await loadLocalData("dailyPlans");
-
-        // 教材データの読み込み
-        if (savedMaterials && Array.isArray(savedMaterials)) {
-            materials.splice(0, materials.length, ...savedMaterials);
-        } else {
-            materials.splice(0, materials.length);
-        }
-        
-        // 予定データの読み込み
-        if (savedPlans && typeof savedPlans === 'object') {
-            // dailyPlansを一度空にしてから反映
-            for (const key in dailyPlans) delete dailyPlans[key];
-            Object.assign(dailyPlans, savedPlans);
-        } else {
-            // データが空ならリセット
-            for (const key in dailyPlans) delete dailyPlans[key];
-        }
-        updateCategoryOptions();
-
-    } catch (e) {
-        console.error("データの読み込みに失敗しました。", e);
-        // 失敗した場合は安全のために空の状態を保証する
-        materials.splice(0, materials.length);
-        for (const key in dailyPlans) delete dailyPlans[key];
-    }
-}
-
-// -- データの所有者とログイン中のアカウントが異なるか検出 --
-async function checkDataOwner() {
-    const savedUid = await loadLocalData("ownerUid");
-    
-    // ログイン済みで、データの所有者が「ゲスト」でなく「自分」でもない場合
-    if (currentUser && savedUid && savedUid !== "guest" && savedUid !== currentUser.uid) {
-        return false;
-    }
-    return true;
-}
-
-// ----- 11. カテゴリ関連 -----
-// -- カテゴリを（再）構築 --
+// -- カテゴリを再構築 --
 function updateCategoryOptions() {
     categories.clear();
     materials.forEach(material => {
@@ -338,27 +514,12 @@ function updateCategoryOptions() {
         filterCategorySelect.value = "all";
     }
 }
-
-// -- カテゴリセレクトボックス --
-materialCategorySelect.addEventListener("change", () => {
-    if (materialCategorySelect.value === "new") {
-        newCategoryInput.classList.remove("hidden");
-        newCategoryInput.focus();
-    } else {
-        newCategoryInput.classList.add("hidden");
-        newCategoryInput.value = "";
-    }
-});
-
-// ----- 12. UI制御（表示・操作）-----
-// ----- 12-1. 入れ替え -----
-// -- 画面全体の切り替え --
+// -- 画面セクション切り替え --
 function toggleSections() {
     const planVisible = !planContainer.classList.contains("hidden");
     planContainer.classList.toggle("hidden", planVisible);
     materialContainer.classList.toggle("hidden", !planVisible);
 }
-
 // -- 画面レイヤー制御 --
 function toggleModal(modal, show = true) {
     const footer = document.getElementById("button-container");
@@ -375,8 +536,19 @@ function toggleModal(modal, show = true) {
         }
     }
 }
+// -- 予定追加・編集モーダルでの教材選択 => 予定追加・編集モーダル --
+function populateMaterialSelect(selectedId = null) {
+    planMaterialInput.innerHTML = "";
+    materials.forEach(material => {
+        const option = document.createElement("option");
+        option.value = material.id;
+        option.textContent = material.name;
+        if (material.id === selectedId) option.selected = true;
+        planMaterialInput.appendChild(option);
+    });
+}
 
-// ----- 12-2. モーダルを開く関数 -----
+// ----- 8-2. モーダルを開く関数 -----
 // -- 教材追加・編集モーダル --
 function openMaterialModal(materialId = null) {
     updateCategoryOptions();
@@ -395,7 +567,6 @@ function openMaterialModal(materialId = null) {
     newCategoryInput.classList.add("hidden");
     toggleModal(addMaterialModal, true);
 }
-
 // -- 予定追加・編集モーダル --
 function openPlanModal(materialId = null, planIndex = null) {
     populateMaterialSelect(materialId);
@@ -411,7 +582,6 @@ function openPlanModal(materialId = null, planIndex = null) {
     }
     toggleModal(addPlanModal, true);
 }
-
 // -- 教材並び替えモーダル --
 function openSortModal() {
     isModalEdited = false;
@@ -452,7 +622,6 @@ function openInfoModal(materialId) {
     editingMaterialId = materialId;
     toggleModal(infoMaterialModal, true);
 }
-
 // -- まとめて追加モーダル --
 function openBulkAddModal() {
     bulkMaterialList.innerHTML = "";
@@ -472,7 +641,6 @@ function openBulkAddModal() {
     }
     toggleModal(bulkAddModal, true);
 }
-
 // -- 履歴・統計表示モーダル --
 function openHistoryModal(materialId) {
     const material = materialMap.get(materialId);
@@ -583,27 +751,159 @@ function openHistoryModal(materialId) {
     }
     toggleModal(historyModal, true);
 }
-
-// ----- 12-3. モーダルを閉じる関数 -----
+// ----- 8-3. モーダルを閉じる関数 -----
 function closeAllModals() {
-    const isInfoOpen = !infoMaterialModal.classList.contains("hidden");
-    const isSortOpen = !sortMaterialModal.classList.contains("hidden");
+    // 開いているモーダルを取得
+    const modals = document.querySelectorAll(".modal");
+    const openedModals = [...modals].filter(modal => !modal.classList.contains("hidden"));
+
+    // 例外処理（基本的には閉じるだけ）
+    const isInfoOpen = openedModals.includes(infoMaterialModal);
+    const isSortOpen = openedModals.includes(sortMaterialModal);
 
     if ((isInfoOpen || isSortOpen) && isModalEdited) {
-        if (!confirm("変更内容は保存されません！キャンセルしてもよろしいですか？")) {
-            return;
+        if (!confirm("変更内容は保存されません！キャンセルしてもよろしいですか？")) return;
+
+        if (isSortOpen && sortBackupMaterials.length > 0) {
+            materials.splice(0, materials.length, ...sortBackupMaterials);
+            rebuildMaterialMap();
         }
     }
 
     // 全てのモーダルを閉じる
-    [addPlanModal, addMaterialModal, infoMaterialModal, sortMaterialModal, bulkAddModal, historyModal].forEach(modal => {
-        if (!modal.classList.contains("hidden")) toggleModal(modal, false);
-    });
-    
-    isModalEdited = false; // 閉じた後にフラグを戻す
+    openedModals.forEach(modal => toggleModal(modal, false));
+    isModalEdited = false;
 }
 
-// ----- 12-4. 個別要素の操作 -----
+// ----- 8-4. モーダルを確定する関数 -----
+// -- 教材追加・編集モーダル --
+function confirmMaterialModal() {
+    const name = materialNameInput.value.trim();
+    const subject = materialSubjectSelect.value;
+
+    let category = "";
+    if (materialCategorySelect.value === "new") {
+        category = newCategoryInput.value.trim();
+        if (!category) return alert("新しいカテゴリ名を入力してください");
+        categories.add(category);
+    } else {
+        category = materialCategorySelect.value;
+    }
+
+    if (!name) return alert("教材名を入力してください");
+    
+    // 新規作成時はデフォルトで waiting（未着手）にする
+    if (editingMaterialId !== null) {
+        const material = materials.find(item => item.id === editingMaterialId);
+        
+        if (material) { material.name = name; material.subject = subject; material.category = category; }
+    } else {
+        const newId = materials.length ? Math.max(...materials.map(material => material.id)) + 1 : 1;
+        materials.push({ 
+            id: newId, 
+            name, 
+            subject, 
+            category, 
+            progress: 0, 
+            status: "waiting"
+        });
+    }
+    
+    editingMaterialId = null;
+    toggleModal(addMaterialModal, false);
+    rebuildMaterialMap();
+    saveAndRender();
+    updateCategoryOptions();
+}
+// -- 予定追加・編集モーダル --
+function confirmPlanModal() {
+    const materialId = parseInt(planMaterialInput.value, 10);
+    const range = planContentInput.value.trim();
+    const time = planTimeInput.value;
+    if (!range) return alert("学習内容を入力してください。");
+    
+    if (editingPlanIndex !== null) {
+        dailyPlans[todayDateKey][editingPlanIndex] = { ...dailyPlans[todayDateKey][editingPlanIndex], materialId, range, time };
+        editingPlanIndex = null;
+    } else {
+        if (!dailyPlans[todayDateKey]) dailyPlans[todayDateKey] = [];
+        dailyPlans[todayDateKey].push({ materialId, range, time, checked: false });
+    }
+    toggleModal(addPlanModal, false);
+    saveAndRender();
+}
+// -- 教材情報表示モーダル --
+function confirmInfoModal() {
+    let status = materialStatusSelect.value;  // 後で書き換える可能性がある
+    
+    const date = materialDateInput.value;
+    const progress = parseInt(materialProgressInput.value, 10);
+    const detail = materialDetailInput.value.trim();
+
+    
+    if (isNaN(progress) || progress < 0 || progress > 100) return alert("進度は0～100の整数値で入力してください。");
+    
+    if (status === "waiting" && progress > 0 && progress < 100) {
+        if (confirm("進捗が0%でなくなりました。\nステータスを「学習中」に変更しますか？")) {
+            status = "learning";  // 未着手 → 学習中
+        }
+    } else if (status !== "completed" && progress === 100) {
+        if (confirm("進捗が100%になりました。\nステータスを「完了」に変更しますか？")) {
+            status = "completed";  // 学習中 → 完了
+        }
+    } else if (status === "completed" && progress < 100) {
+        if (confirm("進捗が100%ではありません。\nステータスを「学習中」に変更しますか？")) {
+            status = "learning";  // 完了 → 学習中
+        }
+    }
+    
+    if (editingMaterialId !== null) {
+        const material = materials.find(material => material.id === editingMaterialId);
+        if (material) { 
+            material.status = status; 
+            material.date = date; 
+            material.progress = progress; 
+            material.detail = detail; 
+        }
+    }
+    toggleModal(infoMaterialModal, false);
+    rebuildMaterialMap();
+    saveAndRender();
+}
+// -- 並び替えモーダル --
+function confirmSortModal() {
+    toggleModal(sortMaterialModal, false);
+    saveAndRender();
+}
+// -- まとめて追加モーダル --
+function confirmBulkModal() {
+    // チェックされた教材のIDを取得
+    const checkboxes = bulkMaterialList.querySelectorAll("input[type='checkbox']:checked");
+    
+    if (checkboxes.length === 0) {
+        return alert("教材が選択されていません。");
+    }
+    
+    if (!dailyPlans[todayDateKey]) dailyPlans[todayDateKey] = [];
+    
+    checkboxes.forEach(cb => {
+        const materialId = parseInt(cb.value, 10);
+        dailyPlans[todayDateKey].push({ 
+            materialId, 
+            range: "仮", 
+            time: "", 
+            checked: false 
+        });
+    });
+    
+    toggleModal(bulkAddModal, false);
+    saveAll();
+    renderTodayPlans();
+    alert(`${checkboxes.length}件の予定を追加しました。`);
+}
+
+// ----- 8-5. モーダル描画関数 -----
+// -- アイテムタップで開閉を制御 --
 function addTapToggle(itemDiv, type = "material") {
     itemDiv.addEventListener("click", (e) => {
         if (e.target.closest("button")) return;
@@ -625,59 +925,6 @@ function addTapToggle(itemDiv, type = "material") {
         }
     });
 }
-
-// ----- 12-5. 同じカテゴリーに属する直前/直後のアイテムと位置を入れ替える関数 -----
-function moveInGlobalArray(item, direction) {
-    const globalIdx = materials.indexOf(item);
-    const cat = item.category || "";
-    let targetIdx = -1;
-
-    if (direction === -1) {
-        // 上方向に同じカテゴリーの教材を探す
-        for (let i = globalIdx - 1; i >= 0; i--) {
-            if ((materials[i].category || "") === cat) { targetIdx = i; break; }
-        }
-    } else {
-        // 下方向に同じカテゴリーの教材を探す
-        for (let i = globalIdx + 1; i < materials.length; i++) {
-            if ((materials[i].category || "") === cat) { targetIdx = i; break; }
-        }
-    }
-
-    if (targetIdx !== -1) {
-        // 配列内での入れ替えを実行
-        [materials[globalIdx], materials[targetIdx]] = [materials[targetIdx], materials[globalIdx]];
-        isModalEdited = true;
-        renderSortMaterialModal();
-    }
-}
-
-// ----- 13. UI生成・補助 -----
-// -- 教材をカテゴリごとに並べ替える関数 --
-function getSortedMaterials(targetArray = materials) {
-    return [...targetArray].sort((a, b) => {
-        const catA = a.category || "zzz_なし";
-        const catB = b.category || "zzz_なし";
-        
-        if (catA !== catB) {
-            return catA.localeCompare(catB, 'ja');
-        }
-        return materials.indexOf(a) - materials.indexOf(b);
-    });
-}
-
-// -- 予定追加・編集モーダルでの教材選択 --
-function populateMaterialSelect(selectedId = null) {
-    planMaterialInput.innerHTML = "";
-    materials.forEach(material => {
-        const option = document.createElement("option");
-        option.value = material.id;
-        option.textContent = material.name;
-        if (material.id === selectedId) option.selected = true;
-        planMaterialInput.appendChild(option);
-    });
-}
-
 // -- アイコン付きボタンを生成 --
 function createIconButton(className, iconHtml, onClick) {
     const btn = document.createElement("button");
@@ -689,18 +936,6 @@ function createIconButton(className, iconHtml, onClick) {
     });
     return btn;
 }
-
-
-// ----- 14. 保存して再描画 -----
-function saveAndRender() {
-    // UIはすぐに反映され描画されるが、保存は非同期で裏で行われる
-    saveAll();
-    renderMaterialList();
-    renderTodayPlans();
-}
-
-
-// ----- 15. 描画用関数 -----
 // -- 予定一覧描画 --
 function renderTodayPlans() {
     todayDateKey = getLocalDate();
@@ -773,7 +1008,6 @@ function renderTodayPlans() {
         planItems.appendChild(itemDiv);
     });
 }
-
 // -- 教材一覧描画 --
 function renderMaterialList() {
     const query = searchMaterialInput.value.toLowerCase();
@@ -825,7 +1059,7 @@ function renderMaterialList() {
 
         // infoContainerの組み立て
         const infoContainer = document.createElement("div");
-        infoContainer.className = "material-info";
+        infoContainer.className = "material-info scrollable";
 
         const nameDiv = document.createElement("div");
         nameDiv.className = "material-name";
@@ -885,7 +1119,6 @@ function renderMaterialList() {
 
     materialItems.appendChild(fragment);
 }
-
 // -- 教材並び替えモーダル描画 --
 function renderSortMaterialModal() {
     const listContainer = document.getElementById("sort-container");
@@ -935,233 +1168,34 @@ function renderSortMaterialModal() {
     });
 }
 
-// ----- 16. クラウド関連操作 -----
-// -- upload --
-uploadBtn.addEventListener("click", async () => {
-    if (!db || !currentUser) return;
+// ----- 9. UIイベントハンドラ -----
+// -- セクション切り替え --
+toggleSectionBtn.addEventListener("click", () => toggleSections());
 
-    const isSafe = await checkDataOwner();
-    const msg = isSafe 
-        ? "データをクラウドへアップロードします。よろしいですか？"
-        : "⚠ アカウントが異なる可能性があります。このままアップロード（上書き）しますか？";
-
-    if (!confirm(msg)) return;
-
-    uploadBtn.disabled = true;
-
-    try {
-        const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js');
-        
-        await setDoc(doc(db, "backups", currentUser.uid), {
-            materials: materials,
-            dailyPlans: dailyPlans,
-            updatedAt: new Date().toISOString(),
-        });
-        
-        await saveLocalData("ownerUid", currentUser.uid);
-        alert("アップロードが完了しました。");
-    } catch (e) {
-        console.error("Upload error:", e);
-        alert("アップロードに失敗しました。");
-    } finally {
-        uploadBtn.disabled = false;
-    }
-});
-
-// -- download --
-downloadBtn.addEventListener("click", async () => {
-    if (!db || !currentUser) return;
-
-    const isSafe = await checkDataOwner();
-    const msg = isSafe 
-        ? "データをクラウドからダウンロードします。よろしいですか？"
-        : "⚠ アカウントが異なる可能性があります。このままダウンロードしますか？";
-
-    if (!confirm(msg + "（現在の端末のデータは上書きされます）")) return;
-    
-    downloadBtn.disabled = true;
-
-    try {
-        const { doc, getDoc } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js');
-        
-        const snapshot = await getDoc(doc(db, "backups", currentUser.uid));
-        if (!snapshot.exists()) {
-            alert("バックアップデータが存在しませんでした。");
-            return;
-        }
-
-        const data = snapshot.data();
-        
-        // データ反映
-        materials.splice(0, materials.length, ...(data.materials || []));
-        rebuildMaterialMap();
-
-        for (const key in dailyPlans) delete dailyPlans[key];
-        Object.assign(dailyPlans, data.dailyPlans || {});
-        
-        saveAndRender();
-        await saveLocalData("ownerUid", currentUser.uid);
-
-        alert("ダウンロードが完了しました。");
-    } catch (e) {
-        console.error("Download error:", e);
-        alert("ダウンロードに失敗しました。");
-    } finally {
-        downloadBtn.disabled = false;
-    }
-});
-
-// ----- 17. モーダル操作 -----
-// ----- 17-1. モーダルを開く・閉じる -----
-// -- 各種モーダルを開く --
+// -- モーダル開閉 --
 openMaterialModalBtn.addEventListener("click", () => openMaterialModal());
 openSortModalBtn.addEventListener("click", openSortModal);
 openBulkAddBtn.addEventListener("click", openBulkAddModal);
 
-// -- 各種モーダルを閉じる --
 cancelMaterialBtn.addEventListener("click", closeAllModals);
 cancelPlanBtn.addEventListener("click", closeAllModals);
-cancelSortBtn.addEventListener("click", () => {
-    materials.splice(0, materials.length, ...sortBackupMaterials);
-    closeAllModals();
-});
+cancelSortBtn.addEventListener("click", closeAllModals);
 cancelInfoBtn.addEventListener("click", closeAllModals);
 cancelBulkBtn.addEventListener("click", closeAllModals);
 closeHistoryBtn.addEventListener("click", closeAllModals);
 
+confirmMaterialBtn.addEventListener("click", confirmMaterialModal);
+confirmPlanBtn.addEventListener("click", confirmPlanModal);
+confirmInfoBtn.addEventListener("click", confirmInfoModal);
+confirmSortBtn.addEventListener("click", confirmSortModal);
+confirmBulkBtn.addEventListener("click", confirmBulkModal);
 
-// ----- 17-2. 操作を終え、モーダルを閉じる -----
-// -- 教材追加・編集モーダル --
-confirmMaterialBtn.addEventListener("click", () => {
-    const name = materialNameInput.value.trim();
-    const subject = materialSubjectSelect.value;
-
-    let category = "";
-    if (materialCategorySelect.value === "new") {
-        category = newCategoryInput.value.trim();
-        if (!category) return alert("新しいカテゴリ名を入力してください");
-        categories.add(category);
-    } else {
-        category = materialCategorySelect.value;
-    }
-
-    if (!name) return alert("教材名を入力してください");
-    
-    // 新規作成時はデフォルトで waiting（未着手）にする
-    if (editingMaterialId !== null) {
-        const material = materials.find(item => item.id === editingMaterialId);
-        
-        if (material) { material.name = name; material.subject = subject; material.category = category; }
-    } else {
-        const newId = materials.length ? Math.max(...materials.map(material => material.id)) + 1 : 1;
-        materials.push({ 
-            id: newId, 
-            name, 
-            subject, 
-            category, 
-            progress: 0, 
-            status: "waiting"
-        });
-    }
-    
-    editingMaterialId = null;
-    toggleModal(addMaterialModal, false);
-    rebuildMaterialMap();
-    saveAndRender();
-    updateCategoryOptions();
+// -- モーダル内変更検知 --
+infoMaterialModal.addEventListener('input', () => {
+    isModalEdited = true;
 });
 
-// -- 予定追加・編集モーダル --
-confirmPlanBtn.addEventListener("click", () => {
-    const materialId = parseInt(planMaterialInput.value, 10);
-    const range = planContentInput.value.trim();
-    const time = planTimeInput.value;
-    if (!range) return alert("学習内容を入力してください。");
-    
-    if (editingPlanIndex !== null) {
-        dailyPlans[todayDateKey][editingPlanIndex] = { ...dailyPlans[todayDateKey][editingPlanIndex], materialId, range, time };
-        editingPlanIndex = null;
-    } else {
-        if (!dailyPlans[todayDateKey]) dailyPlans[todayDateKey] = [];
-        dailyPlans[todayDateKey].push({ materialId, range, time, checked: false });
-    }
-    toggleModal(addPlanModal, false);
-    saveAndRender();
-});
-
-// -- 教材情報表示モーダル --
-confirmInfoBtn.addEventListener("click", () => {
-    let status = materialStatusSelect.value;  // 後で書き換える可能性がある
-    
-    const date = materialDateInput.value;
-    const progress = parseInt(materialProgressInput.value, 10);
-    const detail = materialDetailInput.value.trim();
-
-    
-    if (isNaN(progress) || progress < 0 || progress > 100) return alert("進度は0～100の整数値で入力してください。");
-    
-    if (status === "waiting" && progress > 0 && progress < 100) {
-        if (confirm("進捗が0%でなくなりました。\nステータスを「学習中」に変更しますか？")) {
-            status = "learning";  // 未着手 → 学習中
-        }
-    } else if (status !== "completed" && progress === 100) {
-        if (confirm("進捗が100%になりました。\nステータスを「完了」に変更しますか？")) {
-            status = "completed";  // 学習中 → 完了
-        }
-    } else if (status === "completed" && progress < 100) {
-        if (confirm("進捗が100%ではありません。\nステータスを「学習中」に変更しますか？")) {
-            status = "learning";  // 完了 → 学習中
-        }
-    }
-    
-    if (editingMaterialId !== null) {
-        const material = materials.find(material => material.id === editingMaterialId);
-        if (material) { 
-            material.status = status; 
-            material.date = date; 
-            material.progress = progress; 
-            material.detail = detail; 
-        }
-    }
-    toggleModal(infoMaterialModal, false);
-    rebuildMaterialMap();
-    saveAndRender();
-});
-
-// -- 教材並び替えモーダル --
-confirmSortBtn.addEventListener("click", () => {
-    toggleModal(sortMaterialModal, false);
-    saveAndRender();
-});
-
-// -- まとめて追加モーダル --
-confirmBulkBtn.addEventListener("click", () => {
-    // チェックされた教材のIDを取得
-    const checkboxes = bulkMaterialList.querySelectorAll("input[type='checkbox']:checked");
-    
-    if (checkboxes.length === 0) {
-        return alert("教材が選択されていません。");
-    }
-    
-    if (!dailyPlans[todayDateKey]) dailyPlans[todayDateKey] = [];
-    
-    checkboxes.forEach(cb => {
-        const materialId = parseInt(cb.value, 10);
-        dailyPlans[todayDateKey].push({ 
-            materialId, 
-            range: "仮", 
-            time: "", 
-            checked: false 
-        });
-    });
-    
-    toggleModal(bulkAddModal, false);
-    saveAll();
-    renderTodayPlans();
-    alert(`${checkboxes.length}件の予定を追加しました。`);
-});
-
-// ----- 18. 検索・フィルタ・状態保存 -----
+// -- 検索・フィルタ --
 let searchTimeout;
 searchMaterialInput.addEventListener("input", () => {
     clearTimeout(searchTimeout);
@@ -1169,9 +1203,6 @@ searchMaterialInput.addEventListener("input", () => {
         localStorage.setItem("sp_searchQuery", searchMaterialInput.value);
         renderMaterialList();
     }, 100);
-});
-toggleSectionBtn.addEventListener("click", () => {
-    toggleSections();
 });
 filterSubjectSelect.addEventListener("change", () => {
     localStorage.setItem("sp_filterSubject", filterSubjectSelect.value);
@@ -1185,80 +1216,32 @@ filterCategorySelect.addEventListener("change", () => {
     localStorage.setItem("sp_filterCategory", filterCategorySelect.value);
     renderMaterialList();
 });
-
-// ----- 19. JSON エクスポート/インポート機能 -----
-// -- export --
-exportJsonBtn.addEventListener("click", async () => {
-    if (!confirm("データをファイルとして保存しますか？")) return;
-    
-    // saveAllの中で既にデータは綺麗に整頓されている
-    await saveAll();
-    
-    const data = {
-        materials: materials,
-        dailyPlans: dailyPlans,
-        exportedAt: getLocalDate(),
-        appName: APP_NAME,
-        version: window.APP_VERSION
-    };
-
-    const jsonStr = JSON.stringify(data, null, 2);
-    const blob = new Blob([jsonStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `studyplanner_${getLocalDate()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+materialCategorySelect.addEventListener("change", () => {
+    if (materialCategorySelect.value === "new") {
+        newCategoryInput.classList.remove("hidden");
+        newCategoryInput.focus();
+    } else {
+        newCategoryInput.classList.add("hidden");
+        newCategoryInput.value = "";
+    }
 });
 
-// -- import --
+// -- upload / download --
+uploadBtn.addEventListener("click", async () => await upload());
+downloadBtn.addEventListener("click", async () => await download());
+
+// -- export / import --
+exportJsonBtn.addEventListener("click", async () => await exportDataAsJson());
 importJsonBtn.addEventListener("click", () => {
     importFileInput.value = "";
     importFileInput.click();
 });
-importFileInput.addEventListener("change", (e) => {
+importFileInput.addEventListener("change", async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-        try {
-            const jsonStr = event.target.result;
-            const data = JSON.parse(jsonStr);
-
-            // 簡易的なデータ検証
-            if (!data.materials || !data.dailyPlans) return alert("エラー：正しいバックアップファイルではありません。");
-            if (!confirm(`データ（${data.exportedAt || '日付不明'} 作成）を読み込みますか？\n※現在のデータは上書きされます。`)) return;
-
-            // データを変数に反映
-            materials.splice(0, materials.length, ...data.materials);
-            rebuildMaterialMap();
-            
-            // dailyPlansをクリアして反映
-            for (const key in dailyPlans) delete dailyPlans[key];
-            Object.assign(dailyPlans, data.dailyPlans);
-
-            // カテゴリやIndexed DBも更新
-            await saveAll();
-            updateCategoryOptions();
-            renderMaterialList();
-            renderTodayPlans();
-
-            alert("インポートが完了しました！");
-
-        } catch (err) {
-            console.error(err);
-            alert("読み込みに失敗しました。ファイルが破損している可能性があります。");
-        }
-    };
-    reader.readAsText(file);
+    await importDataAsJson(file);
 });
 
-// ----- 20. モーダル関連のイベントを検知 -----
+// -- Enter / Ctrl + Enter / Escape --
 // -- Enter --
 [addMaterialModal, addPlanModal].forEach(modal => {
     modal.addEventListener("keydown", e => {
@@ -1284,22 +1267,45 @@ materialDetailInput.addEventListener("keydown", (e) => {
         confirmInfoBtn.click();
     }
 });
-
-// -- escape --
+// -- Escape --
 document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-        closeAllModals();
+    if (e.key === "Escape") closeAllModals();
+});
+
+
+// ----- 10. 起動・初期化 -----
+// -- 起動時の処理 --
+window.addEventListener('DOMContentLoaded', () => {
+    if (sessionStorage.getItem('show_update_success') === 'true') {
+        alert("アプリの更新が完了しました！");
+        sessionStorage.removeItem('show_update_success');  // 二度出ないように消す
     }
+    
+    restoreUIState();
+    loadAll().then(() => {
+        const savedCat = localStorage.getItem("sp_filterCategory");
+        if (savedCat !== null) filterCategorySelect.value = savedCat;
+        rebuildMaterialMap();
+        renderMaterialList();
+        renderTodayPlans();
+        
+        // Firebase初期化と所有者チェック
+        initFirebase().then(async (res) => {
+            if(res && res.db) db = res.db;
+            updateSyncButtons(); 
+
+            if (currentUser) {
+                const savedUid = await loadLocalData("ownerUid");
+                // 「guest」でも「自分」でもない場合のみ警告
+                if (savedUid && savedUid !== "guest" && savedUid !== currentUser.uid) {
+                    alert("ログイン中のアカウントと端末のデータが異なる可能性があります。");
+                }
+            }
+        });
+    });
+    updateSyncButtons();
 });
-
-// -- モーダル内の input / textarea で変更を検知 --
-infoMaterialModal.addEventListener('input', () => {
-    isModalEdited = true;
-});
-
-// ----- 21. Service Worker登録と更新検知 -----
-let isUpdateProcessed = (sessionStorage.getItem('sw_update_processed') === 'true');
-
+// -- Service Worker更新通知と管理 --
 function offerUpdate(worker) {
     if (isUpdateProcessed) return;
 
@@ -1315,7 +1321,7 @@ function offerUpdate(worker) {
         }
     }, 1000); 
 }
-
+// -- Service Worker登録・更新管理 --
 if ('serviceWorker' in navigator) {
     let newWorker = null;
     
@@ -1348,44 +1354,11 @@ if ('serviceWorker' in navigator) {
             console.error('Service Worker registration failed:', err);
         });
 }
-
-// ----- 22. 初期化フロー -----
-window.addEventListener('DOMContentLoaded', () => {
-    if (sessionStorage.getItem('show_update_success') === 'true') {
-        alert("アプリの更新が完了しました！");
-        sessionStorage.removeItem('show_update_success');  // 二度出ないように消す
-    }
-    
-    restoreUIState();
-    loadAll().then(() => {
-        const savedCat = localStorage.getItem("sp_filterCategory");
-        if (savedCat !== null) filterCategorySelect.value = savedCat;
-        rebuildMaterialMap();
-        renderMaterialList();
-        renderTodayPlans();
-        
-        // Firebase初期化と所有者チェック
-        initFirebase().then(async (res) => {
-            if(res && res.db) db = res.db;
-            updateSyncButtons(); 
-
-            if (currentUser) {
-                const savedUid = await loadLocalData("ownerUid");
-                // 「guest」でも「自分」でもない場合のみ警告
-                if (savedUid && savedUid !== "guest" && savedUid !== currentUser.uid) {
-                    alert("ログイン中のアカウントと端末のデータが異なる可能性があります。");
-                }
-            }
-        });
-    });
-    updateSyncButtons();
-});
-
-// ----- 23. バージョン表示・ボタン同期 -----
+// -- バージョン情報表示 --
 window.showVersion = function() {
     alert(`${APP_NAME}\n\nバージョン：${window.APP_VERSION}\n最終更新日：${LAST_UPDATED}`);
 };
-
+// -- ネットワーク・認証状態変化で同期ボタン更新 --
 window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
