@@ -900,9 +900,6 @@ function renderSortMaterialModal() {
     catMaterials.forEach(material => {
         const itemDiv = document.createElement("div");
         itemDiv.className = `material-item ${material.subject}`;
-        // itemDiv.style.flexDirection = "row";
-        // itemDiv.style.alignItems = "center";
-        itemDiv.style.minHeight = "60px";
         itemDiv.style.setProperty('--material-bg-width', '0%');
 
         const nameDiv = document.createElement("div");

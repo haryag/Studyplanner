@@ -285,9 +285,7 @@ button:disabled {
     scrollbar-color: var(--border-color) transparent;
 }
 
-.material-item.tapped .material-info::-webkit-scrollbar {
-    width: 6px;
-}
+.material-item.tapped .material-info::-webkit-scrollbar { width: 6px; }
 
 /* -- 9-3. 進捗バー -- */
 .material-item::after {
@@ -373,7 +371,8 @@ button:disabled {
     display: none;
     position: absolute;
     background: var(--item-btn-bg);
-    padding: 4px 6px;
+    margin: auto;
+    padding: 4px;
     border-radius: 30px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     vertical-align: middle;
@@ -401,24 +400,29 @@ button:disabled {
     top: auto;
     left: auto;
 }
+#sort-container .material-item {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 12px 14px;
+    min-height: 60px;
+    outline: none;
+}
 #sort-container .material-item.tapped {
     height: auto;
-    padding: 8px 12px;
     overflow: visible;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    vertical-align: middle;
     box-shadow: var(--card-shadow);
+    outline: var(--btn-color) 2px solid;
 }
 #sort-container .material-item.tapped .item-buttons {
     right: 10px;
     left: auto;
-    /* top: 50%; */
     margin: auto 0;
-    /* transform: translateY(-50%); */
-    transform: none;
     height: fit-content;
+    top: 0;
+    bottom: 0;
+    transform: none;
 }
 
 /* ボタン本体 */
