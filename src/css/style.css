@@ -782,5 +782,4 @@ input:focus, select:focus, textarea:focus {
     color: var(--text-sub);
     cursor: pointer;
 }
-
 .about-btn:hover { color: var(--text-main); }
