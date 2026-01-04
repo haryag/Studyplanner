@@ -406,6 +406,7 @@ button:disabled {
     padding: 8px 12px;
     overflow: visible;
     display: flex;
+    flex-direction: column;
     align-items: center;
     box-shadow: var(--card-shadow);
 }
