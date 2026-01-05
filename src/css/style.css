@@ -6,7 +6,7 @@
     --card-bg-color: #ffffff;
     --text-main: #333333;
     --text-sub: #666666;
-    --border-color: #dddddd;
+    --border-color: #cccccc;
     --border-sub: #eeeeee;
     --checked-bg: #f0f0f0;
     --checked-text: #808080;
@@ -770,3 +770,4 @@ input:focus, select:focus, textarea:focus {
 }
 
 .about-btn:hover { color: var(--text-main); }
+
