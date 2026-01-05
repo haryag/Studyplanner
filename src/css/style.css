@@ -220,11 +220,12 @@ button:disabled {
     display: flex;
     align-items: center;
     border-left: 5px solid transparent;
+    border: 1px solid transparent;
     min-height: 60px;
 }
 .plan-item:active { background-color: var(--active-bg); }
 .plan-item.checked {
-    opacity: 0.6;
+    opacity: 0.8;
     background-color: var(--checked-bg);
     color: var(--checked-text);
     box-shadow: none;
@@ -770,6 +771,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .about-btn:hover { color: var(--text-main); }
+
 
 
 
