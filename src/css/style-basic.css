@@ -19,6 +19,9 @@ html, body {
     padding: 0;
     background-color: var(--app-bg-color);
 }
+html {
+    touch-action: manipulation;
+}
 
 /* ----- 3. ユーティリティ（汎用クラス） ----- */
 .hidden { display: none !important; }
