@@ -2,7 +2,7 @@ import { initFirebase, currentUser } from './sys-auth.js';
 
 // ----- 1. 初期設定 -----
 const APP_NAME = 'Studyplanner';
-const LAST_UPDATED = '2026/1/3';
+const LAST_UPDATED = '2026/1/9';
 const BASE_PATH = '/Studyplanner/';
 
 // ----- 2. ユーティリティ -----
@@ -625,7 +625,7 @@ function openInfoModal(materialId) {
 // -- まとめて追加モーダル --
 function openBulkAddModal() {
     bulkMaterialList.innerHTML = "";
-    const activeMaterials = materials.filter(m => m.status !== "completed");
+    const activeMaterials = materials.filter(m => m.status === "learning");
     const displayMaterials = getSortedMaterials(activeMaterials);
     
     if (displayMaterials.length === 0) {
@@ -839,7 +839,6 @@ function confirmInfoModal() {
     const date = materialDateInput.value;
     const progress = parseInt(materialProgressInput.value, 10);
     const detail = materialDetailInput.value.trim();
-
     
     if (isNaN(progress) || progress < 0 || progress > 100) return alert("進度は0～100の整数値で入力してください。");
     
@@ -859,7 +858,7 @@ function confirmInfoModal() {
     
     if (editingMaterialId !== null) {
         const material = materials.find(material => material.id === editingMaterialId);
-        if (material) { 
+        if (material) {
             material.status = status; 
             material.date = date; 
             material.progress = progress; 
@@ -1362,4 +1361,5 @@ window.showVersion = function() {
 window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
+
 window.addEventListener('auth-changed', updateSyncButtons);
