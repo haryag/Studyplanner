@@ -24,7 +24,7 @@ let editingPlanIndex = null;          // 予定（配列基準）
 let editingMaterialId = null;         // 教材（id基準）
 let editingSortMaterialId = null;     // 並び替え中の教材（id基準）
 let isModalEdited = false;            // モーダル内で何らかの編集がされたか
-let todayDateKey = getLocalDate();  // 再代入の可能性があるため
+let viewingDateKey = getLocalDate();
 let db = null;
 let isUpdateProcessed = (sessionStorage.getItem('sw_update_processed') === 'true');   // Service Worker更新済みフラグ
 
@@ -391,6 +391,13 @@ const filterSubjectSelect = document.getElementById("filter-subject-select");
 const filterStatusSelect = document.getElementById("filter-status-select");
 const filterCategorySelect = document.getElementById("filter-category-select");
 
+// -- 日付変更モーダル --
+const shiftDateModal = document.getElementById("shift-date-modal");
+const dateSelectInput = document.getElementById("date-select-input");
+const openShiftDateBtn = document.getElementById("shift-date-btn");
+const cancelShiftBtn = document.getElementById("cancel-shift-btn");
+const confirmShiftBtn = document.getElementById("confirm-shift-btn");
+
 // -- 予定追加・編集モーダル要素 --
 const addPlanModal = document.getElementById("add-plan-modal");
 const planMaterialInput = document.getElementById("plan-material-select");
@@ -549,6 +556,40 @@ function populateMaterialSelect(selectedId = null) {
 }
 
 // ----- 8-2. モーダルを開く関数 -----
+// -- 日付変更モーダル --
+function openShiftDateModal() {
+    isModalEdited = false;
+    dateSelectInput.innerHTML = "";
+
+    const today = getLocalDate();
+    const tomorrowObj = new Date();
+    tomorrowObj.setDate(tomorrowObj.getDate() + 1);
+    const tomorrow = `${tomorrowObj.getFullYear()}-${String(tomorrowObj.getMonth() + 1).padStart(2, "0")}-${String(tomorrowObj.getDate()).padStart(2, "0")}`;
+
+    // 1. 既存の予定がある日付 + 今日 + 明日 をマージして重複削除
+    const dateSet = new Set(Object.keys(dailyPlans));
+    dateSet.add(today);
+    dateSet.add(tomorrow);
+
+    // 2. 日付順に並び替え
+    const sortedDates = Array.from(dateSet).sort().reverse(); // 新しい順
+
+    // 3. セレクトボックスを構築
+    sortedDates.forEach(date => {
+        const opt = document.createElement("option");
+        opt.value = date;
+        let label = date.replace(/-/g, '/');
+        if (date === today) label += "（今日）";
+        if (date === tomorrow) label += "（明日）";
+        opt.textContent = label;
+        dateSelectInput.appendChild(opt);
+    });
+
+    // 初期選択値は「今日」
+    dateSelectInput.value = today;
+
+    toggleModal(shiftDateModal, true);
+}
 // -- 教材追加・編集モーダル --
 function openMaterialModal(materialId = null) {
     updateCategoryOptions();
@@ -571,7 +612,7 @@ function openMaterialModal(materialId = null) {
 function openPlanModal(materialId = null, planIndex = null) {
     populateMaterialSelect(materialId);
     if (planIndex !== null) {
-        const plan = dailyPlans[todayDateKey][planIndex];
+        const plan = dailyPlans[viewingDateKey][planIndex];
         planContentInput.value = plan.range;
         planTimeInput.value = plan.time || "";
         editingPlanIndex = planIndex;
@@ -776,6 +817,12 @@ function closeAllModals() {
 }
 
 // ----- 8-4. モーダルを確定する関数 -----
+// -- 日付変更モーダル --
+function confirmShiftDateModal() {
+    viewingDateKey = dateSelectInput.value;
+    renderTodayPlans();  // 日付を変えて再描画
+    toggleModal(shiftDateModal, false);
+}
 // -- 教材追加・編集モーダル --
 function confirmMaterialModal() {
     const name = materialNameInput.value.trim();
@@ -823,11 +870,11 @@ function confirmPlanModal() {
     if (!range) return alert("学習内容を入力してください。");
     
     if (editingPlanIndex !== null) {
-        dailyPlans[todayDateKey][editingPlanIndex] = { ...dailyPlans[todayDateKey][editingPlanIndex], materialId, range, time };
+        dailyPlans[viewingDateKey][editingPlanIndex] = { ...dailyPlans[viewingDateKey][editingPlanIndex], materialId, range, time };
         editingPlanIndex = null;
     } else {
-        if (!dailyPlans[todayDateKey]) dailyPlans[todayDateKey] = [];
-        dailyPlans[todayDateKey].push({ materialId, range, time, checked: false });
+        if (!dailyPlans[viewingDateKey]) dailyPlans[viewingDateKey] = [];
+        dailyPlans[viewingDateKey].push({ materialId, range, time, checked: false });
     }
     toggleModal(addPlanModal, false);
     saveAndRender();
@@ -883,15 +930,15 @@ function confirmBulkModal() {
         return alert("教材が選択されていません。");
     }
     
-    if (!dailyPlans[todayDateKey]) dailyPlans[todayDateKey] = [];
+    if (!dailyPlans[viewingDateKey]) dailyPlans[viewingDateKey] = [];
     
     checkboxes.forEach(cb => {
         const materialId = parseInt(cb.value, 10);
-        dailyPlans[todayDateKey].push({ 
-            materialId, 
-            range: "仮", 
-            time: "", 
-            checked: false 
+        dailyPlans[viewingDateKey].push({
+            materialId,
+            range: "仮",
+            time: "",
+            checked: false
         });
     });
     
@@ -937,10 +984,14 @@ function createIconButton(className, iconHtml, onClick) {
 }
 // -- 予定一覧描画 --
 function renderTodayPlans() {
-    todayDateKey = getLocalDate();
-    todayDatePanel.textContent = new Date().toLocaleDateString('ja-JP');
+    const displayDate = viewingDateKey.replace(/-/g, '/');
+    const isToday = (viewingDateKey === getLocalDate());
+
+    document.querySelector("#plan-container .header h1").textContent = isToday ? "今日の学習計画" : "学習計画";
+    todayDatePanel.textContent = displayDate;
+
     planItems.innerHTML = "";
-    const todayPlans = dailyPlans[todayDateKey] || [];
+    const todayPlans = dailyPlans[viewingDateKey] || [];
     const sortedPlans = [...todayPlans].sort((a, b) => {
         if (a.checked && !b.checked) return 1;
         if (!a.checked && b.checked) return -1;
@@ -1172,10 +1223,12 @@ function renderSortMaterialModal() {
 toggleSectionBtn.addEventListener("click", () => toggleSections());
 
 // -- モーダル開閉 --
+openShiftDateBtn.addEventListener("click", openShiftDateModal);
 openMaterialModalBtn.addEventListener("click", () => openMaterialModal());
 openSortModalBtn.addEventListener("click", openSortModal);
 openBulkAddBtn.addEventListener("click", openBulkAddModal);
 
+cancelShiftBtn.addEventListener("click", closeAllModals);
 cancelMaterialBtn.addEventListener("click", closeAllModals);
 cancelPlanBtn.addEventListener("click", closeAllModals);
 cancelSortBtn.addEventListener("click", closeAllModals);
@@ -1183,6 +1236,7 @@ cancelInfoBtn.addEventListener("click", closeAllModals);
 cancelBulkBtn.addEventListener("click", closeAllModals);
 closeHistoryBtn.addEventListener("click", closeAllModals);
 
+confirmShiftBtn.addEventListener("click", confirmShiftDateModal);
 confirmMaterialBtn.addEventListener("click", confirmMaterialModal);
 confirmPlanBtn.addEventListener("click", confirmPlanModal);
 confirmInfoBtn.addEventListener("click", confirmInfoModal);
@@ -1361,5 +1415,4 @@ window.showVersion = function() {
 window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
-
 window.addEventListener('auth-changed', updateSyncButtons);

@@ -147,9 +147,28 @@
             <i class="fa-solid fa-list-check"></i> まとめて追加
         </button>
         <button id="toggle-section-btn" class="footer-btn">
-            <i class="fa-solid fa-list"></i> 表示切替
+            <i class="fa-solid fa-list"></i> 教材⇔予定
+        </button>
+        <button id="shift-date-btn" class="footer-btn">
+            <i class="fa-solid fa-calendar"></i> 日付変更
         </button>
     </footer>
+
+    <!----- 日付変更モーダル ----->
+    <div id="shift-date-modal" class="modal hidden">
+        <div class="modal-container scrollable">
+            <h2>予定の日付を変更</h2>
+            <label>
+                日付を選択：
+                <select id="date-select-input"></select>
+                <!-- セレクトボックス、デフォルトで現在の日付（設定中の値によらず）、登録されている日付（今日含む）＋明日 -->
+            </label>
+            <div class="modal-btns">
+                <button id="cancel-material-btn" class="cancel">キャンセル</button>
+                <button id="confirm-material-btn" class="ok">OK</button>
+            </div>
+        </div>
+    </div>
 
     <!----- 教材追加・編集モーダル ----->
     <div id="add-material-modal" class="modal hidden">
