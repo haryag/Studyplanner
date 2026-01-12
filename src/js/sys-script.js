@@ -2,7 +2,7 @@ import { initFirebase, currentUser } from './sys-auth.js';
 
 // ----- 1. 初期設定 -----
 const APP_NAME = 'Studyplanner';
-const LAST_UPDATED = '2026/1/9';
+const LAST_UPDATED = '2026/1/12';
 const BASE_PATH = '/Studyplanner/';
 
 // ----- 2. ユーティリティ -----
@@ -176,9 +176,9 @@ async function loadAll() {
     }
 }
 // -- 保存・再描画 --
-function saveAndRender() {
+async function saveAndRender() {
     // UIはすぐに反映され描画されるが、保存は非同期で裏で行われる
-    saveAll();
+    await saveAll();
     renderMaterialList();
     renderTodayPlans();
 }
@@ -1415,4 +1415,5 @@ window.showVersion = function() {
 window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
+
 window.addEventListener('auth-changed', updateSyncButtons);
