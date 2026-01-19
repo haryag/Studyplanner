@@ -99,6 +99,7 @@ button:disabled {
 .main-wrapper.full-height {
     height: 100dvh !important;
     overflow: hidden;
+    padding-bottom: 0;
 }
 
 
@@ -775,4 +776,5 @@ input:focus, select:focus, textarea:focus {
     cursor: pointer;
 }
 .about-btn:hover { color: var(--text-main); }
+
 
