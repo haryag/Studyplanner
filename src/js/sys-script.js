@@ -2,7 +2,7 @@ import { initFirebase, currentUser } from './sys-auth.js';
 
 // ----- 1. 初期設定 -----
 const APP_NAME = 'Studyplanner';
-const LAST_UPDATED = '2026/1/12';
+const LAST_UPDATED = '2026/1/19';
 const BASE_PATH = '/Studyplanner/';
 
 // ----- 2. ユーティリティ -----
@@ -70,6 +70,27 @@ function moveInGlobalArray(item, direction) {
         isModalEdited = true;
         renderSortMaterialModal();
     }
+}
+// -- 選択中の教材の直近n件の内容を取得 --
+function getRecentRanges(materialId, limit = 5) {
+    const result = [];
+    const seen = new Set();
+
+    const dateKeys = Object.keys(dailyPlans).sort().reverse();
+
+    for (const date of dateKeys) {
+        for (const plan of dailyPlans[date]) {
+        if (plan.materialId !== materialId) continue;
+        if (!plan.range) continue;
+        if (seen.has(plan.range)) continue;
+
+        seen.add(plan.range);
+        result.push(plan.range);
+
+        if (result.length >= limit) return result;
+        }
+    }
+    return result;
 }
 
 
@@ -401,7 +422,8 @@ const confirmShiftBtn = document.getElementById("confirm-shift-btn");
 // -- 予定追加・編集モーダル要素 --
 const addPlanModal = document.getElementById("add-plan-modal");
 const planMaterialInput = document.getElementById("plan-material-select");
-const planContentInput = document.getElementById("plan-content-input");
+const planContentInput = document.getElementById("plan-range-input");
+const planRangeDatalist = document.getElementById("plan-range-datalist");
 const planTimeInput = document.getElementById("plan-time-input");
 const cancelPlanBtn = document.getElementById("cancel-plan-btn");
 const confirmPlanBtn = document.getElementById("confirm-plan-btn");
@@ -554,6 +576,16 @@ function populateMaterialSelect(selectedId = null) {
         planMaterialInput.appendChild(option);
     });
 }
+// -- 選択中の教材の直近n件の内容を取得 => 予定追加・編集モーダル --
+function populateRangeDatalist(materialId) {
+    planRangeDatalist.innerHTML = "";
+
+    getRecentRanges(materialId).forEach(range => {
+        const opt = document.createElement("option");
+        opt.value = range;
+        planRangeDatalist.appendChild(opt);
+    });
+}
 
 // ----- 8-2. モーダルを開く関数 -----
 // -- 日付変更モーダル --
@@ -611,6 +643,7 @@ function openMaterialModal(materialId = null) {
 // -- 予定追加・編集モーダル --
 function openPlanModal(materialId = null, planIndex = null) {
     populateMaterialSelect(materialId);
+    populateRangeDatalist(materialId);
     if (planIndex !== null) {
         const plan = dailyPlans[viewingDateKey][planIndex];
         planContentInput.value = plan.range;
