@@ -17,12 +17,21 @@ function getLocalDate() {
 // ----- 3. アプリ状態管理 -----
 const materials = [];
 let sortBackupMaterials = [];
-let categories = new Set();
+let categories = {
+    english: [],
+    math: [],
+    modernjp: [],
+    classicjp: [],
+    science: [],
+    social: [],
+    others: []
+};
 let materialMap = new Map();
 const dailyPlans = {};
 let editingPlanIndex = null;          // 予定（配列基準）
 let editingMaterialId = null;         // 教材（id基準）
 let editingSortMaterialId = null;     // 並び替え中の教材（id基準）
+let editingCategoryKey = null;        // { subject, index } の形式で保持
 let isModalEdited = false;            // モーダル内で何らかの編集がされたか
 let viewingDateKey = getLocalDate();
 let db = null;
@@ -162,6 +171,7 @@ async function saveAll() {
     try {
         await saveLocalData("materials", cleanedMaterials);
         await saveLocalData("dailyPlans", cleanedPlans);
+        await saveLocalData("categories", categories);
     } catch (e) {
         console.error("端末への保存に失敗しました。", e);
     }
@@ -170,6 +180,7 @@ async function loadAll() {
     try {
         const savedMaterials = await loadLocalData("materials");
         const savedPlans = await loadLocalData("dailyPlans");
+        const savedCategories = await loadLocalData("categories");
 
         // 教材データの読み込み
         if (savedMaterials && Array.isArray(savedMaterials)) {
@@ -563,6 +574,53 @@ function updateCategoryOptions() {
         filterCategorySelect.value = "all";
     }
 }
+// -- カテゴリー追加 --
+function addCategoryPrompt(subject) {
+    const name = prompt(`${SUBJECT_LABELS[subject]}に新しいカテゴリーを追加:`);
+    if (!name) return;
+    if (categories[subject].includes(name)) return alert("既に存在します");
+    
+    categories[subject].push(name);
+    saveAndRender();
+    renderCategoryManageModal();
+}
+// -- カテゴリー名変更 --
+function renameCategoryPrompt(subject, index) {
+    const oldName = categories[subject][index];
+    const newName = prompt("カテゴリー名を変更:", oldName);
+    if (!newName || oldName === newName) return;
+
+    // 1. カテゴリーリストを更新
+    categories[subject][index] = newName;
+
+    // 2. 既存の教材の中でこのカテゴリーを使っているものを一括更新
+    materials.forEach(m => {
+        if (m.subject === subject && m.category === oldName) {
+            m.category = newName;
+        }
+    });
+
+    saveAndRender();
+    renderCategoryManageModal();
+}
+// -- カテゴリー削除 --
+function deleteCategory(subject, index) {
+    const catName = categories[subject][index];
+    if (!confirm(`カテゴリー「${catName}」を削除しますか？\n(教材は削除されず「なし」に戻ります)`)) return;
+
+    // 1. カテゴリーリストから削除
+    categories[subject].splice(index, 1);
+
+    // 2. 既存の教材のカテゴリーをクリア
+    materials.forEach(m => {
+        if (m.subject === subject && m.category === catName) {
+            m.category = "";
+        }
+    });
+
+    saveAndRender();
+    renderCategoryManageModal();
+}
 // -- 画面レイヤー制御 --
 function toggleModal(modal, show = true) {
     const footer = document.getElementById("button-container");
@@ -703,6 +761,12 @@ function openBulkAddModal() {
         });
     }
     toggleModal(bulkAddModal, true);
+}
+// -- カテゴリー管理モーダル --
+function openCategoryManageModal() {
+    editingCategoryKey = null;
+    renderCategoryManageModal();
+    toggleModal(document.getElementById("category-manage-modal"), true);
 }
 
 // ----- 8-3. モーダルを閉じる関数 -----
@@ -1145,6 +1209,67 @@ function renderSortMaterialModal() {
             renderSortMaterialModal();
         };
         sortContainer.appendChild(itemDiv);
+    });
+}
+// -- カテゴリー管理モーダル描画 --
+function renderCategoryManageModal() {
+    const container = document.getElementById("category-list");
+    container.innerHTML = "";
+
+    SUBJECT_ORDER.forEach(subject => {
+        // 教科ごとのセクション
+        const section = document.createElement("div");
+        section.className = "category-subject-section";
+
+        // 教科名ヘッダー + 追加ボタン
+        const header = document.createElement("div");
+        header.className = "category-subject-header";
+        header.innerHTML = `
+            <span>${SUBJECT_LABELS[subject]}</span>
+            <button class="add-cat-inner-btn" onclick="addCategoryPrompt('${subject}')">
+                <i class="fa-solid fa-plus"></i> 追加
+            </button>
+        `;
+        section.appendChild(header);
+
+        // その教科に属するカテゴリーのリスト
+        const catList = categories[subject] || [];
+        if (catList.length === 0) {
+            const empty = document.createElement("p");
+            empty.className = "no-data";
+            empty.textContent = "カテゴリーがありません";
+            section.appendChild(empty);
+        } else {
+            catList.forEach((catName, index) => {
+                const card = document.createElement("div");
+                card.className = `category-item-card ${subject}`;
+                card.textContent = catName;
+
+                // タップで編集ボタンを表示（教材一覧と同様の仕組み）
+                const key = `${subject}-${index}`;
+                if (editingCategoryKey === key) {
+                    card.classList.add("tapped");
+                    
+                    const btnContainer = document.createElement("div");
+                    btnContainer.className = "item-buttons";
+                    
+                    const editBtn = createIconButton("edit", '<i class="fa-solid fa-pen"></i>', () => renameCategoryPrompt(subject, index));
+                    const delBtn = createIconButton("delete", '<i class="fa-solid fa-trash-can"></i>', () => deleteCategory(subject, index));
+                    
+                    btnContainer.append(editBtn, delBtn);
+                    card.appendChild(btnContainer);
+                }
+
+                card.onclick = (e) => {
+                    if (e.target.closest("button")) return;
+                    editingCategoryKey = (editingCategoryKey === key) ? null : key;
+                    renderCategoryManageModal();
+                };
+
+                section.appendChild(card);
+            });
+        }
+        container.appendChild(section);
     });
 }
 

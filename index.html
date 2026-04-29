@@ -113,6 +113,13 @@
             </div>
 
             <!-- ユーティリティボタン -->
+            <h3>カテゴリーの管理</h3>
+            <div class="util-btn-wrapper">
+                <button id="open-category-manage-btn" class="util-btn">
+                    <i class="fa-solid fa-tags"></i> カテゴリーの追加・編集
+                </button>
+            </div>
+
             <h3>オフラインで保存</h3>
             <div class="util-btn-wrapper">
                 <button id="import-json-btn" class="util-btn">
@@ -308,6 +315,24 @@
             <div class="modal-btns">
                 <button id="cancel-bulk-btn" class="cancel">キャンセル</button>
                 <button id="confirm-bulk-btn" class="ok">追加</button>
+            </div>
+        </div>
+    </div>
+
+    <!----- カテゴリー管理モーダル ----->
+    <div id="category-manage-modal" class="modal hidden">
+        <div class="modal-container scrollable">
+            <h2>カテゴリーの管理</h2>
+            <p style="font-size:12px; color:#666; margin-bottom:12px;">
+                教科名をタップすると、その教科に新しいカテゴリーを追加できます。
+            </p>
+            
+            <div id="category-list">
+                <!-- ここに教科ごとのカテゴリーカードが並ぶ -->
+            </div>
+
+            <div class="modal-btns">
+                <button id="close-category-manage-btn" class="cancel">閉じる</button>
             </div>
         </div>
     </div>
