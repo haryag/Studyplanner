@@ -208,6 +208,11 @@ async function loadAll() {
             // データが空ならリセット
             for (const key in dailyPlans) delete dailyPlans[key];
         }
+
+        // カテゴリーデータの読み込み
+        if (savedCategories && typeof savedCategories === 'object') {
+            Object.assign(categories, savedCategories);
+        }
         updateCategoryOptions();
 
     } catch (e) {
@@ -285,6 +290,7 @@ async function upload() {
         await setDoc(doc(db, "backups", currentUser.uid), {
             materials: materials,
             dailyPlans: dailyPlans,
+            categories: categories,
             updatedAt: new Date().toISOString(),
         });
         
@@ -327,6 +333,11 @@ async function download() {
 
         for (const key in dailyPlans) delete dailyPlans[key];
         Object.assign(dailyPlans, data.dailyPlans || {});
+
+        if (data.categories) {
+            for (const key in categories) delete categories[key]; // 一旦空にする
+            Object.assign(categories, data.categories);
+        }
         
         saveAndRender();
         await saveLocalData("ownerUid", currentUser.uid);
@@ -349,6 +360,7 @@ async function exportDataAsJson() {
     const data = {
         materials: materials,
         dailyPlans: dailyPlans,
+        categories: categories,
         exportedAt: getLocalDate(),
         appName: APP_NAME,
         version: window.APP_VERSION
@@ -380,13 +392,19 @@ async function importDataAsJson(file) {
             if (!data.materials || !data.dailyPlans) return alert("エラー：正しいバックアップファイルではありません。");
             if (!confirm(`データ（${data.exportedAt || '日付不明'} 作成）を読み込みますか？\n※現在のデータは上書きされます。`)) return;
 
-            // データを変数に反映
+            // materials
             materials.splice(0, materials.length, ...data.materials);
             rebuildMaterialMap();
             
-            // dailyPlansをクリアして反映
+            // dailyPlans
             for (const key in dailyPlans) delete dailyPlans[key];
             Object.assign(dailyPlans, data.dailyPlans);
+
+            // categories
+            if (data.categories) {
+                for (const key in categories) delete categories[key];
+                Object.assign(categories, data.categories);
+            }
 
             // カテゴリやIndexed DBも更新
             await saveAll();
