@@ -543,7 +543,6 @@ function restoreUIState() {
 }
 // -- カテゴリ選択肢（セレクトボックス）の更新 --
 function updateCategoryOptions() {
-    // 1. 教材登録モーダルの「カテゴリー」選択肢を、その教科のものに書き換える
     const subject = materialSubjectSelect.value;
     const currentVal = materialCategorySelect.value;
     materialCategorySelect.textContent = '';
@@ -567,7 +566,7 @@ function updateCategoryOptions() {
         materialCategorySelect.value = currentVal;
     }
 
-    // 2. メイン画面の「カテゴリーフィルタ」を更新
+    const toolbarSubject = filterSubjectSelect.value;
     const currentFilter = filterCategorySelect.value;
     filterCategorySelect.textContent = '';
     
@@ -581,23 +580,30 @@ function updateCategoryOptions() {
     optNoneFilter.textContent = 'タグなし';
     filterCategorySelect.appendChild(optNoneFilter);
     
-    // 全ての教科のカテゴリーを重複なしで集計してフィルタに表示
-    const allCats = new Set();
-    Object.values(categories).forEach(catList => {
-        catList.forEach(c => allCats.add(c));
-    });
+    // 表示するカテゴリーを決定
+    let displayCats = [];
+    if (toolbarSubject === 'all') {
+        // 教科が「すべて」の場合は、全教科のカテゴリーを重複なしで集計
+        const allCats = new Set();
+        Object.values(categories).forEach(catList => {
+            catList.forEach(c => allCats.add(c));
+        });
+        displayCats = Array.from(allCats).sort();
+    } else {
+        // 特定の教科が選ばれている場合は、その教科のカテゴリーのみを表示
+        displayCats = [...(categories[toolbarSubject] || [])].sort();
+    }
     
-    Array.from(allCats).sort().forEach(c => {
+    displayCats.forEach(c => {
         const opt = document.createElement('option');
         opt.value = c;
         opt.textContent = c;
         filterCategorySelect.appendChild(opt);
     });
     
-    filterCategorySelect.value = currentFilter;
-    if (!(allCats.has(currentFilter) || currentFilter === 'all' || currentFilter === 'none')) {
-        filterCategorySelect.value = "all";
-    }
+    // 以前の選択値が新しいリストにもあれば復元、なければ「all」に戻す
+    const exists = Array.from(filterCategorySelect.options).some(o => o.value === currentFilter);
+    filterCategorySelect.value = exists ? currentFilter : "all";
 }
 // -- カテゴリー追加 --
 function addCategoryPrompt(subject) {
@@ -1358,6 +1364,7 @@ searchMaterialInput.addEventListener("input", () => {
 });
 filterSubjectSelect.addEventListener("change", () => {
     localStorage.setItem("sp_filterSubject", filterSubjectSelect.value);
+    updateCategoryOptions();
     renderMaterialList();
 });
 filterStatusSelect.addEventListener("change", () => {
