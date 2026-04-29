@@ -713,7 +713,6 @@ function openMaterialModal(materialId = null) {
         materialCategorySelect.value = "";
         editingMaterialId = null;
     }
-    newCategoryInput.classList.add("hidden");
     toggleModal(addMaterialModal, true);
 }
 // -- 予定追加・編集モーダル --

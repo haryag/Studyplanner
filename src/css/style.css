@@ -686,6 +686,7 @@ input:focus, select:focus, textarea:focus {
 .category-item {
     background: var(--card-bg-color);
     border-radius: 6px;
+    min-height: 54px;
     padding: 12px 16px;
     margin-bottom: 8px;
     box-shadow: var(--card-shadow);
@@ -702,10 +703,6 @@ input:focus, select:focus, textarea:focus {
 .category-item.science   { border-left-color: var(--main-color-science); }
 .category-item.social    { border-left-color: var(--main-color-social); }
 .category-item.others    { border-left-color: var(--main-color-others); }
-
-.category-item.tapped {
-    background-color: var(--hover-bg);
-}
 
 
 /* ----- 17. 教材ステータスバッジ ----- */
