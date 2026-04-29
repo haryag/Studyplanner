@@ -459,15 +459,6 @@ const bulkMaterialList = document.getElementById("bulk-material-list");
 const cancelBulkBtn = document.getElementById("cancel-bulk-btn");
 const confirmBulkBtn = document.getElementById("confirm-bulk-btn");
 
-// -- 履歴・統計表示モーダル要素 --
-const historyModal = document.getElementById("history-modal");
-const historyContainer = document.getElementById("history-container");
-const balanceList = document.getElementById("balance-list");
-const historyMaterialName = document.getElementById("history-material-name");
-const statTotalCompleted = document.getElementById("stat-total-completed");
-const statLastDate = document.getElementById("stat-last-date");
-const closeHistoryBtn = document.getElementById("close-history-btn");
-
 
 // ----- 8. UI制御（表示・操作） -----
 // ----- 8-1. UI操作関数群 -----
@@ -691,115 +682,115 @@ function openBulkAddModal() {
     toggleModal(bulkAddModal, true);
 }
 // -- 履歴・統計表示モーダル --
-function openHistoryModal(materialId) {
-    const material = materialMap.get(materialId);
-    if (!material) return;
+// function openHistoryModal(materialId) {
+//     const material = materialMap.get(materialId);
+//     if (!material) return;
 
-    let totalCompletedTasks = 0;
-    const subjectCounts = {};
-    let materialCompletedCount = 0;
-    let lastDate = null;
-    const historyData = [];
+//     let totalCompletedTasks = 0;
+//     const subjectCounts = {};
+//     let materialCompletedCount = 0;
+//     let lastDate = null;
+//     const historyData = [];
 
-    const subjectLabels = {
-        math: "数学",
-        english: "英語",
-        modernjp: "現代文",
-        classicjp: "古典",
-        science: "理科",
-        social: "社会",
-        others: "その他"
-    };
+//     const subjectLabels = {
+//         math: "数学",
+//         english: "英語",
+//         modernjp: "現代文",
+//         classicjp: "古典",
+//         science: "理科",
+//         social: "社会",
+//         others: "その他"
+//     };
 
-    // データの集計
-    Object.keys(dailyPlans).forEach(date => {
-        dailyPlans[date].forEach(plan => {
-            if (plan.checked) {
-                totalCompletedTasks++;
-                const targetMaterial = materialMap.get(plan.materialId);
-                const subject = targetMaterial ? targetMaterial.subject : 'others';
-                subjectCounts[subject] = (subjectCounts[subject] || 0) + 1;
+//     // データの集計
+//     Object.keys(dailyPlans).forEach(date => {
+//         dailyPlans[date].forEach(plan => {
+//             if (plan.checked) {
+//                 totalCompletedTasks++;
+//                 const targetMaterial = materialMap.get(plan.materialId);
+//                 const subject = targetMaterial ? targetMaterial.subject : 'others';
+//                 subjectCounts[subject] = (subjectCounts[subject] || 0) + 1;
 
-                if (plan.materialId === materialId) {
-                    materialCompletedCount++;
-                    if (!lastDate || date > lastDate) lastDate = date;
-                }
-            }
-            if (plan.materialId === materialId) {
-                historyData.push({ date, ...plan });
-            }
-        });
-    });
+//                 if (plan.materialId === materialId) {
+//                     materialCompletedCount++;
+//                     if (!lastDate || date > lastDate) lastDate = date;
+//                 }
+//             }
+//             if (plan.materialId === materialId) {
+//                 historyData.push({ date, ...plan });
+//             }
+//         });
+//     });
 
-    // 表示の更新
-    historyMaterialName.textContent = material.name;
-    statTotalCompleted.innerHTML = `${materialCompletedCount} <small>回</small>`;
-    statLastDate.textContent = lastDate ? lastDate.replace(/-/g, '/') : '---';
+//     // 表示の更新
+//     historyMaterialName.textContent = material.name;
+//     statTotalCompleted.innerHTML = `${materialCompletedCount} <small>回</small>`;
+//     statLastDate.textContent = lastDate ? lastDate.replace(/-/g, '/') : '---';
 
-    // バランスバーの描画
-    balanceList.innerHTML = "";
-    if (totalCompletedTasks === 0) {
-        balanceList.innerHTML += "<p class='no-data'>完了した実績がまだありません</p>";
-    } else {
-        const sortedSubjects = Object.keys(subjectCounts).sort((a, b) => subjectCounts[b] - subjectCounts[a]);
-        sortedSubjects.forEach(sub => {
-            const count = subjectCounts[sub];
-            const percent = Math.round((count / totalCompletedTasks) * 100);
-            const isCurrent = (sub === material.subject);
+//     // バランスバーの描画
+//     balanceList.innerHTML = "";
+//     if (totalCompletedTasks === 0) {
+//         balanceList.innerHTML += "<p class='no-data'>完了した実績がまだありません</p>";
+//     } else {
+//         const sortedSubjects = Object.keys(subjectCounts).sort((a, b) => subjectCounts[b] - subjectCounts[a]);
+//         sortedSubjects.forEach(sub => {
+//             const count = subjectCounts[sub];
+//             const percent = Math.round((count / totalCompletedTasks) * 100);
+//             const isCurrent = (sub === material.subject);
             
-            const row = document.createElement("div");
-            row.className = `balance-row ${isCurrent ? 'current-subject' : ''}`;
-            row.innerHTML = `
-                <span class="subject-name">${subjectLabels[sub] || sub}</span>
-                <div class="balance-bar-container">
-                    <div class="balance-bar ${sub}" style="width: ${percent}%"></div>
-                </div>
-                <span class="subject-percent">${percent}%</span>
-            `;
-            balanceList.appendChild(row);
-        });
-    }
+//             const row = document.createElement("div");
+//             row.className = `balance-row ${isCurrent ? 'current-subject' : ''}`;
+//             row.innerHTML = `
+//                 <span class="subject-name">${subjectLabels[sub] || sub}</span>
+//                 <div class="balance-bar-container">
+//                     <div class="balance-bar ${sub}" style="width: ${percent}%"></div>
+//                 </div>
+//                 <span class="subject-percent">${percent}%</span>
+//             `;
+//             balanceList.appendChild(row);
+//         });
+//     }
 
-    // 履歴リストの描画
-    historyContainer.innerHTML = "";
-    if (historyData.length === 0) {
-        historyContainer.innerHTML = "<p class='no-data'>学習記録がありません</p>";
-    } else {
-        historyData.sort((a, b) => b.date.localeCompare(a.date));
-        historyData.forEach(item => {
-            const itemDiv = document.createElement("div");
-            itemDiv.className = `plan-item ${material.subject} history-card ${item.checked ? 'checked' : ''}`;
+//     // 履歴リストの描画
+//     historyContainer.innerHTML = "";
+//     if (historyData.length === 0) {
+//         historyContainer.innerHTML = "<p class='no-data'>学習記録がありません</p>";
+//     } else {
+//         historyData.sort((a, b) => b.date.localeCompare(a.date));
+//         historyData.forEach(item => {
+//             const itemDiv = document.createElement("div");
+//             itemDiv.className = `plan-item ${material.subject} history-card ${item.checked ? 'checked' : ''}`;
 
-            // infoContainerの要素
-            const infoContainer = document.createElement("div");
-            infoContainer.className = "plan-info";
+//             // infoContainerの要素
+//             const infoContainer = document.createElement("div");
+//             infoContainer.className = "plan-info";
 
-            const dateDiv = document.createElement("div");
-            dateDiv.className = "history-date";
-            dateDiv.textContent = item.date.replace(/-/g, '/');
-            if (item.checked) {
-                dateDiv.innerHTML += ' <i class="fa-solid fa-check"></i>';
-            }
+//             const dateDiv = document.createElement("div");
+//             dateDiv.className = "history-date";
+//             dateDiv.textContent = item.date.replace(/-/g, '/');
+//             if (item.checked) {
+//                 dateDiv.innerHTML += ' <i class="fa-solid fa-check"></i>';
+//             }
 
-            const rangeDiv = document.createElement("div");
-            rangeDiv.className = "history-range";
-            rangeDiv.textContent = item.range || '';
+//             const rangeDiv = document.createElement("div");
+//             rangeDiv.className = "history-range";
+//             rangeDiv.textContent = item.range || '';
 
-            // infoContainerの組み立て
-            infoContainer.append(dateDiv, rangeDiv);
-            itemDiv.append(infoContainer);
+//             // infoContainerの組み立て
+//             infoContainer.append(dateDiv, rangeDiv);
+//             itemDiv.append(infoContainer);
 
-            if (item.time) {
-                const timeBadgeDiv = document.createElement("div");
-                timeBadgeDiv.className = "history-time-badge";
-                timeBadgeDiv.textContent = item.time;
-                itemDiv.append(timeBadgeDiv);
-            }
-            historyContainer.appendChild(itemDiv);
-        });
-    }
-    toggleModal(historyModal, true);
-}
+//             if (item.time) {
+//                 const timeBadgeDiv = document.createElement("div");
+//                 timeBadgeDiv.className = "history-time-badge";
+//                 timeBadgeDiv.textContent = item.time;
+//                 itemDiv.append(timeBadgeDiv);
+//             }
+//             historyContainer.appendChild(itemDiv);
+//         });
+//     }
+//     toggleModal(historyModal, true);
+// }
 // ----- 8-3. モーダルを閉じる関数 -----
 function closeAllModals() {
     // 開いているモーダルを取得
@@ -1159,7 +1150,7 @@ function renderMaterialList() {
         const addPlanBtn = createIconButton("add-plan", '<i class="fa-solid fa-plus"></i>', () => openPlanModal(material.id));
         const editBtn = createIconButton("edit", '<i class="fa-solid fa-pen"></i>', () => openMaterialModal(material.id));
         const infoBtn = createIconButton("info", '<i class="fa-solid fa-info"></i>', () => openInfoModal(material.id));
-        const historyBtn = createIconButton("history", '<i class="fa-solid fa-clock-rotate-left"></i>', () => openHistoryModal(material.id));
+        // const historyBtn = createIconButton("history", '<i class="fa-solid fa-clock-rotate-left"></i>', () => openHistoryModal(material.id));
         const delBtn = createIconButton("delete", '<i class="fa-solid fa-trash-can"></i>', () => {
             if (confirm(`教材「${material.name}」を削除しますか？教材を削除すると、この教材に関連する全ての予定も削除されます。`)) {
                 const idx = materials.findIndex(item => item.id === material.id);
@@ -1172,7 +1163,7 @@ function renderMaterialList() {
                 updateCategoryOptions();
             }
         });
-        btnContainer.append(addPlanBtn, editBtn, infoBtn, historyBtn, delBtn);
+        btnContainer.append(addPlanBtn, editBtn, infoBtn, delBtn);
 
         // 親要素（itemDiv）への追加
         itemDiv.append(badgeDiv, infoContainer, btnContainer);
@@ -1254,7 +1245,6 @@ cancelPlanBtn.addEventListener("click", closeAllModals);
 cancelSortBtn.addEventListener("click", closeAllModals);
 cancelInfoBtn.addEventListener("click", closeAllModals);
 cancelBulkBtn.addEventListener("click", closeAllModals);
-closeHistoryBtn.addEventListener("click", closeAllModals);
 
 confirmShiftBtn.addEventListener("click", confirmShiftDateModal);
 confirmMaterialBtn.addEventListener("click", confirmMaterialModal);
