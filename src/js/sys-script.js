@@ -696,7 +696,7 @@ function openBulkAddModal() {
     } else {
         displayMaterials.forEach(material => {
             const label = document.createElement("label");
-            label.className = "bulk-item-label";
+            label.className = `bulk-item-label ${material.subject}`;
             label.innerHTML = `<input type="checkbox" value="${material.id}"> <span></span>`;
             label.querySelector("span").textContent = material.name;
             bulkMaterialList.appendChild(label);
@@ -792,7 +792,6 @@ function confirmPlanModal() {
     const materialId = parseInt(planMaterialInput.value, 10);
     const range = planContentInput.value.trim();
     const time = planTimeInput.value;
-    if (!range) return alert("学習内容を入力してください。");
     
     if (editingPlanIndex !== null) {
         dailyPlans[viewingDateKey][editingPlanIndex] = { ...dailyPlans[viewingDateKey][editingPlanIndex], materialId, range, time };
@@ -861,16 +860,14 @@ function confirmBulkModal() {
         const materialId = parseInt(cb.value, 10);
         dailyPlans[viewingDateKey].push({
             materialId,
-            range: "仮",
+            range: "",
             time: "",
             checked: false
         });
     });
     
     toggleModal(bulkAddModal, false);
-    saveAll();
-    renderTodayPlans();
-    alert(`${checkboxes.length}件の予定を追加しました。`);
+    saveAndRender();
 }
 
 // ----- 8-5. モーダル描画関数 -----

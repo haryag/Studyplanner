@@ -629,8 +629,10 @@ input:focus, select:focus, textarea:focus {
 .bulk-item-label {
     display: flex;
     align-items: center;
-    padding: 8px;
+    padding: 6px;
+    margin: 4px 0;
     border-bottom: 1px solid var(--border-sub);
+    border-right: 3px solid transparent;
     cursor: pointer;
 }
 .bulk-item-label:last-child {
