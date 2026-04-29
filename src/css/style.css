@@ -646,6 +646,13 @@ input:focus, select:focus, textarea:focus {
     font-size: 14px;
     color: var(--text-main);
 }
+.bulk-item-label.math      { border-right-color: var(--main-color-math); }
+.bulk-item-label.english   { border-right-color: var(--main-color-english); }
+.bulk-item-label.modernjp  { border-right-color: var(--main-color-modernjp); }
+.bulk-item-label.classicjp { border-right-color: var(--main-color-classicjp); }
+.bulk-item-label.science   { border-right-color: var(--main-color-science); }
+.bulk-item-label.social    { border-right-color: var(--main-color-social); }
+.bulk-item-label.others    { border-right-color: var(--main-color-others); }
 
 
 /* ----- 17. 教材ステータスバッジ ----- */
