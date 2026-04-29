@@ -396,7 +396,6 @@ const materialItems = document.getElementById("material-items");
 const openMaterialModalBtn = document.getElementById("add-material-btn");
 const openSortModalBtn = document.getElementById("sort-material-btn");
 const openBulkAddBtn = document.getElementById("bulk-add-btn");
-const toggleSectionBtn = document.getElementById("toggle-section-btn");
 const uploadBtn = document.getElementById('upload-btn');
 const downloadBtn = document.getElementById('download-btn');
 const exportJsonBtn = document.getElementById("export-json-btn");
@@ -453,15 +452,45 @@ const sortContainer = document.getElementById("sort-container");
 const cancelSortBtn = document.getElementById("cancel-sort-btn");
 const confirmSortBtn = document.getElementById("confirm-sort-btn");
 
-// -- まとめて追加モーダル要素
+// -- まとめて追加モーダル要素 --
 const bulkAddModal = document.getElementById("bulk-add-modal");
 const bulkMaterialList = document.getElementById("bulk-material-list");
 const cancelBulkBtn = document.getElementById("cancel-bulk-btn");
 const confirmBulkBtn = document.getElementById("confirm-bulk-btn");
 
+// -- 画面切り替え --
+const optionContainer = document.getElementById("option-container");
+const navPlanBtn = document.getElementById("nav-plan-btn");
+const navMaterialBtn = document.getElementById("nav-material-btn");
+const navOptionBtn = document.getElementById("nav-option-btn");
+
 
 // ----- 8. UI制御（表示・操作） -----
 // ----- 8-1. UI操作関数群 -----
+// -- タブの切り替え --
+function showSection(target) {
+    // すべて隠す
+    planContainer.classList.add("hidden");
+    materialContainer.classList.add("hidden");
+    optionContainer.classList.add("hidden");
+    
+    // ボタンのactiveクラスをリセット
+    navPlanBtn.classList.remove("active");
+    navMaterialBtn.classList.remove("active");
+    navOptionBtn.classList.remove("active");
+
+    // 指定したものだけ表示
+    if (target === 'plan') {
+        planContainer.classList.remove("hidden");
+        navPlanBtn.classList.add("active");
+    } else if (target === 'material') {
+        materialContainer.classList.remove("hidden");
+        navMaterialBtn.classList.add("active");
+    } else if (target === 'option') {
+        optionContainer.classList.remove("hidden");
+        navOptionBtn.classList.add("active");
+    }
+}
 // -- 保存されたUI状態の復元 --
 function restoreUIState() {
     const savedQuery = localStorage.getItem("sp_searchQuery");
@@ -1230,7 +1259,9 @@ function renderSortMaterialModal() {
 
 // ----- 9. UIイベントハンドラ -----
 // -- セクション切り替え --
-toggleSectionBtn.addEventListener("click", () => toggleSections());
+navPlanBtn.addEventListener("click", () => showSection('plan'));
+navMaterialBtn.addEventListener("click", () => showSection('material'));
+navOptionBtn.addEventListener("click", () => showSection('option'));
 
 // -- モーダル開閉 --
 openShiftDateBtn.addEventListener("click", openShiftDateModal);

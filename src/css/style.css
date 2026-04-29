@@ -247,7 +247,8 @@ button:disabled {
 
 /* ----- 9. 教材アイテム ----- */
 /* -- 9-1. 基本構造 -- */
-.material-wrapper {
+/* 教材・予定共通 */
+.separated-wrapper {
     margin: 20px 0;
     padding: 8px 0;
     border-top: 1px dashed var(--border-color);
@@ -522,6 +523,9 @@ button:disabled {
 }
 .footer-btn i { font-size: 18px; }
 .footer-btn:hover { color: var(--btn-color); background: rgba(0,0,0,0.02); }
+.footer-btn.active {
+    color: var(--btn-color);
+}
 
 
 /* ----- 14. フォーム共通（input / select / textarea） ----- */

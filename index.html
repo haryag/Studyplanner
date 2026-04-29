@@ -21,13 +21,18 @@
     <!----- メインコンテナ ----->
     <main id="wrapper" class="main-wrapper">
         <div id="plan-container" class="display-container scrollable">
+            <!-- タイトル -->
             <div class="header">
                 <h1>今日の学習計画</h1>
                 <p id="todaydate-panel"></p>
             </div>
-            <!-- 予定一覧 -->
-            <div id="plan-items"></div>
 
+            <!-- 予定一覧 -->
+            <div class="separated-wrapper">
+                <div id="plan-items"></div>
+            </div>
+
+            <!-- ユーティリティボタン -->
             <div class="util-btn-wrapper">
                 <button id="shift-date-btn" class="util-btn">
                     <i class="fa-regular fa-calendar"></i> 日付変更
@@ -38,11 +43,12 @@
             </div>
         </div>
         <div id="material-container" class="display-container scrollable hidden">
+            <!-- タイトル -->
             <div class="header">
                 <h1>教材一覧</h1>
             </div>
 
-            <!-- ツールバー -->
+            <!-- 検索ツールバー -->
             <div class="filter-toolbar">
                 <div class="search-box">
                     <input type="text" id="search-material-input" placeholder="教材名またはキーワードを検索...">
@@ -86,53 +92,53 @@
             </div>
             
             <!-- 教材一覧 -->
-            <div class="material-wrapper">
+            <div class="separated-wrapper">
                 <div id="material-items"></div>
             </div>
 
             <!-- ユーティリティボタン -->
-            <div>
-                <h3>教材を管理</h3>
-                <div class="util-btn-wrapper">
-                    <button id="add-material-btn" class="util-btn">
-                        <i class="fa-solid fa-plus"></i> 教材追加
-                    </button>
-                    <button id="sort-material-btn" class="util-btn">
-                        <i class="fa-solid fa-arrows-up-down"></i> 並び替え
-                    </button>
-                </div>
+            <div class="util-btn-wrapper">
+                <button id="add-material-btn" class="util-btn">
+                    <i class="fa-solid fa-plus"></i> 教材追加
+                </button>
+                <button id="sort-material-btn" class="util-btn">
+                    <i class="fa-solid fa-arrows-up-down"></i> 教材並び替え
+                </button>
+            </div>
+        </div>
+        <div id="option-container">
+            <!-- タイトル -->
+            <div class="header">
+                <h1>オプション・その他の操作</h1>
             </div>
 
-            <div>
-                <h3>オフラインで保存</h3>
-                <div class="util-btn-wrapper">
-                    <button id="import-json-btn" class="util-btn">
-                        <i class="fa-solid fa-file-import"></i> JSON形式でインポート
-                    </button>
-                    <button id="export-json-btn" class="util-btn">
-                        <i class="fa-solid fa-file-export"></i> JSON形式でエクスポート
-                    </button>
-                </div>
+            <!-- ユーティリティボタン -->
+            <h3>オフラインで保存</h3>
+            <div class="util-btn-wrapper">
+                <button id="import-json-btn" class="util-btn">
+                    <i class="fa-solid fa-file-import"></i> JSON形式でインポート
+                </button>
+                <button id="export-json-btn" class="util-btn">
+                    <i class="fa-solid fa-file-export"></i> JSON形式でエクスポート
+                </button>
             </div>
-            
-            <div>
-                <h3>クラウドに保存</h3>
-                <div class="util-btn-wrapper">
-                    <p id="auth-status-panel"></p>
-                    <button id="upload-btn" class="util-btn" disabled>
-                        <i class="fa-solid fa-cloud-arrow-up"></i> アップロード
-                    </button>
-                    <button id="download-btn" class="util-btn">
-                        <i class="fa-solid fa-cloud-arrow-down"></i> ダウンロード
-                    </button>
-                    <input type="file" id="import-file-input" accept=".json" style="display: none;">
-                    <button id="login-btn" class="util-btn">
-                        <i class="fa-solid fa-arrow-right-to-bracket"></i> ログイン
-                    </button>
-                    <button id="logout-btn" class="util-btn">
-                        <i class="fa-solid fa-arrow-right-from-bracket"></i> ログアウト
-                    </button>
-                </div>
+
+            <h3>クラウドに保存</h3>
+            <div class="util-btn-wrapper">
+                <p id="auth-status-panel"></p>
+                <button id="upload-btn" class="util-btn" disabled>
+                    <i class="fa-solid fa-cloud-arrow-up"></i> アップロード
+                </button>
+                <button id="download-btn" class="util-btn">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> ダウンロード
+                </button>
+                <input type="file" id="import-file-input" accept=".json" style="display: none;">
+                <button id="login-btn" class="util-btn">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> ログイン
+                </button>
+                <button id="logout-btn" class="util-btn">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> ログアウト
+                </button>
             </div>
 
             <!-- このアプリについて -->
@@ -144,18 +150,23 @@
                     </button>
                 </div>
             </div>
+
+            <button onclick="location.reload()" class="util-btn" id="reload-btn">
+                <i class="fa-solid fa-arrow-rotate-right"></i> 再読み込み
+            </button>
         </div>
-        <!-- <div id="option-container">
-        </div> -->
     </main>
 
     <!----- フッター ----->
     <footer id="button-container" class="button-group">
-        <button onclick="location.reload()" class="footer-btn" id="reload-btn">
-            <i class="fa-solid fa-arrow-rotate-right"></i> 再読み込み
+        <button id="nav-material-btn" class="footer-btn">
+            <i class="fa-solid fa-book"></i> 教材一覧
         </button>
-        <button id="toggle-section-btn" class="footer-btn">
-            <i class="fa-solid fa-list"></i> 表示切替
+        <button id="nav-plan-btn" class="footer-btn active">
+            <i class="fa-solid fa-calendar-day"></i> 学習予定
+        </button>
+        <button id="nav-option-btn" class="footer-btn">
+            <i class="fa-solid fa-gear"></i> オプション
         </button>
     </footer>
 
