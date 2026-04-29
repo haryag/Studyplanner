@@ -1274,9 +1274,13 @@ function renderCategoryManageModal() {
             catList.forEach((catName, index) => {
                 const card = document.createElement("div");
                 card.className = `category-item ${subject}`;
-                card.textContent = catName;
 
-                // タップで編集ボタンを表示（教材一覧と同様の仕組み）
+                // plan-info と同じ役割の箱を作る
+                const infoDiv = document.createElement("div");
+                infoDiv.className = "category-info";
+                infoDiv.textContent = catName; 
+                card.appendChild(infoDiv);
+
                 const key = `${subject}-${index}`;
                 if (editingCategoryKey === key) {
                     card.classList.add("tapped");

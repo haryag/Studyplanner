@@ -213,24 +213,45 @@ button:disabled {
     cursor: pointer;
 }
 
-
-/* ----- 8. 予定アイテム ----- */
-.plan-item {
-    padding: 14px;
+/* ----- 8. 予定・カテゴリーアイテム共通（一行レイアウト） ----- */
+.plan-item, .category-item {
+    padding: 0 14px;
     display: flex;
     align-items: center;
-    border-left: 5px solid transparent;
+    justify-content: space-between;
     min-height: 60px;
+    background: var(--card-bg-color);
+    border-radius: var(--border-radius-size);
+    box-shadow: var(--card-shadow);
+    margin: 10px 0;
+    position: relative;
+    border-left: 5px solid transparent; /* 教科カラー用 */
+    cursor: pointer;
 }
+
+/* 予定が完了した時のスタイル */
 .plan-item.checked {
     opacity: 0.6;
     background-color: var(--checked-bg);
     color: var(--checked-text);
     box-shadow: none;
-    border-left: 5px solid var(--border-color) !important;
-    border: 1px solid var(--border-color);
+    border-left-color: var(--border-color) !important;
 }
 
+/* テキストコンテナ（plan-info / category-info） */
+.plan-info, .category-info {
+    flex: 1;
+    font-size: 15px;
+    z-index: 1;
+    display: flex;           /* テキスト自体も中央寄せしやすくする */
+    flex-direction: column;  /* 予定は2行になることがあるので */
+    justify-content: center;
+    color: var(--text-main);
+}
+.category-info {
+    font-weight: bold;
+    height: 100%;
+}
 .plan-icon {
     margin-right: 12px;
     width: 24px;
@@ -395,16 +416,13 @@ button:disabled {
     top: auto;
     left: auto;
 }
-.plan-item.tapped .item-buttons {
-    right: 10px;
-    bottom: 10px;
-    top: auto;
-    left: auto;
-}
+.plan-item.tapped .item-buttons,
 .category-item.tapped .item-buttons {
+    display: flex;
     right: 10px;
-    bottom: 5px;
-    top: auto;
+    top: 50%;               /* 上から50% */
+    transform: translateY(-50%); /* 自分の高さの半分だけ戻す（これで完全中央） */
+    bottom: auto;           /* bottom指定を解除 */
     left: auto;
 }
 #sort-container .material-item {
@@ -674,27 +692,7 @@ input:focus, select:focus, textarea:focus {
     margin-bottom: 10px;
     font-weight: bold;
 }
-.add-category-btn {
-    background: var(--btn-color);
-    color: white;
-    border: none;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    cursor: pointer;
-}
-.category-item {
-    background: var(--card-bg-color);
-    border-radius: 6px;
-    min-height: 54px;
-    padding: 12px 16px;
-    margin-bottom: 8px;
-    box-shadow: var(--card-shadow);
-    border-left: 6px solid transparent;
-    position: relative;
-    cursor: pointer;
-    font-size: 15px;
-}
+
 /* 各教科の色を適用 */
 .category-item.math      { border-left-color: var(--main-color-math); }
 .category-item.english   { border-left-color: var(--main-color-english); }
