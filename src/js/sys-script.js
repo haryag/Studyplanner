@@ -1299,6 +1299,11 @@ confirmInfoBtn.addEventListener("click", confirmInfoModal);
 confirmSortBtn.addEventListener("click", confirmSortModal);
 confirmBulkBtn.addEventListener("click", confirmBulkModal);
 
+document.getElementById("open-category-manage-btn").addEventListener("click", openCategoryManageModal);
+document.getElementById("close-category-manage-btn").addEventListener("click", () => {
+    toggleModal(document.getElementById("category-manage-modal"), false);
+});
+
 // -- モーダル内変更検知 --
 infoMaterialModal.addEventListener('input', () => {
     isModalEdited = true;
