@@ -383,7 +383,8 @@ button:disabled {
 
 /* 表示条件 */
 .plan-item.tapped .item-buttons,
-.material-item.tapped .item-buttons {
+.material-item.tapped .item-buttons,
+.category-item.tapped .item-buttons {
     display: flex;
 }
 
@@ -397,6 +398,12 @@ button:disabled {
 .plan-item.tapped .item-buttons {
     right: 10px;
     bottom: 10px;
+    top: auto;
+    left: auto;
+}
+.category-item.tapped .item-buttons {
+    right: 10px;
+    bottom: 5px;
     top: auto;
     left: auto;
 }
@@ -667,7 +674,7 @@ input:focus, select:focus, textarea:focus {
     margin-bottom: 10px;
     font-weight: bold;
 }
-.add-cat-inner-btn {
+.add-category-btn {
     background: var(--btn-color);
     color: white;
     border: none;
@@ -676,27 +683,27 @@ input:focus, select:focus, textarea:focus {
     font-size: 12px;
     cursor: pointer;
 }
-.category-item-card {
+.category-item {
     background: var(--card-bg-color);
-    border-radius: 8px;
+    border-radius: 6px;
     padding: 12px 16px;
     margin-bottom: 8px;
     box-shadow: var(--card-shadow);
-    border-left: 5px solid transparent;
+    border-left: 6px solid transparent;
     position: relative;
     cursor: pointer;
     font-size: 15px;
 }
 /* 各教科の色を適用 */
-.category-item-card.math      { border-left-color: var(--main-color-math); }
-.category-item-card.english   { border-left-color: var(--main-color-english); }
-.category-item-card.modernjp  { border-left-color: var(--main-color-modernjp); }
-.category-item-card.classicjp { border-left-color: var(--main-color-classicjp); }
-.category-item-card.science   { border-left-color: var(--main-color-science); }
-.category-item-card.social    { border-left-color: var(--main-color-social); }
-.category-item-card.others    { border-left-color: var(--main-color-others); }
+.category-item.math      { border-left-color: var(--main-color-math); }
+.category-item.english   { border-left-color: var(--main-color-english); }
+.category-item.modernjp  { border-left-color: var(--main-color-modernjp); }
+.category-item.classicjp { border-left-color: var(--main-color-classicjp); }
+.category-item.science   { border-left-color: var(--main-color-science); }
+.category-item.social    { border-left-color: var(--main-color-social); }
+.category-item.others    { border-left-color: var(--main-color-others); }
 
-.category-item-card.tapped {
+.category-item.tapped {
     background-color: var(--hover-bg);
 }
 

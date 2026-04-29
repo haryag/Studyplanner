@@ -1238,7 +1238,7 @@ function renderSortMaterialModal() {
 }
 // -- カテゴリー管理モーダル描画 --
 function renderCategoryManageModal() {
-    const container = document.getElementById("category-list");
+    const container = document.getElementById("category-items");
     container.innerHTML = "";
 
     SUBJECT_ORDER.forEach(subject => {
@@ -1255,7 +1255,7 @@ function renderCategoryManageModal() {
 
         // 追加ボタンを直接生成してイベントを紐付ける
         const addBtn = document.createElement("button");
-        addBtn.className = "add-cat-inner-btn";
+        addBtn.className = "add-category-btn";
         addBtn.innerHTML = '<i class="fa-solid fa-plus"></i> 追加';
         addBtn.addEventListener("click", () => {
             addCategoryPrompt(subject);
@@ -1274,7 +1274,7 @@ function renderCategoryManageModal() {
         } else {
             catList.forEach((catName, index) => {
                 const card = document.createElement("div");
-                card.className = `category-item-card ${subject}`;
+                card.className = `category-item ${subject}`;
                 card.textContent = catName;
 
                 // タップで編集ボタンを表示（教材一覧と同様の仕組み）
