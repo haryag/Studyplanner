@@ -679,13 +679,11 @@ input:focus, select:focus, textarea:focus {
 .bulk-item-label.others    { border-right-color: var(--main-color-others); }
 
 /* ----- 16-2. カテゴリー管理モーダル ----- */
-.category-subject-section {
-    margin-bottom: 24px;
-}
 .category-subject-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: 24px;
     padding: 4px 8px;
     border-bottom: 2px solid var(--border-color);
     margin-bottom: 10px;
