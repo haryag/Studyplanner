@@ -589,39 +589,6 @@ function populateRangeDatalist(materialId) {
 
 // ----- 8-2. モーダルを開く関数 -----
 // -- 日付変更モーダル --
-// function openShiftDateModal() {
-//     isModalEdited = false;
-//     dateSelectInput.innerHTML = "";
-
-//     const today = getLocalDate();
-//     const tomorrowObj = new Date();
-//     tomorrowObj.setDate(tomorrowObj.getDate() + 1);
-//     const tomorrow = `${tomorrowObj.getFullYear()}-${String(tomorrowObj.getMonth() + 1).padStart(2, "0")}-${String(tomorrowObj.getDate()).padStart(2, "0")}`;
-
-//     // 1. 既存の予定がある日付 + 今日 + 明日 をマージして重複削除
-//     const dateSet = new Set(Object.keys(dailyPlans));
-//     dateSet.add(today);
-//     dateSet.add(tomorrow);
-
-//     // 2. 日付順に並び替え
-//     const sortedDates = Array.from(dateSet).sort().reverse(); // 新しい順
-
-//     // 3. セレクトボックスを構築
-//     sortedDates.forEach(date => {
-//         const opt = document.createElement("option");
-//         opt.value = date;
-//         let label = date.replace(/-/g, '/');
-//         if (date === today) label += "（今日）";
-//         if (date === tomorrow) label += "（明日）";
-//         opt.textContent = label;
-//         dateSelectInput.appendChild(opt);
-//     });
-
-//     // 初期選択値は「今日」
-//     dateSelectInput.value = today;
-
-//     toggleModal(shiftDateModal, true);
-// }
 function openShiftDateModal() {
     isModalEdited = false;
     
