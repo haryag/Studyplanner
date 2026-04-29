@@ -1026,6 +1026,15 @@ function renderTodayPlans() {
 
     planItems.innerHTML = "";
     const todayPlans = dailyPlans[viewingDateKey] || [];
+
+    if (todayPlans.length === 0) {
+        const emptyText = document.createElement("p");
+        emptyText.textContent = "予定がありません。";
+        emptyText.classList.add("no-data");
+        planItems.appendChild(emptyText);
+        return;
+    }
+
     const sortedPlans = [...todayPlans].sort((a, b) => {
         if (a.checked && !b.checked) return 1;
         if (!a.checked && b.checked) return -1;
