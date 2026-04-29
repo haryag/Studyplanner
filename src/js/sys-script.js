@@ -458,6 +458,7 @@ const confirmShiftBtn = document.getElementById("confirm-shift-btn");
 
 // -- 予定追加・編集モーダル要素 --
 const addPlanModal = document.getElementById("add-plan-modal");
+const openPlanMainBtn = document.getElementById("open-plan-main-btn");
 const planContentInput = document.getElementById("plan-range-input");
 const planRangeDatalist = document.getElementById("plan-range-datalist");
 const planTimeInput = document.getElementById("plan-time-input");
@@ -1337,6 +1338,7 @@ navOptionBtn.addEventListener("click", () => showSection('option'));
 
 // -- モーダル開閉 --
 openShiftDateBtn.addEventListener("click", openShiftDateModal);
+openPlanMainBtn.addEventListener("click", () => openPlanModal())
 openMaterialModalBtn.addEventListener("click", () => openMaterialModal());
 openSortModalBtn.addEventListener("click", openSortModal);
 
