@@ -563,12 +563,6 @@ function updateCategoryOptions() {
         filterCategorySelect.value = "all";
     }
 }
-// -- 画面セクション切り替え --
-function toggleSections() {
-    const planVisible = !planContainer.classList.contains("hidden");
-    planContainer.classList.toggle("hidden", planVisible);
-    materialContainer.classList.toggle("hidden", !planVisible);
-}
 // -- 画面レイヤー制御 --
 function toggleModal(modal, show = true) {
     const footer = document.getElementById("button-container");
