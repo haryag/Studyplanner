@@ -589,36 +589,44 @@ function populateRangeDatalist(materialId) {
 
 // ----- 8-2. モーダルを開く関数 -----
 // -- 日付変更モーダル --
+// function openShiftDateModal() {
+//     isModalEdited = false;
+//     dateSelectInput.innerHTML = "";
+
+//     const today = getLocalDate();
+//     const tomorrowObj = new Date();
+//     tomorrowObj.setDate(tomorrowObj.getDate() + 1);
+//     const tomorrow = `${tomorrowObj.getFullYear()}-${String(tomorrowObj.getMonth() + 1).padStart(2, "0")}-${String(tomorrowObj.getDate()).padStart(2, "0")}`;
+
+//     // 1. 既存の予定がある日付 + 今日 + 明日 をマージして重複削除
+//     const dateSet = new Set(Object.keys(dailyPlans));
+//     dateSet.add(today);
+//     dateSet.add(tomorrow);
+
+//     // 2. 日付順に並び替え
+//     const sortedDates = Array.from(dateSet).sort().reverse(); // 新しい順
+
+//     // 3. セレクトボックスを構築
+//     sortedDates.forEach(date => {
+//         const opt = document.createElement("option");
+//         opt.value = date;
+//         let label = date.replace(/-/g, '/');
+//         if (date === today) label += "（今日）";
+//         if (date === tomorrow) label += "（明日）";
+//         opt.textContent = label;
+//         dateSelectInput.appendChild(opt);
+//     });
+
+//     // 初期選択値は「今日」
+//     dateSelectInput.value = today;
+
+//     toggleModal(shiftDateModal, true);
+// }
 function openShiftDateModal() {
     isModalEdited = false;
-    dateSelectInput.innerHTML = "";
-
-    const today = getLocalDate();
-    const tomorrowObj = new Date();
-    tomorrowObj.setDate(tomorrowObj.getDate() + 1);
-    const tomorrow = `${tomorrowObj.getFullYear()}-${String(tomorrowObj.getMonth() + 1).padStart(2, "0")}-${String(tomorrowObj.getDate()).padStart(2, "0")}`;
-
-    // 1. 既存の予定がある日付 + 今日 + 明日 をマージして重複削除
-    const dateSet = new Set(Object.keys(dailyPlans));
-    dateSet.add(today);
-    dateSet.add(tomorrow);
-
-    // 2. 日付順に並び替え
-    const sortedDates = Array.from(dateSet).sort().reverse(); // 新しい順
-
-    // 3. セレクトボックスを構築
-    sortedDates.forEach(date => {
-        const opt = document.createElement("option");
-        opt.value = date;
-        let label = date.replace(/-/g, '/');
-        if (date === today) label += "（今日）";
-        if (date === tomorrow) label += "（明日）";
-        opt.textContent = label;
-        dateSelectInput.appendChild(opt);
-    });
-
-    // 初期選択値は「今日」
-    dateSelectInput.value = today;
+    
+    // 現在表示中の日付をカレンダーの初期値にセット
+    dateSelectInput.value = viewingDateKey;
 
     toggleModal(shiftDateModal, true);
 }
@@ -852,7 +860,19 @@ function closeAllModals() {
 // ----- 8-4. モーダルを確定する関数 -----
 // -- 日付変更モーダル --
 function confirmShiftDateModal() {
-    viewingDateKey = dateSelectInput.value;
+    const selectedDate = dateSelectInput.value;
+    if (!selectedDate) return; // 未入力チェック
+
+    const today = getLocalDate();
+    const plans = dailyPlans[selectedDate] || [];
+
+    // 計画のない過去日の判定
+    if (selectedDate < today && plans.length === 0) {
+        alert("計画がありません。");
+        return;
+    }
+
+    viewingDateKey = selectedDate;
     renderTodayPlans();  // 日付を変えて再描画
     toggleModal(shiftDateModal, false);
 }
