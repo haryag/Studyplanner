@@ -523,7 +523,7 @@ input[type="text"], input[type="number"], input[type="time"], input[type="dateti
     border: 0;
     border-bottom: 1px solid var(--border-color);
     /* border-radius: 4px; */
-    font-size: 15px;
+    font-size: 16px;
     background: var(--card-bg-color);
     color: var(--text-main);
     outline: none;
