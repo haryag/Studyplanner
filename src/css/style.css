@@ -247,12 +247,15 @@ button:disabled {
 
 /* ----- 9. 教材アイテム ----- */
 /* -- 9-1. 基本構造 -- */
-/* 教材・予定共通 */
+/* 教材・予定共通、○○一覧の上下のバー */
 .separated-wrapper {
     margin: 20px 0;
     padding: 8px 0;
-    border-top: 1px dashed var(--border-color);
+    border-top: 1px solid var(--border-color);
     border-bottom: 1px solid var(--border-color);
+}
+.separated-wrapper > *:last-child {
+    margin-bottom: 0;
 }
 
 .material-item {
