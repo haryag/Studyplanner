@@ -690,7 +690,7 @@ function openMaterialModal(materialId = null) {
     } else {
         materialNameInput.value = "";
         materialSubjectSelect.value = "math";
-        
+
         updateCategoryOptions();
         materialCategorySelect.value = "";
         editingMaterialId = null;
@@ -1228,15 +1228,22 @@ function renderCategoryManageModal() {
         const section = document.createElement("div");
         section.className = "category-subject-section";
 
-        // 教科名ヘッダー + 追加ボタン
+        // 教科名ヘッダーの組み立て
         const header = document.createElement("div");
         header.className = "category-subject-header";
-        header.innerHTML = `
-            <span>${SUBJECT_LABELS[subject]}</span>
-            <button class="add-cat-inner-btn" onclick="addCategoryPrompt('${subject}')">
-                <i class="fa-solid fa-plus"></i> 追加
-            </button>
-        `;
+
+        const labelSpan = document.createElement("span");
+        labelSpan.textContent = SUBJECT_LABELS[subject];
+
+        // 追加ボタンを直接生成してイベントを紐付ける
+        const addBtn = document.createElement("button");
+        addBtn.className = "add-cat-inner-btn";
+        addBtn.innerHTML = '<i class="fa-solid fa-plus"></i> 追加';
+        addBtn.addEventListener("click", () => {
+            addCategoryPrompt(subject);
+        });
+
+        header.append(labelSpan, addBtn);
         section.appendChild(header);
 
         // その教科に属するカテゴリーのリスト
