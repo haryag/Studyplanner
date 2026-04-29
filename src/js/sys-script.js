@@ -523,39 +523,33 @@ function restoreUIState() {
     const savedStatus = localStorage.getItem("sp_filterStatus");
     if (savedStatus !== null) filterStatusSelect.value = savedStatus;
 }
-// -- カテゴリを再構築 --
+// -- カテゴリ選択肢（セレクトボックス）の更新 --
 function updateCategoryOptions() {
-    categories.clear();
-    materials.forEach(material => {
-        if (material.category) categories.add(material.category);
-    });
-
+    // 1. 教材登録モーダルの「カテゴリー」選択肢を、その教科のものに書き換える
+    const subject = materialSubjectSelect.value;
     const currentVal = materialCategorySelect.value;
     materialCategorySelect.textContent = '';
     
-    const optNoneMaterial = document.createElement('option');
-    optNoneMaterial.value = '';
-    optNoneMaterial.textContent = 'カテゴリなし';
-    materialCategorySelect.appendChild(optNoneMaterial);
+    const optNone = document.createElement('option');
+    optNone.value = '';
+    optNone.textContent = 'カテゴリなし';
+    materialCategorySelect.appendChild(optNone);
     
-    Array.from(categories).sort().forEach(c => {
+    // その教科に登録されているカテゴリーを表示
+    const list = categories[subject] || [];
+    list.forEach(c => {
         const opt = document.createElement('option');
         opt.value = c;
         opt.textContent = c;
         materialCategorySelect.appendChild(opt);
     });
     
-    const optNew = document.createElement('option');
-    optNew.value = 'new';
-    optNew.textContent = '＋ 新規作成...';
-    materialCategorySelect.appendChild(optNew);
-    
-    if (currentVal && currentVal !== 'new' && categories.has(currentVal)) {
+    // 以前選んでいた値がリストにあれば復元
+    if (list.includes(currentVal)) {
         materialCategorySelect.value = currentVal;
-    } else if (!currentVal) {
-        materialCategorySelect.value = '';
     }
 
+    // 2. メイン画面の「カテゴリーフィルタ」を更新
     const currentFilter = filterCategorySelect.value;
     filterCategorySelect.textContent = '';
     
@@ -569,7 +563,13 @@ function updateCategoryOptions() {
     optNoneFilter.textContent = 'タグなし';
     filterCategorySelect.appendChild(optNoneFilter);
     
-    Array.from(categories).sort().forEach(c => {
+    // 全ての教科のカテゴリーを重複なしで集計してフィルタに表示
+    const allCats = new Set();
+    Object.values(categories).forEach(catList => {
+        catList.forEach(c => allCats.add(c));
+    });
+    
+    Array.from(allCats).sort().forEach(c => {
         const opt = document.createElement('option');
         opt.value = c;
         opt.textContent = c;
@@ -577,10 +577,7 @@ function updateCategoryOptions() {
     });
     
     filterCategorySelect.value = currentFilter;
-
-    if (currentFilter && (categories.has(currentFilter) || currentFilter === 'all' || currentFilter === 'none')) {
-        filterCategorySelect.value = currentFilter;
-    } else {
+    if (!(allCats.has(currentFilter) || currentFilter === 'all' || currentFilter === 'none')) {
         filterCategorySelect.value = "all";
     }
 }
@@ -826,15 +823,7 @@ function confirmShiftDateModal() {
 function confirmMaterialModal() {
     const name = materialNameInput.value.trim();
     const subject = materialSubjectSelect.value;
-
-    let category = "";
-    if (materialCategorySelect.value === "new") {
-        category = newCategoryInput.value.trim();
-        if (!category) return alert("新しいカテゴリ名を入力してください");
-        categories.add(category);
-    } else {
-        category = materialCategorySelect.value;
-    }
+    const category = materialCategorySelect.value;
 
     if (!name) return alert("教材名を入力してください");
     
@@ -842,7 +831,11 @@ function confirmMaterialModal() {
     if (editingMaterialId !== null) {
         const material = materials.find(item => item.id === editingMaterialId);
         
-        if (material) { material.name = name; material.subject = subject; material.category = category; }
+        if (material) {
+            material.name = name;
+            material.subject = subject;
+            material.category = category;
+        }
     } else {
         const newId = materials.length ? Math.max(...materials.map(material => material.id)) + 1 : 1;
         materials.push({ 
