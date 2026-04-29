@@ -26,6 +26,16 @@ let categories = {
     social: [],
     others: []
 };
+const SUBJECT_ORDER = ['math', 'english', 'modernjp', 'classicjp', 'science', 'social', 'others'];
+const SUBJECT_LABELS = {
+    math: "数学",
+    english: "英語",
+    modernjp: "現代文",
+    classicjp: "古典",
+    science: "理科",
+    social: "社会",
+    others: "その他"
+};
 let materialMap = new Map();
 const dailyPlans = {};
 let editingPlanIndex = null;          // 予定（配列基準）
