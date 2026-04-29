@@ -2,7 +2,7 @@ import { initFirebase, currentUser } from './sys-auth.js';
 
 // ----- 1. 初期設定 -----
 const APP_NAME = 'Studyplanner';
-const LAST_UPDATED = '2026/1/19';
+const LAST_UPDATED = '2026/4/29';
 const BASE_PATH = '/Studyplanner/';
 
 // ----- 2. ユーティリティ -----
@@ -449,7 +449,7 @@ const confirmInfoBtn = document.getElementById("confirm-info-btn");
 
 // -- 並び替えモーダル要素 --
 const sortMaterialModal = document.getElementById("sort-material-modal");
-const sortItems = document.getElementById("sort-items");
+const sortContainer = document.getElementById("sort-container");
 const cancelSortBtn = document.getElementById("cancel-sort-btn");
 const confirmSortBtn = document.getElementById("confirm-sort-btn");
 
@@ -1182,11 +1182,10 @@ function renderMaterialList() {
 }
 // -- 教材並び替えモーダル描画 --
 function renderSortMaterialModal() {
-    const listContainer = document.getElementById("sort-container");
     const targetCat = document.getElementById("sort-category-select").value;
     const catValue = (targetCat === "none") ? "" : targetCat;
     
-    listContainer.innerHTML = "";
+    sortContainer.innerHTML = "";
 
     // 選択されたカテゴリーに一致する教材だけを表示
     const catMaterials = materials.filter(m => (m.category || "") === catValue);
@@ -1225,7 +1224,7 @@ function renderSortMaterialModal() {
             editingSortMaterialId = (editingSortMaterialId === material.id) ? null : material.id;
             renderSortMaterialModal();
         };
-        listContainer.appendChild(itemDiv);
+        sortContainer.appendChild(itemDiv);
     });
 }
 
@@ -1425,5 +1424,4 @@ window.showVersion = function() {
 window.addEventListener('online', updateSyncButtons);
 window.addEventListener('offline', updateSyncButtons);
 window.addEventListener('auth-ready', updateSyncButtons);
-
 window.addEventListener('auth-changed', updateSyncButtons);
