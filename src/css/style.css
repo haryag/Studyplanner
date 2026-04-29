@@ -215,7 +215,7 @@ button:disabled {
 
 /* ----- 8. 予定・カテゴリーアイテム共通（一行レイアウト） ----- */
 .plan-item, .category-item {
-    padding: 0 14px;
+    padding: 14px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -420,9 +420,8 @@ button:disabled {
 .category-item.tapped .item-buttons {
     display: flex;
     right: 10px;
-    top: 50%;               /* 上から50% */
-    transform: translateY(-50%); /* 自分の高さの半分だけ戻す（これで完全中央） */
-    bottom: auto;           /* bottom指定を解除 */
+    bottom: 10px;
+    top: auto;
     left: auto;
 }
 #sort-container .material-item {
@@ -691,6 +690,15 @@ input:focus, select:focus, textarea:focus {
     border-bottom: 2px solid var(--border-color);
     margin-bottom: 10px;
     font-weight: bold;
+}
+.add-category-btn {
+background: var(--btn-color);
+color: white;
+border: none;
+padding: 4px 10px;
+border-radius: 4px;
+font-size: 12px;
+cursor: pointer;
 }
 
 /* 各教科の色を適用 */
