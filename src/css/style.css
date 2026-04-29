@@ -205,7 +205,7 @@ button:disabled {
     background: var(--card-bg-color);
     border-radius: var(--border-radius-size);
     box-shadow: var(--card-shadow);
-    margin-bottom: 12px;
+    margin: 8px 0;
     position: relative;
     border: none;
     border-left: 5px solid transparent;
