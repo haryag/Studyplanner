@@ -98,9 +98,9 @@
 
             <!-- ユーティリティボタン -->
             <div class="util-btn-wrapper">
-                <button id="bulk-add-btn" class="util-btn">
+                <!-- <button id="bulk-add-btn" class="util-btn">
                     <i class="fa-solid fa-plus"></i> まとめて追加
-                </button>
+                </button> -->
                 <button id="shift-date-btn" class="util-btn">
                     <i class="fa-regular fa-calendar-days"></i> 日付変更
                 </button>
@@ -228,24 +228,32 @@
 
     <!----- 予定追加・編集モーダル ----->
     <div id="add-plan-modal" class="modal hidden">
-        <div class="modal-container scrollable">
-            <h2>予定を追加 / 編集</h2>
-            <label>
-                教材：
-                <select id="plan-material-select"></select>
-            </label>
-            <label>
-                範囲・内容：
-                <input type="text" id="plan-range-input" placeholder="例：p.10〜20" list="plan-range-datalist">
-                <datalist id="plan-range-datalist"></datalist>
-            </label>
-            <label>
-                開始時間：
-                <input type="time" id="plan-time-input" step="300">
-            </label>
-            <div class="modal-btns">
-                <button id="cancel-plan-btn" class="cancel">キャンセル</button>
-                <button id="confirm-plan-btn" class="ok">追加</button>
+        <div class="modal-container">
+            <div id="plan-selection-page">
+                <h2>教材を選択</h2>
+                <div id="plan-selection-list" class="scrollable" style="max-height: 60vh; margin-bottom: 20px;">
+                    <!-- ここに動的に教材リストを生成 -->
+                </div>
+                <div class="modal-btns">
+                    <button type="button" id="cancel-plan-btn" class="cancel">キャンセル</button>
+                </div>
+            </div>
+
+            <div id="plan-input-page" class="hidden">
+                <h2 id="plan-target-label">教材名</h2>
+                <label>
+                    範囲・内容：
+                    <input type="text" id="plan-range-input" placeholder="例：p.10〜20" list="plan-range-datalist">
+                    <datalist id="plan-range-datalist"></datalist>
+                </label>
+                <label>
+                    開始時間：
+                    <input type="time" id="plan-time-input" step="300">
+                </label>
+                <div class="modal-btns">
+                    <button type="button" id="backto-plan-btn" class="cancel">戻る</button>
+                    <button id="confirm-plan-btn" class="ok">確定</button>
+                </div>
             </div>
         </div>
     </div>
@@ -296,23 +304,6 @@
             <div class="modal-btns">
                 <button id="cancel-info-btn" class="cancel">キャンセル</button>
                 <button id="confirm-info-btn" class="ok">登録</button>
-            </div>
-        </div>
-    </div>
-
-    <!----- まとめて追加モーダル ----->
-    <div id="bulk-add-modal" class="modal hidden">
-        <div class="modal-container scrollable">
-            <h2>教材をまとめて追加</h2>
-            <p style="font-size:12px; color:#666; margin-bottom:12px;">
-                今日やる教材を選択してください。
-            </p>
-            <!-- ここにチェックリストをJSで生成 -->
-            <div id="bulk-material-list" class="scrollable"></div>
-            
-            <div class="modal-btns">
-                <button id="cancel-bulk-btn" class="cancel">キャンセル</button>
-                <button id="confirm-bulk-btn" class="ok">追加</button>
             </div>
         </div>
     </div>

@@ -434,7 +434,6 @@ const materialItems = document.getElementById("material-items");
 // -- ユーティリティボタン --
 const openMaterialModalBtn = document.getElementById("add-material-btn");
 const openSortModalBtn = document.getElementById("sort-material-btn");
-const openBulkAddBtn = document.getElementById("bulk-add-btn");
 const uploadBtn = document.getElementById('upload-btn');
 const downloadBtn = document.getElementById('download-btn');
 const exportJsonBtn = document.getElementById("export-json-btn");
@@ -459,12 +458,12 @@ const confirmShiftBtn = document.getElementById("confirm-shift-btn");
 
 // -- 予定追加・編集モーダル要素 --
 const addPlanModal = document.getElementById("add-plan-modal");
-const planMaterialInput = document.getElementById("plan-material-select");
 const planContentInput = document.getElementById("plan-range-input");
 const planRangeDatalist = document.getElementById("plan-range-datalist");
 const planTimeInput = document.getElementById("plan-time-input");
 const cancelPlanBtn = document.getElementById("cancel-plan-btn");
 const confirmPlanBtn = document.getElementById("confirm-plan-btn");
+const backToPlanBtn = document.getElementById("backto-plan-btn");
 
 // -- 教材追加・編集モーダル要素 --
 const addMaterialModal = document.getElementById("add-material-modal");
@@ -490,12 +489,6 @@ const sortMaterialModal = document.getElementById("sort-material-modal");
 const sortContainer = document.getElementById("sort-container");
 const cancelSortBtn = document.getElementById("cancel-sort-btn");
 const confirmSortBtn = document.getElementById("confirm-sort-btn");
-
-// -- まとめて追加モーダル要素 --
-const bulkAddModal = document.getElementById("bulk-add-modal");
-const bulkMaterialList = document.getElementById("bulk-material-list");
-const cancelBulkBtn = document.getElementById("cancel-bulk-btn");
-const confirmBulkBtn = document.getElementById("confirm-bulk-btn");
 
 // -- 画面切り替え --
 const optionContainer = document.getElementById("option-container");
@@ -577,7 +570,7 @@ function updateCategoryOptions() {
     
     const optNoneFilter = document.createElement('option');
     optNoneFilter.value = 'none';
-    optNoneFilter.textContent = 'タグなし';
+    optNoneFilter.textContent = 'カテゴリなし';
     filterCategorySelect.appendChild(optNoneFilter);
     
     // 表示するカテゴリーを決定
@@ -668,15 +661,74 @@ function toggleModal(modal, show = true) {
         }
     }
 }
-// -- 予定追加・編集モーダルでの教材選択 => 予定追加・編集モーダル --
-function populateMaterialSelect(selectedId = null) {
-    planMaterialInput.innerHTML = "";
-    materials.forEach(material => {
-        const option = document.createElement("option");
-        option.value = material.id;
-        option.textContent = material.name;
-        if (material.id === selectedId) option.selected = true;
-        planMaterialInput.appendChild(option);
+// -- A画面（選択）を表示 --
+function showPlanSelectionPage() {
+    document.getElementById("plan-selection-page").classList.remove("hidden");
+    document.getElementById("plan-input-page").classList.add("hidden");
+    renderPlanSelectionList();
+}
+// B画面（入力）を表示
+function showPlanInputPage(materialId) {
+    const material = materialMap.get(materialId);
+    if (!material) return;
+
+    editingMaterialId = materialId; // 選択した教材を保持
+    document.getElementById("plan-target-label").textContent = material.name;
+    
+    // 新規作成なら入力をリセット
+    if (editingPlanIndex === null) {
+        planContentInput.value = "";
+        planTimeInput.value = "";
+    }
+
+    populateRangeDatalist(materialId);
+
+    document.getElementById("plan-selection-page").classList.add("hidden");
+    document.getElementById("plan-input-page").classList.remove("hidden");
+}
+// 教材リストを「カテゴリー管理」と同じ見た目で生成
+function renderPlanSelectionList() {
+    const container = document.getElementById("plan-selection-list");
+    container.innerHTML = "";
+
+    const activeMaterials = materials.filter(m => m.status !== "completed");
+
+    SUBJECT_ORDER.forEach(subject => {
+        const subjectMaterials = activeMaterials.filter(m => m.subject === subject);
+        if (subjectMaterials.length === 0) return;
+
+        // 教科ヘッダー
+        const header = document.createElement("div");
+        header.className = "category-subject-header";
+        header.innerHTML = `<span>${SUBJECT_LABELS[subject]}</span>`;
+        container.appendChild(header);
+
+        // カテゴリー分け
+        const cats = categories[subject] || [];
+        const displayCats = [...cats, ""]; 
+
+        displayCats.forEach(catName => {
+            const catMaterials = subjectMaterials.filter(m => (m.category || "") === catName);
+            if (catMaterials.length === 0) return;
+
+            const catLabel = document.createElement("div");
+            catLabel.style = "font-size: 12px; color: var(--text-sub); margin: 10px 0 4px 4px;";
+            catLabel.textContent = catName || "タグなし";
+            container.appendChild(catLabel);
+
+            catMaterials.forEach(m => {
+                const card = document.createElement("div");
+                card.className = `plan-item ${subject}`;
+                card.style = "min-height: 45px; padding: 10px; margin: 4px 0;";
+                card.innerHTML = `<div class="plan-info"><strong>${m.name}</strong></div>`;
+                
+                // 【addEventListener を使用】
+                card.addEventListener("click", () => {
+                    showPlanInputPage(m.id);
+                });
+                container.appendChild(card);
+            });
+        });
     });
 }
 // -- 選択中の教材の直近n件の内容を取得 => 予定追加・編集モーダル --
@@ -723,17 +775,21 @@ function openMaterialModal(materialId = null) {
 }
 // -- 予定追加・編集モーダル --
 function openPlanModal(materialId = null, planIndex = null) {
-    populateMaterialSelect(materialId);
-    populateRangeDatalist(materialId);
     if (planIndex !== null) {
+        // 編集時：直接入力ページへ
+        editingPlanIndex = planIndex;
         const plan = dailyPlans[viewingDateKey][planIndex];
+        showPlanInputPage(plan.materialId);
         planContentInput.value = plan.range;
         planTimeInput.value = plan.time || "";
-        editingPlanIndex = planIndex;
-    } else {
-        planContentInput.value = "";
-        planTimeInput.value = "";
+    } else if (materialId !== null) {
+        // 教材一覧の「＋」から：直接入力ページへ
         editingPlanIndex = null;
+        showPlanInputPage(materialId);
+    } else {
+        // 通常追加：選択ページから
+        editingPlanIndex = null;
+        showPlanSelectionPage();
     }
     toggleModal(addPlanModal, true);
 }
@@ -776,25 +832,6 @@ function openInfoModal(materialId) {
     materialDetailInput.value = material.detail || "";
     editingMaterialId = materialId;
     toggleModal(infoMaterialModal, true);
-}
-// -- まとめて追加モーダル --
-function openBulkAddModal() {
-    bulkMaterialList.innerHTML = "";
-    const activeMaterials = materials.filter(m => m.status === "learning");
-    const displayMaterials = getSortedMaterials(activeMaterials);
-    
-    if (displayMaterials.length === 0) {
-        bulkMaterialList.innerHTML = "<p style='text-align:center; font-size:12px;'>学習中・未着手の教材がありません。</p>";
-    } else {
-        displayMaterials.forEach(material => {
-            const label = document.createElement("label");
-            label.className = `bulk-item-label ${material.subject}`;
-            label.innerHTML = `<input type="checkbox" value="${material.id}"> <span></span>`;
-            label.querySelector("span").textContent = material.name;
-            bulkMaterialList.appendChild(label);
-        });
-    }
-    toggleModal(bulkAddModal, true);
 }
 // -- カテゴリー管理モーダル --
 function openCategoryManageModal() {
@@ -883,10 +920,12 @@ function confirmMaterialModal() {
 }
 // -- 予定追加・編集モーダル --
 function confirmPlanModal() {
-    const materialId = parseInt(planMaterialInput.value, 10);
+    const materialId = editingMaterialId; // 保持したIDを使う
     const range = planContentInput.value.trim();
     const time = planTimeInput.value;
-    
+
+    if (!materialId) return;
+
     if (editingPlanIndex !== null) {
         dailyPlans[viewingDateKey][editingPlanIndex] = { ...dailyPlans[viewingDateKey][editingPlanIndex], materialId, range, time };
         editingPlanIndex = null;
@@ -937,30 +976,6 @@ function confirmInfoModal() {
 // -- 並び替えモーダル --
 function confirmSortModal() {
     toggleModal(sortMaterialModal, false);
-    saveAndRender();
-}
-// -- まとめて追加モーダル --
-function confirmBulkModal() {
-    // チェックされた教材のIDを取得
-    const checkboxes = bulkMaterialList.querySelectorAll("input[type='checkbox']:checked");
-    
-    if (checkboxes.length === 0) {
-        return alert("教材が選択されていません。");
-    }
-    
-    if (!dailyPlans[viewingDateKey]) dailyPlans[viewingDateKey] = [];
-    
-    checkboxes.forEach(cb => {
-        const materialId = parseInt(cb.value, 10);
-        dailyPlans[viewingDateKey].push({
-            materialId,
-            range: "",
-            time: "",
-            checked: false
-        });
-    });
-    
-    toggleModal(bulkAddModal, false);
     saveAndRender();
 }
 
@@ -1324,21 +1339,19 @@ navOptionBtn.addEventListener("click", () => showSection('option'));
 openShiftDateBtn.addEventListener("click", openShiftDateModal);
 openMaterialModalBtn.addEventListener("click", () => openMaterialModal());
 openSortModalBtn.addEventListener("click", openSortModal);
-openBulkAddBtn.addEventListener("click", openBulkAddModal);
 
 cancelShiftBtn.addEventListener("click", closeAllModals);
 cancelMaterialBtn.addEventListener("click", closeAllModals);
 cancelPlanBtn.addEventListener("click", closeAllModals);
 cancelSortBtn.addEventListener("click", closeAllModals);
 cancelInfoBtn.addEventListener("click", closeAllModals);
-cancelBulkBtn.addEventListener("click", closeAllModals);
 
 confirmShiftBtn.addEventListener("click", confirmShiftDateModal);
 confirmMaterialBtn.addEventListener("click", confirmMaterialModal);
 confirmPlanBtn.addEventListener("click", confirmPlanModal);
 confirmInfoBtn.addEventListener("click", confirmInfoModal);
 confirmSortBtn.addEventListener("click", confirmSortModal);
-confirmBulkBtn.addEventListener("click", confirmBulkModal);
+backToPlanBtn.addEventListener("click", showPlanSelectionPage);
 
 document.getElementById("open-category-manage-btn").addEventListener("click", openCategoryManageModal);
 document.getElementById("close-category-manage-btn").addEventListener("click", () => {
