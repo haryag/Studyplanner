@@ -682,12 +682,16 @@ function openMaterialModal(materialId = null) {
     if (materialId !== null) {
         const material = materialMap.get(materialId);
         materialSubjectSelect.value = material.subject;
+
+        updateCategoryOptions();
         materialNameInput.value = material.name;
         materialCategorySelect.value = material.category || "";
         editingMaterialId = materialId;
     } else {
         materialNameInput.value = "";
         materialSubjectSelect.value = "math";
+        
+        updateCategoryOptions();
         materialCategorySelect.value = "";
         editingMaterialId = null;
     }
@@ -1306,6 +1310,9 @@ document.getElementById("open-category-manage-btn").addEventListener("click", op
 document.getElementById("close-category-manage-btn").addEventListener("click", () => {
     toggleModal(document.getElementById("category-manage-modal"), false);
 });
+materialSubjectSelect.addEventListener("change", () => {
+    updateCategoryOptions();
+});
 
 // -- モーダル内変更検知 --
 infoMaterialModal.addEventListener('input', () => {
@@ -1332,15 +1339,6 @@ filterStatusSelect.addEventListener("change", () => {
 filterCategorySelect.addEventListener("change", () => {
     localStorage.setItem("sp_filterCategory", filterCategorySelect.value);
     renderMaterialList();
-});
-materialCategorySelect.addEventListener("change", () => {
-    if (materialCategorySelect.value === "new") {
-        newCategoryInput.classList.remove("hidden");
-        newCategoryInput.focus();
-    } else {
-        newCategoryInput.classList.add("hidden");
-        newCategoryInput.value = "";
-    }
 });
 
 // -- upload / download --
