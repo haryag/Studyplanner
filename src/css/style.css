@@ -546,10 +546,7 @@ button:disabled {
     user-select: none;
 }
 .footer-btn i { font-size: 18px; }
-.footer-btn:hover { color: var(--btn-color); background: rgba(0,0,0,0.02); }
-.footer-btn.active {
-    color: var(--btn-color);
-}
+.footer-btn.active { color: var(--btn-color); }
 
 
 /* ----- 14. フォーム共通（input / select / textarea） ----- */
