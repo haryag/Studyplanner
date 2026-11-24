@@ -6,8 +6,9 @@ const LAST_UPDATED = '2026/11/24';
 const BASE_PATH = '/Studyplanner/';
 
 // ----- 2. 日付管理 -----
-function getLocalDate() {
+function getLocalDate(offsetDays = 0) {
     const date = new Date();
+    date.setDate(date.getDate() + offsetDays);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
@@ -221,6 +222,43 @@ async function loadAll() {
             // dailyPlansを一度空にしてから反映
             for (const key in dailyPlans) delete dailyPlans[key];
             Object.assign(dailyPlans, savedPlans);
+
+            // --- ここから：過去7日間のルーティーン引き継ぎ（1日1回） ---
+            const today = getLocalDate();
+            const weekAgo = getLocalDate(-7);
+            const lastRoutineDate = localStorage.getItem("sp_lastRoutineDate");
+
+            if (lastRoutineDate !== today) {
+                const startDate = (lastRoutineDate && lastRoutineDate > weekAgo) ? lastRoutineDate : weekAgo;
+                const targetDates = Object.keys(dailyPlans)
+                    .filter(d => d >= startDate && d < today)
+                    .sort()
+                    .reverse(); // 新しい日付から順に探す
+
+                const sourceDate = targetDates.find(d =>
+                    Array.isArray(dailyPlans[d]) && dailyPlans[d].some(p => p.duration === "everyday")
+                );
+
+                if (sourceDate) {
+                    const routines = dailyPlans[sourceDate].filter(p => p.duration === "everyday" && !p.completed);
+                    if (routines.length > 0) {
+                        if (!dailyPlans[today]) dailyPlans[today] = [];
+                        routines.forEach(r => {
+                            const exists = dailyPlans[today].some(t =>
+                                t.materialId === r.materialId &&
+                                t.range === r.range &&
+                                (t.time || "") === (r.time || "") &&
+                                t.duration === "everyday"
+                            );
+                            if (!exists) {
+                                dailyPlans[today].push({ ...r }); // checked等もそのままコピー
+                                needsSave = true;
+                            }
+                        });
+                    }
+                }
+                localStorage.setItem("sp_lastRoutineDate", today);
+            }
 
             if (needsSave) {
                 await saveLocalData("dailyPlans", dailyPlans);
@@ -953,7 +991,13 @@ function confirmPlanModal() {
 
     if (!materialId) return;
 
+    let isNewlyRoutine = false;
+
     if (editingPlanIndex !== null) {
+        const prev = dailyPlans[viewingDateKey][editingPlanIndex];
+        if (prev.duration !== "everyday" && duration === "everyday" && !prev.completed) {
+            isNewlyRoutine = true;
+        }
         dailyPlans[viewingDateKey][editingPlanIndex] = {
             ...dailyPlans[viewingDateKey][editingPlanIndex],
             materialId,
@@ -971,7 +1015,33 @@ function confirmPlanModal() {
             checked: false,
             completed: false
         });
+        if (duration === "everyday") {
+            isNewlyRoutine = true;
+        }
     }
+
+    // 過去日の予定を新しくルーティーンにした場合は、今日にもコピーを追加
+    const today = getLocalDate();
+    if (viewingDateKey < today && isNewlyRoutine) {
+        if (!dailyPlans[today]) dailyPlans[today] = [];
+        const exists = dailyPlans[today].some(t =>
+            t.materialId === materialId &&
+            t.range === range &&
+            (t.time || "") === (time || "") &&
+            t.duration === "everyday"
+        );
+        if (!exists) {
+            dailyPlans[today].push({
+                materialId,
+                range,
+                time,
+                duration: "everyday",
+                checked: false,
+                completed: false
+            });
+        }
+    }
+    
     toggleModal(addPlanModal, false);
     saveAndRender();
 }
