@@ -412,7 +412,7 @@ async function importDataAsJson(file) {
             renderMaterialList();
             renderTodayPlans();
 
-            alert("インポートが完了しました！");
+            alert("Importができました。");
 
         } catch (err) {
             console.error(err);
@@ -852,7 +852,7 @@ function closeAllModals() {
     const isSortOpen = openedModals.includes(sortMaterialModal);
 
     if ((isInfoOpen || isSortOpen) && isModalEdited) {
-        if (!confirm("変更内容は保存されません！キャンセルしてもよろしいですか？")) return;
+        if (!confirm("変更内容は保存されません。キャンセルしてもよろしいですか？")) return;
 
         if (isSortOpen && sortBackupMaterials.length > 0) {
             materials.splice(0, materials.length, ...sortBackupMaterials);
@@ -1442,7 +1442,7 @@ document.addEventListener("keydown", (e) => {
 // -- 起動時の処理 --
 window.addEventListener('DOMContentLoaded', () => {
     if (sessionStorage.getItem('show_update_success') === 'true') {
-        alert("アプリの更新が完了しました！");
+        alert("アプリは更新されました。");
         sessionStorage.removeItem('show_update_success');  // 二度出ないように消す
     }
     
@@ -1521,7 +1521,7 @@ if ('serviceWorker' in navigator) {
 }
 // -- バージョン情報表示 --
 window.showVersion = function() {
-    alert(`${APP_NAME}\n\nバージョン：${window.APP_VERSION}\n最終更新日：${LAST_UPDATED}`);
+    alert(`Name: ${APP_NAME}\n\nVersion: ${window.APP_VERSION}\nLast update: ${LAST_UPDATED}`);
 };
 // -- ネットワーク・認証状態変化で同期ボタン更新 --
 window.addEventListener('online', updateSyncButtons);

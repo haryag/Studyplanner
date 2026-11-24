@@ -48,11 +48,11 @@ loginBtn.addEventListener("click", async () => {
         // currentUser = result.user は onAuthStateChanged側で自動的に反映される
         await signInWithPopup(auth, provider);
         
-        alert(`ようこそ！ログインに成功しました。`);
+        alert(`ログインされました。`);
         window.location.reload();
     } catch (e) {
         console.error("Login error:", e);
-        alert("ログインに失敗しました。");
+        alert("ログインできませんでした。");
     } finally {
         loginBtn.disabled = false;
     }
