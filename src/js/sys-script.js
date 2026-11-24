@@ -967,7 +967,6 @@ function confirmPlanModal() {
         dailyPlans[viewingDateKey].push({ materialId,
             range,
             time,
-            duration: "oneday",
             duration,
             checked: false,
             completed: false
@@ -1123,7 +1122,7 @@ function renderTodayPlans() {
             renderTodayPlans();
         });
         const stopBtn = createIconButton("stop", '<i class="fa-solid fa-stop"></i>', () => {
-            if (confirm("このルーティーンを完了しますか？")) {
+            if (confirm("このルーティーンを停止しますか？一度停止すると完了したと見なされ，戻せません。")) {
                 plan.completed = true; // または plan.completed = !plan.completed;
                 saveAll();
                 renderTodayPlans();
@@ -1143,6 +1142,8 @@ function renderTodayPlans() {
 
         if (plan.duration === "everyday" && !plan.completed) {
             btnContainer.append(checkBtn, stopBtn, editBtn, delBtn);
+        } else if (!plan.completed) {
+            btnContainer.append(checkBtn, editBtn, delBtn);
         } else {
             btnContainer.append(editBtn, delBtn);
         }
