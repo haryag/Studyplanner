@@ -77,11 +77,11 @@
 
             <!-- ユーティリティボタン -->
             <div class="util-btn-wrapper">
-                <button id="add-material-btn" class="util-btn">
-                    <i class="fa-solid fa-plus"></i> 教材を追加
-                </button>
                 <button id="open-category-manage-btn" class="util-btn">
                     <i class="fa-solid fa-tags"></i> カテゴリーを追加・編集
+                </button>
+                <button id="add-material-btn" class="util-btn">
+                    <i class="fa-solid fa-plus"></i> 教材を追加
                 </button>
                 <button id="sort-material-btn" class="util-btn">
                     <i class="fa-solid fa-up-down"></i> 教材の並び替え
@@ -245,7 +245,10 @@
                 </label>
                 <label>
                     開始時間：
-                    <input type="time" id="plan-time-input" step="300">
+                    <input type="time" id="plan-time-input">
+                </label>
+                <label>
+                    <input type="checkbox" id="duration-binary"> ルーティーンにする。
                 </label>
                 <div class="modal-btns">
                     <button type="button" id="backto-plan-btn" class="cancel">戻る</button>

@@ -479,6 +479,7 @@ const openPlanMainBtn = document.getElementById("open-plan-main-btn");
 const planContentInput = document.getElementById("plan-range-input");
 const planRangeDatalist = document.getElementById("plan-range-datalist");
 const planTimeInput = document.getElementById("plan-time-input");
+const planDurationCheckbox = document.getElementById("duration-binary");
 const cancelPlanBtn = document.getElementById("cancel-plan-btn");
 const confirmPlanBtn = document.getElementById("confirm-plan-btn");
 const backToPlanBtn = document.getElementById("backto-plan-btn");
@@ -697,6 +698,7 @@ function showPlanInputPage(materialId) {
     if (editingPlanIndex === null) {
         planContentInput.value = "";
         planTimeInput.value = "";
+        planDurationCheckbox.checked = false;
     }
 
     populateRangeDatalist(materialId);
@@ -800,6 +802,7 @@ function openPlanModal(materialId = null, planIndex = null) {
         showPlanInputPage(plan.materialId);
         planContentInput.value = plan.range;
         planTimeInput.value = plan.time || "";
+        planDurationCheckbox.checked = (plan.duration === "everyday");
     } else if (materialId !== null) {
         // 教材一覧の「＋」から：直接入力ページへ
         editingPlanIndex = null;
@@ -945,11 +948,11 @@ function confirmPlanModal() {
     if (!materialId) return;
 
     if (editingPlanIndex !== null) {
-        dailyPlans[viewingDateKey][editingPlanIndex] = { ...dailyPlans[viewingDateKey][editingPlanIndex], materialId, range, time };
+        dailyPlans[viewingDateKey][editingPlanIndex] = { ...dailyPlans[viewingDateKey][editingPlanIndex], materialId, range, time, duration };
         editingPlanIndex = null;
     } else {
         if (!dailyPlans[viewingDateKey]) dailyPlans[viewingDateKey] = [];
-        dailyPlans[viewingDateKey].push({ materialId, range, time, duration: "oneday", checked: false });
+        dailyPlans[viewingDateKey].push({ materialId, range, time, duration: "oneday", duration, checked: false });
     }
     toggleModal(addPlanModal, false);
     saveAndRender();
