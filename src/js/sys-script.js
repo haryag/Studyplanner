@@ -944,6 +944,7 @@ function confirmPlanModal() {
     const materialId = editingMaterialId; // 保持したIDを使う
     const range = planContentInput.value.trim();
     const time = planTimeInput.value;
+    const duration = planDurationCheckbox.checked ? "everyday" : "oneday";
 
     if (!materialId) return;
 
