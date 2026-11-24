@@ -2,7 +2,7 @@ import { initFirebase, currentUser } from './sys-auth.js';
 
 // ----- 1. 初期設定 -----
 const APP_NAME = 'Studyplanner';
-const LAST_UPDATED = '2026/4/29';
+const LAST_UPDATED = '2026/11/24';
 const BASE_PATH = '/Studyplanner/';
 
 // ----- 2. 日付管理 -----
@@ -1538,7 +1538,7 @@ if ('serviceWorker' in navigator) {
 }
 // -- バージョン情報表示 --
 window.showVersion = function() {
-    alert(`Name: ${APP_NAME}\n\nVersion: ${window.APP_VERSION}\nLast update: ${LAST_UPDATED}`);
+    alert(`${APP_NAME}\n\nVersion: ${window.APP_VERSION}\nLast update: ${LAST_UPDATED}`);
 };
 // -- ネットワーク・認証状態変化で同期ボタン更新 --
 window.addEventListener('online', updateSyncButtons);
