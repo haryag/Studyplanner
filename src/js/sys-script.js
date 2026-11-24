@@ -5,7 +5,7 @@ const APP_NAME = 'Studyplanner';
 const LAST_UPDATED = '2026/4/29';
 const BASE_PATH = '/Studyplanner/';
 
-// ----- 2. ユーティリティ -----
+// ----- 2. 日付管理 -----
 function getLocalDate() {
     const date = new Date();
     const year = date.getFullYear();
@@ -47,7 +47,7 @@ let viewingDateKey = getLocalDate();
 let db = null;
 let isUpdateProcessed = (sessionStorage.getItem('sw_update_processed') === 'true');   // Service Worker更新済みフラグ
 
-// ----- 4. ドメインロジック（UI非依存） -----
+// ----- 4. 細かい関数の用意（UI関連は[8]へ） -----
 // -- 教材のmapを再構築 --
 function rebuildMaterialMap() {
     materialMap.clear();
@@ -113,7 +113,7 @@ function getRecentRanges(materialId, limit = 5) {
 }
 
 
-// ----- 5. 永続化（IndexedDB） -----
+// ----- 5. ローカルでの保存 -----
 // -- IndexedDBの初期化 --
 const dbPromise = new Promise((resolve, reject) => {
     const request = indexedDB.open("Studyplanner", 1);
@@ -240,14 +240,14 @@ async function checkDataOwner() {
     return true;
 }
 
-// ----- 6. Firebase / Firestore 初期化 -----
+// ----- 6. インターネット上に保存 -----
 // -- ボタンの有効・無効管理 --
 function updateSyncButtons() {
     const isOnline = navigator.onLine;
     const isLoggedIn = (currentUser !== null);
     const isLoaded = (db !== null);
 
-    // 同期ボタンの有効・無効（前回までのお揃い部分）
+    // 同期ボタンの有効・無効
     const isDisabled = !(isOnline && isLoggedIn && isLoaded);
     if (uploadBtn) uploadBtn.disabled = isDisabled;
     if (downloadBtn) downloadBtn.disabled = isDisabled;
@@ -256,11 +256,11 @@ function updateSyncButtons() {
         if (isLoggedIn) {
             loginBtn.style.display = "none";
             logoutBtn.style.display = "block";
-            if (statusPanel) statusPanel.textContent = `ログイン中： ${currentUser.displayName} さん`;
+            if (statusPanel) statusPanel.textContent = `ログインされています。： ${currentUser.displayName} さん`;
         } else {
             loginBtn.style.display = "block";
             logoutBtn.style.display = "none";
-            if (statusPanel) statusPanel.textContent = isLoaded ? "未ログイン" : "接続準備中...";
+            if (statusPanel) statusPanel.textContent = isLoaded ? "ログアウトされています。" : "接続中";
         }
     }
 
@@ -498,7 +498,7 @@ const navMaterialBtn = document.getElementById("nav-material-btn");
 const navOptionBtn = document.getElementById("nav-option-btn");
 
 
-// ----- 8. UI制御（表示・操作） -----
+// ----- 8. UI制御（表示・操作など） -----
 // ----- 8-1. UI操作関数群 -----
 // -- タブの切り替え --
 function showSection(target) {
@@ -1330,7 +1330,7 @@ function renderCategoryManageModal() {
     });
 }
 
-// ----- 9. UIイベントハンドラ -----
+// ----- 9. イベントの付与 -----
 // -- セクション切り替え --
 navPlanBtn.addEventListener("click", () => showSection('plan'));
 navMaterialBtn.addEventListener("click", () => showSection('material'));
@@ -1438,7 +1438,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 
-// ----- 10. 起動・初期化 -----
+// ----- 10. 起動時 -----
 // -- 起動時の処理 --
 window.addEventListener('DOMContentLoaded', () => {
     if (sessionStorage.getItem('show_update_success') === 'true') {

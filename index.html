@@ -78,10 +78,13 @@
             <!-- ユーティリティボタン -->
             <div class="util-btn-wrapper">
                 <button id="add-material-btn" class="util-btn">
-                    <i class="fa-solid fa-plus"></i> 教材追加
+                    <i class="fa-solid fa-plus"></i> 教材を追加
+                </button>
+                <button id="open-category-manage-btn" class="util-btn">
+                    <i class="fa-solid fa-tags"></i> カテゴリーを追加・編集
                 </button>
                 <button id="sort-material-btn" class="util-btn">
-                    <i class="fa-solid fa-up-down"></i> 教材並び替え
+                    <i class="fa-solid fa-up-down"></i> 教材の並び替え
                 </button>
             </div>
         </div>
@@ -110,24 +113,17 @@
         <div id="option-container" class="display-container scrollable hidden">
             <!-- タイトル -->
             <div class="header">
-                <h1>オプション・その他の操作</h1>
+                <h1>その他の機能</h1>
             </div>
 
             <!-- ユーティリティボタン -->
-            <h3>カテゴリーの管理</h3>
-            <div class="util-btn-wrapper">
-                <button id="open-category-manage-btn" class="util-btn">
-                    <i class="fa-solid fa-tags"></i> カテゴリーの追加・編集
-                </button>
-            </div>
-
             <h3>オフラインで保存</h3>
             <div class="util-btn-wrapper">
                 <button id="import-json-btn" class="util-btn">
-                    <i class="fa-solid fa-file-import"></i> JSON形式でインポート
+                    <i class="fa-solid fa-file-import"></i> JSON形式でImport
                 </button>
                 <button id="export-json-btn" class="util-btn">
-                    <i class="fa-solid fa-file-export"></i> JSON形式でエクスポート
+                    <i class="fa-solid fa-file-export"></i> JSON形式でExport
                 </button>
             </div>
 
@@ -135,46 +131,46 @@
             <div class="util-btn-wrapper">
                 <p id="auth-status-panel"></p>
                 <button id="upload-btn" class="util-btn" disabled>
-                    <i class="fa-solid fa-cloud-arrow-up"></i> アップロード
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload
                 </button>
                 <button id="download-btn" class="util-btn">
-                    <i class="fa-solid fa-cloud-arrow-down"></i> ダウンロード
+                    <i class="fa-solid fa-cloud-arrow-down"></i> Download
                 </button>
                 <input type="file" id="import-file-input" accept=".json" style="display: none;">
                 <button id="login-btn" class="util-btn">
-                    <i class="fa-solid fa-arrow-right-to-bracket"></i> ログイン
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Log in
                 </button>
                 <button id="logout-btn" class="util-btn">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i> ログアウト
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Log out
                 </button>
             </div>
 
             <!-- このアプリについて -->
+            <h3>おまけ</h3>
+            <button onclick="location.reload()" class="util-btn" id="reload-btn">
+                <i class="fa-solid fa-arrow-rotate-right"></i> Reload
+            </button>
             <div>
                 <div class="about-info-wrapper">
                     <button class="about-btn" onclick="showVersion()">
                         <i class="fa-solid fa-circle-question"></i>
-                        <span class="underlined">このアプリについて</span>
+                        <span class="underlined">About this App</span>
                     </button>
                 </div>
             </div>
-
-            <button onclick="location.reload()" class="util-btn" id="reload-btn">
-                <i class="fa-solid fa-arrow-rotate-right"></i> 再読み込み
-            </button>
         </div>
     </main>
 
     <!----- フッター ----->
     <footer id="button-container" class="button-group">
         <button id="nav-material-btn" class="footer-btn">
-            <i class="fa-solid fa-book-open"></i> 教材一覧
+            <i class="fa-solid fa-book-open"></i> 教材を整理
         </button>
         <button id="nav-plan-btn" class="footer-btn active">
-            <i class="fa-solid fa-calendar-check"></i> 学習予定
+            <i class="fa-solid fa-calendar-check"></i> 予定の確認
         </button>
         <button id="nav-option-btn" class="footer-btn">
-            <i class="fa-solid fa-gear"></i> オプション
+            <i class="fa-solid fa-gear"></i> その他の機能
         </button>
     </footer>
 
