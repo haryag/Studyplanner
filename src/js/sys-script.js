@@ -172,7 +172,8 @@ async function saveAll() {
                 range: p.range,
                 time: p.time || "",
                 duration: (p.duration === "oneday" || p.duration === "everyday") ? p.duration : "oneday",
-                checked: !!p.checked
+                checked: !!p.checked,
+                completed: !!p.completed
             }));
         }
     });
@@ -208,6 +209,10 @@ async function loadAll() {
                 plans.forEach(p => {
                     if (p && p.duration !== "oneday" && p.duration !== "everyday") {
                         p.duration = "oneday";
+                        needsSave = true;
+                    }
+                    if (typeof p.completed !== "boolean") {
+                        p.completed = !!p.completed;
                         needsSave = true;
                     }
                 });
@@ -407,7 +412,7 @@ async function importDataAsJson(file) {
 
             // 簡易的なデータ検証
             if (!data.materials || !data.dailyPlans) return alert("エラー：正しいバックアップファイルではありません。");
-            if (!confirm(`データ（${data.exportedAt || '日付不明'} 作成）を読み込みますか？\n※現在のデータは上書きされます。`)) return;
+            if (!confirm(`データ（${data.exportedAt || '日付不明'} 作成）を読み込みますか？現在のデータは上書きされます。`)) return;
 
             // materials
             materials.splice(0, materials.length, ...data.materials);
@@ -949,11 +954,24 @@ function confirmPlanModal() {
     if (!materialId) return;
 
     if (editingPlanIndex !== null) {
-        dailyPlans[viewingDateKey][editingPlanIndex] = { ...dailyPlans[viewingDateKey][editingPlanIndex], materialId, range, time, duration };
+        dailyPlans[viewingDateKey][editingPlanIndex] = {
+            ...dailyPlans[viewingDateKey][editingPlanIndex],
+            materialId,
+            range,
+            time,
+            duration
+        };
         editingPlanIndex = null;
     } else {
         if (!dailyPlans[viewingDateKey]) dailyPlans[viewingDateKey] = [];
-        dailyPlans[viewingDateKey].push({ materialId, range, time, duration: "oneday", duration, checked: false });
+        dailyPlans[viewingDateKey].push({ materialId,
+            range,
+            time,
+            duration: "oneday",
+            duration,
+            checked: false,
+            completed: false
+        });
     }
     toggleModal(addPlanModal, false);
     saveAndRender();
@@ -1055,8 +1073,11 @@ function renderTodayPlans() {
     }
 
     const sortedPlans = [...todayPlans].sort((a, b) => {
-        if (a.checked && !b.checked) return 1;
-        if (!a.checked && b.checked) return -1;
+        const rankA = a.completed ? 2 : (a.checked ? 1 : 0);
+        const rankB = b.completed ? 2 : (b.checked ? 1 : 0);
+        if (rankA !== rankB) return rankA - rankB;
+
+        if (!a.time && !b.time) return 0;
         if (!a.time) return 1;
         if (!b.time) return -1;
         return a.time.localeCompare(b.time);
@@ -1067,7 +1088,7 @@ function renderTodayPlans() {
         if (!material) return;
 
         const itemDiv = document.createElement("div");
-        itemDiv.className = `plan-item ${material.subject} ${plan.checked ? 'checked' : ''}`;
+        itemDiv.className = `plan-item ${material.subject} ${(plan.checked || plan.completed) ? 'checked' : ''}`;
 
         const iconDiv = document.createElement("div");
         iconDiv.className = "plan-icon";
@@ -1101,6 +1122,13 @@ function renderTodayPlans() {
             saveAll();
             renderTodayPlans();
         });
+        const stopBtn = createIconButton("stop", '<i class="fa-solid fa-stop"></i>', () => {
+            if (confirm("このルーティーンを完了しますか？")) {
+                plan.completed = true; // または plan.completed = !plan.completed;
+                saveAll();
+                renderTodayPlans();
+            }
+        });
         const editBtn = createIconButton("edit", '<i class="fa-solid fa-pen"></i>', () => {
             openPlanModal(plan.materialId, todayPlans.indexOf(plan));
         });
@@ -1112,7 +1140,12 @@ function renderTodayPlans() {
                 renderTodayPlans();
             }
         });
-        btnContainer.append(checkBtn, editBtn, delBtn);
+
+        if (plan.duration === "everyday" && !plan.completed) {
+            btnContainer.append(checkBtn, stopBtn, editBtn, delBtn);
+        } else {
+            btnContainer.append(editBtn, delBtn);
+        }
 
         // 親要素（itemDiv）への追加
         itemDiv.append(iconDiv, infoContainer, btnContainer);
