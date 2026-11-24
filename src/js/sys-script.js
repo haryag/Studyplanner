@@ -1145,7 +1145,7 @@ function renderTodayPlans() {
         } else if (!plan.completed) {
             btnContainer.append(checkBtn, editBtn, delBtn);
         } else {
-            btnContainer.append(editBtn, delBtn);
+            btnContainer.append(delBtn);
         }
 
         // 親要素（itemDiv）への追加
