@@ -92,7 +92,7 @@ self.addEventListener('fetch', event => {
             return networkResponse;
         }
     
-        // 5. ネットワーク失敗時、ナビゲーションなら index.html に fallback（代替手段）
+        // 5. ネットワーク失敗時，ナビゲーションなら index.html に fallback（代替手段）
         if (event.request.mode === 'navigate') {
             return cache.match(`${BASE_PATH}index.html`);
         }

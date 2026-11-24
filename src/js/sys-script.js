@@ -171,6 +171,7 @@ async function saveAll() {
                 materialId: Number(p.materialId),
                 range: p.range,
                 time: p.time || "",
+                duration: (p.duration === "oneday" || p.duration === "everyday") ? p.duration : "oneday",
                 checked: !!p.checked
             }));
         }
@@ -201,9 +202,24 @@ async function loadAll() {
         
         // 予定データの読み込み
         if (savedPlans && typeof savedPlans === 'object') {
+            let needsSave = false;
+            Object.values(savedPlans).forEach(plans => {
+                if (!Array.isArray(plans)) return;
+                plans.forEach(p => {
+                    if (p && p.duration !== "oneday" && p.duration !== "everyday") {
+                        p.duration = "oneday";
+                        needsSave = true;
+                    }
+                });
+            });
+
             // dailyPlansを一度空にしてから反映
             for (const key in dailyPlans) delete dailyPlans[key];
             Object.assign(dailyPlans, savedPlans);
+
+            if (needsSave) {
+                await saveLocalData("dailyPlans", dailyPlans);
+            }
         } else {
             // データが空ならリセット
             for (const key in dailyPlans) delete dailyPlans[key];
@@ -224,7 +240,7 @@ async function loadAll() {
 }
 // -- 保存・再描画 --
 async function saveAndRender() {
-    // UIはすぐに反映され描画されるが、保存は非同期で裏で行われる
+    // UIはすぐに反映され描画されるが，保存は非同期で裏で行われる
     await saveAll();
     renderMaterialList();
     renderTodayPlans();
@@ -233,7 +249,7 @@ async function saveAndRender() {
 async function checkDataOwner() {
     const savedUid = await loadLocalData("ownerUid");
     
-    // ログイン済みで、データの所有者が「ゲスト」でなく「自分」でもない場合
+    // ログイン済みで，データの所有者が「ゲスト」でなく「自分」でもない場合
     if (currentUser && savedUid && savedUid !== "guest" && savedUid !== currentUser.uid) {
         return false;
     }
@@ -278,13 +294,14 @@ async function upload() {
     const isSafe = await checkDataOwner();
     const msg = isSafe 
         ? "データをクラウドへアップロードします。よろしいですか？"
-        : "⚠ アカウントが異なる可能性があります。このままアップロード（上書き）しますか？";
+        : "アカウントが異なるため，データが上書きされる可能性があります。このままアップロードしますか？";
 
     if (!confirm(msg)) return;
 
     uploadBtn.disabled = true;
 
     try {
+        await saveAll();
         const { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js');
         
         await setDoc(doc(db, "backups", currentUser.uid), {
@@ -339,7 +356,7 @@ async function download() {
             Object.assign(categories, data.categories);
         }
         
-        saveAndRender();
+        await saveAndRender();
         await saveLocalData("ownerUid", currentUser.uid);
 
         alert("ダウンロードが完了しました。");
@@ -577,14 +594,14 @@ function updateCategoryOptions() {
     // 表示するカテゴリーを決定
     let displayCats = [];
     if (toolbarSubject === 'all') {
-        // 教科が「すべて」の場合は、全教科のカテゴリーを重複なしで集計
+        // 教科が「すべて」の場合は，全教科のカテゴリーを重複なしで集計
         const allCats = new Set();
         Object.values(categories).forEach(catList => {
             catList.forEach(c => allCats.add(c));
         });
         displayCats = Array.from(allCats).sort();
     } else {
-        // 特定の教科が選ばれている場合は、その教科のカテゴリーのみを表示
+        // 特定の教科が選ばれている場合は，その教科のカテゴリーのみを表示
         displayCats = [...(categories[toolbarSubject] || [])].sort();
     }
     
@@ -595,7 +612,7 @@ function updateCategoryOptions() {
         filterCategorySelect.appendChild(opt);
     });
     
-    // 以前の選択値が新しいリストにもあれば復元、なければ「all」に戻す
+    // 以前の選択値が新しいリストにもあれば復元，なければ「all」に戻す
     const exists = Array.from(filterCategorySelect.options).some(o => o.value === currentFilter);
     filterCategorySelect.value = exists ? currentFilter : "all";
 }
@@ -654,7 +671,7 @@ function toggleModal(modal, show = true) {
     modal.classList.toggle("hidden", !show);
     document.body.style.overflow = show ? "hidden" : "";
 
-    // モーダルを開くとき、中身のスクロールを一番上に戻す
+    // モーダルを開くとき，中身のスクロールを一番上に戻す
     if (show) {
         const container = modal.querySelector(".modal-container");
         if (container) {
@@ -932,7 +949,7 @@ function confirmPlanModal() {
         editingPlanIndex = null;
     } else {
         if (!dailyPlans[viewingDateKey]) dailyPlans[viewingDateKey] = [];
-        dailyPlans[viewingDateKey].push({ materialId, range, time, checked: false });
+        dailyPlans[viewingDateKey].push({ materialId, range, time, duration: "oneday", checked: false });
     }
     toggleModal(addPlanModal, false);
     saveAndRender();
@@ -1182,7 +1199,7 @@ function renderMaterialList() {
         const infoBtn = createIconButton("info", '<i class="fa-solid fa-info"></i>', () => openInfoModal(material.id));
         // const historyBtn = createIconButton("history", '<i class="fa-solid fa-clock-rotate-left"></i>', () => openHistoryModal(material.id));
         const delBtn = createIconButton("delete", '<i class="fa-solid fa-trash-can"></i>', () => {
-            if (confirm(`教材「${material.name}」を削除しますか？教材を削除すると、この教材に関連する全ての予定も削除されます。`)) {
+            if (confirm(`教材「${material.name}」を削除しますか？教材を削除すると，この教材に関連する全ての予定も削除されます。`)) {
                 const idx = materials.findIndex(item => item.id === material.id);
                 if (idx !== -1) materials.splice(idx, 1);
                 Object.keys(dailyPlans).forEach(date => {
